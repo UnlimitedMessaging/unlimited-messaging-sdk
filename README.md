@@ -146,4 +146,8 @@ API_TOKEN=your_token npx tsx examples/typescript/send-message.ts
 ## Links
 
 - Website: [unlimitedmessaging.app](https://unlimitedmessaging.app)
+- Docs: [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
+- APP : [app.unlimitedmessaging.app](https://app.unlimitedmessaging.app)
 - API: [api.unlimitedmessaging.app](https://api.unlimitedmessaging.app)
+- npm: [@unlimited-messaging/sdk](https://www.npmjs.com/package/@unlimited-messaging/sdk)
+- PyPI: [unlimited-messaging](https://pypi.org/project/unlimited-messaging/)
