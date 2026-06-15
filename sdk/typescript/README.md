@@ -5,7 +5,10 @@ Official TypeScript / Node.js client for the [Unlimited Messaging](https://unlim
 [![npm version](https://img.shields.io/npm/v/@unlimited-messaging/sdk?style=flat-square&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
 [![npm downloads](https://img.shields.io/npm/dm/@unlimited-messaging/sdk?style=flat-square&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
 [![npm total downloads](https://img.shields.io/npm/dt/@unlimited-messaging/sdk?style=flat-square&label=total%20downloads&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
+[![Bundle size](https://img.shields.io/bundlephobia/minzip/@unlimited-messaging/sdk?style=flat-square&label=gzipped)](https://bundlephobia.com/package/@unlimited-messaging/sdk)
+[![CI](https://img.shields.io/github/actions/workflow/status/unlimitedmessaging/unlimited-messaging-sdk/release.yml?style=flat-square&label=CI)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/actions/workflows/release.yml)
 [![License](https://img.shields.io/npm/l/@unlimited-messaging/sdk?style=flat-square)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/LICENSE)
+[![Socket](https://socket.dev/api/badge/npm/package/@unlimited-messaging/sdk)](https://socket.dev/npm/package/@unlimited-messaging/sdk)
 
 - **Website:** [unlimitedmessaging.app](https://unlimitedmessaging.app)
 - **Docs:** [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)

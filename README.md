@@ -6,6 +6,10 @@ Official TypeScript and Python clients for the [Unlimited Messaging](https://unl
 [![npm downloads](https://img.shields.io/npm/dm/@unlimited-messaging/sdk?style=flat-square&label=npm%20downloads&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
 [![PyPI version](https://img.shields.io/pypi/v/unlimited-messaging?style=flat-square&label=pypi&color=3775a9)](https://pypi.org/project/unlimited-messaging/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/unlimited-messaging?style=flat-square&label=pypi%20downloads&color=3775a9)](https://pypi.org/project/unlimited-messaging/)
+[![Bundle size](https://img.shields.io/bundlephobia/minzip/@unlimited-messaging/sdk?style=flat-square&label=gzipped)](https://bundlephobia.com/package/@unlimited-messaging/sdk)
+[![CI](https://img.shields.io/github/actions/workflow/status/unlimitedmessaging/unlimited-messaging-sdk/release.yml?style=flat-square&label=CI)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/actions/workflows/release.yml)
+[![License](https://img.shields.io/github/license/unlimitedmessaging/unlimited-messaging-sdk?style=flat-square)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/LICENSE)
+[![Socket](https://socket.dev/api/badge/npm/package/@unlimited-messaging/sdk)](https://socket.dev/npm/package/@unlimited-messaging/sdk)
 
 ## Installation
 
@@ -127,7 +131,7 @@ from unlimited_messaging import AsyncUnlimitedMessagingApi
 client = AsyncUnlimitedMessagingApi(token="...")
 
 async def main():
-    message = await client.message.message_controller_send(
+    message = await client.message.send(
         recipient="+33612345678",
         text="Hello async!",
     )

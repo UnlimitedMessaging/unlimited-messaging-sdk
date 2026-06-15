@@ -7,6 +7,7 @@ Official Python client for the [Unlimited Messaging](https://unlimitedmessaging.
 [![PyPI total downloads](https://img.shields.io/pepy/dt/unlimited-messaging?style=flat-square&label=total%20downloads&color=3775a9)](https://pepy.tech/project/unlimited-messaging)
 [![Python versions](https://img.shields.io/pypi/pyversions/unlimited-messaging?style=flat-square&color=3775a9)](https://pypi.org/project/unlimited-messaging/)
 [![License](https://img.shields.io/pypi/l/unlimited-messaging?style=flat-square)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/unlimitedmessaging/unlimited-messaging-sdk/release.yml?style=flat-square&label=CI)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/actions/workflows/release.yml)
 
 - **Website:** [unlimitedmessaging.app](https://unlimitedmessaging.app)
 - **Docs:** [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
