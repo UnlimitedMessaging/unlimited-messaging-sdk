@@ -17,6 +17,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Capture OpenAPI diff
+        run: |
+          DIFF=$(git diff HEAD~1 -- openapi.yaml 2>/dev/null || echo "")
+          {
+            echo "OPENAPI_DIFF<<EOFMARKER"
+            echo "$DIFF"
+            echo "EOFMARKER"
+          } >> $GITHUB_ENV
 
       - name: Install Fern
         run: npm install -g fern-api
@@ -74,3 +85,62 @@ jobs:
           cd sdk/python
           python -m build
           twine upload dist/* --username __token__ --password $PYPI_TOKEN
+
+      - name: Generate release notes from OpenAPI diff
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          VERSION=$(node -e "console.log(require('./sdk/typescript/package.json').version)")
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          NOTES=""
+
+          if [ -n "$OPENAPI_DIFF" ] && [ -n "$GEMINI_API_KEY" ]; then
+            NOTES=$(curl -sf \
+              "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$GEMINI_API_KEY" \
+              -H "Content-Type: application/json" \
+              --data "$(jq -n --arg diff "$OPENAPI_DIFF" '{
+                contents: [{
+                  parts: [{
+                    text: ("You write release notes for a WhatsApp messaging SDK. Analyze this OpenAPI spec diff and write ONLY what actually changed: new endpoints, removed endpoints, changed parameters, new or removed response fields, renamed methods. If nothing changed in a category, do not mention it. Output only markdown bullet points, no intro sentence, no \"nothing changed\" statements.\n\nDiff:\n" + $diff)
+                  }]
+                }],
+                generationConfig: {}
+              }')" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null) || NOTES=""
+          fi
+
+          if [ -z "$NOTES" ]; then
+            NOTES="SDK update."
+          fi
+
+          {
+            echo "RELEASE_NOTES<<EOFMARKER"
+            echo "$NOTES"
+            echo "EOFMARKER"
+          } >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v$RELEASE_VERSION" \
+            --title "v$RELEASE_VERSION" \
+            --notes "$RELEASE_NOTES" \
+            --latest
+
+      - name: Update CHANGELOG.md
+        run: |
+          node -e "
+            const fs = require('fs');
+            const content = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const version = process.env.RELEASE_VERSION;
+            const notes = process.env.RELEASE_NOTES;
+            const date = new Date().toISOString().split('T')[0];
+            const newEntry = \`\n## [\${version}] - \${date}\n\n\${notes}\n\`;
+            const headerEnd = content.indexOf('\n## ');
+            const insertAt = headerEnd === -1 ? content.length : headerEnd;
+            const updated = content.slice(0, insertAt) + newEntry + content.slice(insertAt);
+            fs.writeFileSync('CHANGELOG.md', updated);
+          "
+          git add CHANGELOG.md
+          git diff --cached --quiet || git commit -m "chore: update CHANGELOG for v$RELEASE_VERSION [skip ci]"
+          git push
