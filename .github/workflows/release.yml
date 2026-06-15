@@ -46,8 +46,6 @@ jobs:
           print('Python version:', v)
           "
 
-      - name: Restore TypeScript package.json
-        run: cp scripts/typescript-package.json sdk/typescript/package.json
 
       - name: Commit generated SDKs
         run: |

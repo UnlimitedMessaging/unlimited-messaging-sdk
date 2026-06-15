@@ -141,8 +141,8 @@ make generate
 make install
 
 # Run examples
-API_TOKEN=your_token python3 examples/python/send_message.py
-API_TOKEN=your_token npx tsx examples/typescript/send-message.ts
+API_TOKEN=your_token python3 examples/python/src/send_message.py
+API_TOKEN=your_token npx tsx examples/typescript/src/send-message.ts
 ```
 
 ## Links

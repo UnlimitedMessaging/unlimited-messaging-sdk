@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "send-message": "tsx send-message.ts",
-    "list-messages": "tsx list-messages.ts",
-    "list-sims": "tsx list-sims.ts"
+    "send-message": "tsx src/send-message.ts",
+    "list-messages": "tsx src/list-messages.ts",
+    "list-sims": "tsx src/list-sims.ts"
   },
   "dependencies": {
     "@unlimited-messaging/sdk": "file:../../sdk/typescript"

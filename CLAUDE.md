@@ -31,11 +31,12 @@ Private API repo (NestJS)
 | `openapi.yaml` | OpenAPI 3.0 spec, auto-synced from the private API |
 | `fern/generators.yml` | Fern config: `sdk` group (local output to sdk/) and `production` group (unused — publishing is done directly) |
 | `fern/fern.config.json` | Fern org + CLI version |
-| `sdk/typescript/` | Generated TypeScript SDK (compiled JS + .d.ts) |
-| `sdk/typescript/package.json` | npm package config (restored from `scripts/typescript-package.json` after each Fern regen) |
-| `sdk/python/unlimited_messaging/` | Generated Python SDK source |
-| `sdk/python/pyproject.toml` | Python package config (pip install -e ./sdk/python) — survives Fern regen |
-| `scripts/typescript-package.json` | Template for sdk/typescript/package.json (Fern deletes the dir on regen) |
+| `sdk/typescript/src/` | Generated TypeScript SDK source (compiled JS + .d.ts) — deleted/recreated by Fern |
+| `sdk/typescript/package.json` | npm package config — survives Fern regen (outside `src/`) |
+| `sdk/typescript/README.md` | npm package README — survives Fern regen (outside `src/`) |
+| `sdk/python/unlimited_messaging/` | Generated Python SDK source — deleted/recreated by Fern |
+| `sdk/python/pyproject.toml` | Python package config — survives Fern regen (outside `unlimited_messaging/`) |
+| `sdk/python/README.md` | PyPI package README — survives Fern regen (outside `unlimited_messaging/`) |
 | `examples/typescript/` | TypeScript usage examples (tsx runner) |
 | `examples/python/` | Python usage examples |
 | `Makefile` | Local dev commands: `make generate`, `make install` |
@@ -62,7 +63,8 @@ Requires Docker (for Fern).
 # 1. Regenerate SDKs from openapi.yaml
 make generate
 # This runs: echo "Yes" | fern generate --group sdk --local
-# Then copies scripts/typescript-package.json → sdk/typescript/package.json
+# Fern only deletes sdk/typescript/src/ and sdk/python/unlimited_messaging/
+# package.json, README.md, pyproject.toml all survive outside those dirs
 
 # 2. Install locally for testing examples
 make install
@@ -70,15 +72,9 @@ make install
 # And: cd examples/typescript && npm install
 
 # 3. Run examples
-API_TOKEN=your_token python3 examples/python/send_message.py
-API_TOKEN=your_token npx tsx examples/typescript/send-message.ts
+API_TOKEN=your_token python3 examples/python/src/send_message.py
+API_TOKEN=your_token npx tsx examples/typescript/src/send-message.ts
 ```
-
-## Why `make generate` is needed after Fern regen
-
-Fern does `rm -rf sdk/typescript/` and `rm -rf sdk/python/unlimited_messaging/` on each run.
-- `sdk/typescript/package.json` is deleted → restored by `make generate` from `scripts/typescript-package.json`
-- `sdk/python/pyproject.toml` survives (it's in `sdk/python/`, not the deleted `sdk/python/unlimited_messaging/`)
 
 ## Fern generator versions
 
@@ -93,9 +89,10 @@ To include major versions: `fern generator upgrade --include-major`
 ## CI workflow
 
 Triggered on push to `main` when `openapi.yaml` changes:
-1. Runs `fern generate --group sdk --local` — regenerates `sdk/` via Docker
-2. Restores `sdk/typescript/package.json` from `scripts/typescript-package.json`
-3. Commits `sdk/` with `[skip ci]` to avoid loops
+
+1. Bumps patch version in `sdk/typescript/package.json` and `sdk/python/pyproject.toml`
+2. Runs `fern generate --group sdk --local` — regenerates `sdk/typescript/src/` and `sdk/python/unlimited_messaging/`
+3. Commits `sdk/` + version files with `[skip ci]` to avoid loops
 4. Publishes TypeScript: `npm publish --access public` from `sdk/typescript/`
 5. Publishes Python: `python -m build && twine upload` from `sdk/python/`
 
@@ -117,8 +114,7 @@ Each package has its own README displayed on npm and PyPI:
 
 ## SDK versioning
 
-Versions are set manually:
-- TypeScript: `scripts/typescript-package.json` → `version`
-- Python: `sdk/python/pyproject.toml` → `[project] version`
+The CI auto-bumps the patch version on every release. For minor or major bumps, edit manually before merging:
 
-Bump both before merging a PR that should trigger a new package release.
+- TypeScript: `sdk/typescript/package.json` → `version`
+- Python: `sdk/python/pyproject.toml` → `[project] version`

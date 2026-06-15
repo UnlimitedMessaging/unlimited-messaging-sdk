@@ -9,7 +9,7 @@ groups:
         version: 0.51.7
         output:
           location: local-file-system
-          path: ../sdk/typescript
+          path: ../sdk/typescript/src
         config:
           includeCredentialsOnCrossOriginRequests: true
       - name: fernapi/fern-python-sdk
