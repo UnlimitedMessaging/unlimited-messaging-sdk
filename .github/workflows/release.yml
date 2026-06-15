@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - openapi.yaml
+  workflow_dispatch:
 
 jobs:
   release:
@@ -26,10 +27,10 @@ jobs:
         run: |
           node -e "
             const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('scripts/typescript-package.json', 'utf8'));
+            const pkg = JSON.parse(fs.readFileSync('sdk/typescript/package.json', 'utf8'));
             const [major, minor, patch] = pkg.version.split('.').map(Number);
             pkg.version = \`\${major}.\${minor}.\${patch + 1}\`;
-            fs.writeFileSync('scripts/typescript-package.json', JSON.stringify(pkg, null, 2) + '\n');
+            fs.writeFileSync('sdk/typescript/package.json', JSON.stringify(pkg, null, 2) + '\n');
             console.log('TypeScript version:', pkg.version);
           "
           python3 -c "
@@ -46,12 +47,11 @@ jobs:
           print('Python version:', v)
           "
 
-
       - name: Commit generated SDKs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add sdk/ scripts/typescript-package.json sdk/python/pyproject.toml
+          git add sdk/ sdk/python/pyproject.toml
           git diff --cached --quiet || git commit -m "chore: regenerate SDKs [skip ci]"
           git push
 
