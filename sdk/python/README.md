@@ -1,11 +1,18 @@
 # unlimited-messaging
 
-Official Python client for the [Unlimited Messaging](https://app.unlimitedmessaging.app) API — send and receive WhatsApp messages programmatically.
+Official Python client for the [Unlimited Messaging](https://unlimitedmessaging.app) API — send and receive WhatsApp messages programmatically.
+
+[![PyPI version](https://img.shields.io/pypi/v/unlimited-messaging?style=flat-square&color=3775a9)](https://pypi.org/project/unlimited-messaging/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/unlimited-messaging?style=flat-square&color=3775a9)](https://pypi.org/project/unlimited-messaging/)
+[![PyPI total downloads](https://img.shields.io/pepy/dt/unlimited-messaging?style=flat-square&label=total%20downloads&color=3775a9)](https://pepy.tech/project/unlimited-messaging)
+[![Python versions](https://img.shields.io/pypi/pyversions/unlimited-messaging?style=flat-square&color=3775a9)](https://pypi.org/project/unlimited-messaging/)
+[![License](https://img.shields.io/pypi/l/unlimited-messaging?style=flat-square)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/LICENSE)
 
 - **Website:** [unlimitedmessaging.app](https://unlimitedmessaging.app)
 - **Docs:** [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
 - **API reference:** [api.unlimitedmessaging.app](https://api.unlimitedmessaging.app)
 - **GitHub:** [unlimitedmessaging/unlimited-messaging-sdk](https://github.com/unlimitedmessaging/unlimited-messaging-sdk)
+- **PyPI:** [unlimited-messaging](https://pypi.org/project/unlimited-messaging/)
 
 ## Installation
 
@@ -96,11 +103,11 @@ asyncio.run(main())
 
 ## API reference
 
-| Method | Description |
-| --- | --- |
-| `message.message_controller_send` | Send a WhatsApp message |
+| Method                                | Description                               |
+| ------------------------------------- | ----------------------------------------- |
+| `message.message_controller_send`     | Send a WhatsApp message                   |
 | `message.message_controller_find_all` | List messages with pagination and filters |
-| `sim.sim_controller_get_linked_sims` | List linked SIMs |
+| `sim.sim_controller_get_linked_sims`  | List linked SIMs                          |
 
 Official documentation: [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
 Full OpenAPI spec: [openapi.yaml](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/openapi.yaml)

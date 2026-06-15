@@ -2,6 +2,11 @@
 
 Official TypeScript and Python clients for the [Unlimited Messaging](https://unlimitedmessaging.app) API — send and receive WhatsApp messages programmatically.
 
+[![npm version](https://img.shields.io/npm/v/@unlimited-messaging/sdk?style=flat-square&label=npm&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
+[![npm downloads](https://img.shields.io/npm/dm/@unlimited-messaging/sdk?style=flat-square&label=npm%20downloads&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
+[![PyPI version](https://img.shields.io/pypi/v/unlimited-messaging?style=flat-square&label=pypi&color=3775a9)](https://pypi.org/project/unlimited-messaging/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/unlimited-messaging?style=flat-square&label=pypi%20downloads&color=3775a9)](https://pypi.org/project/unlimited-messaging/)
+
 ## Installation
 
 ### TypeScript / Node.js package

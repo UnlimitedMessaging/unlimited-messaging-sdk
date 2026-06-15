@@ -2,10 +2,16 @@
 
 Official TypeScript / Node.js client for the [Unlimited Messaging](https://unlimitedmessaging.app) API — send and receive WhatsApp messages programmatically.
 
+[![npm version](https://img.shields.io/npm/v/@unlimited-messaging/sdk?style=flat-square&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
+[![npm downloads](https://img.shields.io/npm/dm/@unlimited-messaging/sdk?style=flat-square&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
+[![npm total downloads](https://img.shields.io/npm/dt/@unlimited-messaging/sdk?style=flat-square&label=total%20downloads&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
+[![License](https://img.shields.io/npm/l/@unlimited-messaging/sdk?style=flat-square)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/LICENSE)
+
 - **Website:** [unlimitedmessaging.app](https://unlimitedmessaging.app)
 - **Docs:** [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
 - **API reference:** [api.unlimitedmessaging.app](https://api.unlimitedmessaging.app)
 - **GitHub:** [unlimitedmessaging/unlimited-messaging-sdk](https://github.com/unlimitedmessaging/unlimited-messaging-sdk)
+- **npm:** [@unlimited-messaging/sdk](https://www.npmjs.com/package/@unlimited-messaging/sdk)
 
 ## Installation
 
