@@ -22,6 +22,30 @@ jobs:
       - name: Generate SDKs (local files)
         run: fern generate --group sdk --local --log-level debug
 
+      - name: Bump patch version
+        run: |
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('scripts/typescript-package.json', 'utf8'));
+            const [major, minor, patch] = pkg.version.split('.').map(Number);
+            pkg.version = \`\${major}.\${minor}.\${patch + 1}\`;
+            fs.writeFileSync('scripts/typescript-package.json', JSON.stringify(pkg, null, 2) + '\n');
+            console.log('TypeScript version:', pkg.version);
+          "
+          python3 -c "
+          import re
+          with open('sdk/python/pyproject.toml', 'r') as f:
+              content = f.read()
+          def bump(m):
+              return f'version = \"{m.group(1)}.{m.group(2)}.{int(m.group(3))+1}\"'
+          content = re.sub(r'version = \"(\d+)\.(\d+)\.(\d+)\"', bump, content, count=1)
+          with open('sdk/python/pyproject.toml', 'w') as f:
+              f.write(content)
+          import re as r2
+          v = r2.search(r'version = \"(.+?)\"', content).group(1)
+          print('Python version:', v)
+          "
+
       - name: Restore TypeScript package.json
         run: cp scripts/typescript-package.json sdk/typescript/package.json
 
@@ -29,8 +53,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add sdk/
-          git diff --cached --quiet || git commit -m "chore: regenerate SDKs from openapi.yaml [skip ci]"
+          git add sdk/ scripts/typescript-package.json sdk/python/pyproject.toml
+          git diff --cached --quiet || git commit -m "chore: regenerate SDKs [skip ci]"
           git push
 
       - name: Publish to npm
