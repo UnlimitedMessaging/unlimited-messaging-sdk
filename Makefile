@@ -9,7 +9,7 @@ generate:
 install: install-py install-ts
 
 install-py:
-	pip install -e ./sdk
+	pip install -e ./sdk/python
 
 install-ts:
 	cd examples/typescript && npm install

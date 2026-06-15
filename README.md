@@ -22,7 +22,6 @@ pip install unlimited-messaging
 import { UnlimitedMessagingApiClient } from "@unlimited-messaging/sdk";
 
 const client = new UnlimitedMessagingApiClient({
-  environment: "https://api.unlimitedmessaging.app",
   token: process.env.API_TOKEN,
 });
 
@@ -32,15 +31,15 @@ const message = await client.message.messageControllerSend({
   text: "Hello!",
 });
 
-console.log(message.body.id, message.body.status);
+console.log(message.id, message.status);
 
 // List messages
-const { body } = await client.message.messageControllerFindAll({
+const result = await client.message.messageControllerFindAll({
   page: 1,
   limit: 20,
 });
 
-console.log(`${body.total} messages`);
+console.log(`${result.total} messages`);
 
 // List linked SIMs
 const sims = await client.sim.simControllerGetLinkedSims();
@@ -53,7 +52,6 @@ import os
 from unlimited_messaging import UnlimitedMessagingApi
 
 client = UnlimitedMessagingApi(
-    base_url="https://api.unlimitedmessaging.app",
     token=os.environ["API_TOKEN"],
 )
 
@@ -118,10 +116,7 @@ The full API spec is in [`openapi.yaml`](./openapi.yaml). More examples are avai
 import asyncio
 from unlimited_messaging import AsyncUnlimitedMessagingApi
 
-client = AsyncUnlimitedMessagingApi(
-    base_url="https://api.unlimitedmessaging.app",
-    token="...",
-)
+client = AsyncUnlimitedMessagingApi(token="...")
 
 async def main():
     message = await client.message.message_controller_send(
@@ -130,6 +125,22 @@ async def main():
     )
 
 asyncio.run(main())
+```
+
+## Local development
+
+Requires Docker (for Fern code generation).
+
+```bash
+# Regenerate SDKs after openapi.yaml changes
+make generate
+
+# Install SDKs locally for testing
+make install
+
+# Run examples
+API_TOKEN=your_token python3 examples/python/send_message.py
+API_TOKEN=your_token npx tsx examples/typescript/send-message.ts
 ```
 
 ## Links

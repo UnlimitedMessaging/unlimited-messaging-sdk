@@ -16,7 +16,7 @@ groups:
         version: 3.10.8
         output:
           location: local-file-system
-          path: ../sdk/unlimited_messaging
+          path: ../sdk/python/unlimited_messaging
 
   production:
     generators:

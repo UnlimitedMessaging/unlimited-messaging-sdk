@@ -1,7 +1,0 @@
-Metadata-Version: 2.4
-Name: unlimited-messaging
-Version: 0.1.0
-Requires-Python: >=3.8
-Requires-Dist: httpx>=0.21.2
-Requires-Dist: pydantic>=1.9.2
-Requires-Dist: typing_extensions>=4.0.0

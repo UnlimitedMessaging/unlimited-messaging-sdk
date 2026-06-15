@@ -22,6 +22,9 @@ jobs:
       - name: Generate SDKs (local files)
         run: fern generate --group sdk --local --log-level debug
 
+      - name: Restore TypeScript package.json
+        run: cp scripts/typescript-package.json sdk/typescript/package.json
+
       - name: Commit generated SDKs
         run: |
           git config user.name "github-actions[bot]"
@@ -30,8 +33,20 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: regenerate SDKs from openapi.yaml [skip ci]"
           git push
 
-      - name: Publish to npm & PyPI
+      - name: Publish to npm
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          cd sdk/typescript
+          npm install
+          npm publish --access public
+
+      - name: Publish to PyPI
+        env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: fern generate --group production --log-level debug
+        run: |
+          pip install build twine
+          cd sdk/python
+          python -m build
+          twine upload dist/* --username __token__ --password $PYPI_TOKEN

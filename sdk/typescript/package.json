@@ -5,6 +5,12 @@
   "main": "index.js",
   "types": "index.d.ts",
   "license": "MIT",
+  "files": [
+    "**/*.js",
+    "**/*.d.ts",
+    "!node_modules/**",
+    "!**/*.test.*"
+  ],
   "dependencies": {
     "qs": "^6.11.0",
     "node-fetch": "^2.7.0",
