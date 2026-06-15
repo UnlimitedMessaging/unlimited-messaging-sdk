@@ -33,12 +33,10 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.serialization = exports.UnlimitedMessagingApiTimeoutError = exports.UnlimitedMessagingApiError = exports.UnlimitedMessagingApiEnvironment = exports.UnlimitedMessagingApiClient = exports.UnlimitedMessagingApi = void 0;
+exports.serialization = exports.UnlimitedMessagingApiTimeoutError = exports.UnlimitedMessagingApiError = exports.UnlimitedMessagingApiClient = exports.UnlimitedMessagingApi = void 0;
 exports.UnlimitedMessagingApi = __importStar(require("./api"));
 var Client_1 = require("./Client");
 Object.defineProperty(exports, "UnlimitedMessagingApiClient", { enumerable: true, get: function () { return Client_1.UnlimitedMessagingApiClient; } });
-var environments_1 = require("./environments");
-Object.defineProperty(exports, "UnlimitedMessagingApiEnvironment", { enumerable: true, get: function () { return environments_1.UnlimitedMessagingApiEnvironment; } });
 var errors_1 = require("./errors");
 Object.defineProperty(exports, "UnlimitedMessagingApiError", { enumerable: true, get: function () { return errors_1.UnlimitedMessagingApiError; } });
 Object.defineProperty(exports, "UnlimitedMessagingApiTimeoutError", { enumerable: true, get: function () { return errors_1.UnlimitedMessagingApiTimeoutError; } });

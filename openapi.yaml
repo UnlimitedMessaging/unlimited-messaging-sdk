@@ -250,16 +250,6 @@ paths:
                       anyOf:
                         - type: string
                         - type: "null"
-                    status:
-                      type: string
-                      enum:
-                        - ACTIVE
-                        - INACTIVE
-                    type:
-                      type: string
-                      enum:
-                        - SYSTEM
-                        - USER
                     createdAt:
                       type: string
                       format: date-time
@@ -271,8 +261,6 @@ paths:
                   required:
                     - id
                     - phone
-                    - status
-                    - type
                     - createdAt
                     - updatedAt
                   additionalProperties: false
@@ -288,8 +276,7 @@ info:
   version: "1.0"
   contact: {}
 tags: []
-servers:
-  - url: https://api.unlimitedmessaging.app
+servers: []
 components:
   securitySchemes:
     bearer:

@@ -3,15 +3,5 @@
 from .sim_controller_get_linked_sims_response_item import (
     SimControllerGetLinkedSimsResponseItem,
 )
-from .sim_controller_get_linked_sims_response_item_status import (
-    SimControllerGetLinkedSimsResponseItemStatus,
-)
-from .sim_controller_get_linked_sims_response_item_type import (
-    SimControllerGetLinkedSimsResponseItemType,
-)
 
-__all__ = [
-    "SimControllerGetLinkedSimsResponseItem",
-    "SimControllerGetLinkedSimsResponseItemStatus",
-    "SimControllerGetLinkedSimsResponseItemType",
-]
+__all__ = ["SimControllerGetLinkedSimsResponseItem"]

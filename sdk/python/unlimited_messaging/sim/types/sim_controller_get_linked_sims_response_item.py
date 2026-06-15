@@ -2,12 +2,6 @@
 
 from ...core.pydantic_utilities import UniversalBaseModel
 import typing
-from .sim_controller_get_linked_sims_response_item_status import (
-    SimControllerGetLinkedSimsResponseItemStatus,
-)
-from .sim_controller_get_linked_sims_response_item_type import (
-    SimControllerGetLinkedSimsResponseItemType,
-)
 import datetime as dt
 import pydantic
 from ...core.pydantic_utilities import IS_PYDANTIC_V2
@@ -16,8 +10,6 @@ from ...core.pydantic_utilities import IS_PYDANTIC_V2
 class SimControllerGetLinkedSimsResponseItem(UniversalBaseModel):
     id: str
     phone: typing.Optional[str] = None
-    status: SimControllerGetLinkedSimsResponseItemStatus
-    type: SimControllerGetLinkedSimsResponseItemType
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
 

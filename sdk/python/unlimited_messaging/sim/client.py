@@ -40,6 +40,7 @@ class SimClient:
 
         client = UnlimitedMessagingApi(
             token="YOUR_TOKEN",
+            base_url="https://yourhost.com/path/to/api",
         )
         client.sim.sim_controller_get_linked_sims()
         """
@@ -93,6 +94,7 @@ class AsyncSimClient:
 
         client = AsyncUnlimitedMessagingApi(
             token="YOUR_TOKEN",
+            base_url="https://yourhost.com/path/to/api",
         )
 
 

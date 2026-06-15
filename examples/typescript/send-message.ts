@@ -1,6 +1,7 @@
 import { UnlimitedMessagingApiClient } from "@unlimited-messaging/sdk";
 
 const client = new UnlimitedMessagingApiClient({
+  environment: "https://api.unlimitedmessaging.app",
   token: process.env.API_TOKEN!,
 });
 

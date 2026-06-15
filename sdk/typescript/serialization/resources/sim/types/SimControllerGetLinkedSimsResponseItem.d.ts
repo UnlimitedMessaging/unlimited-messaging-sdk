@@ -4,15 +4,11 @@
 import * as serializers from "../../../index";
 import * as UnlimitedMessagingApi from "../../../../api/index";
 import * as core from "../../../../core";
-import { SimControllerGetLinkedSimsResponseItemStatus } from "./SimControllerGetLinkedSimsResponseItemStatus";
-import { SimControllerGetLinkedSimsResponseItemType } from "./SimControllerGetLinkedSimsResponseItemType";
 export declare const SimControllerGetLinkedSimsResponseItem: core.serialization.ObjectSchema<serializers.SimControllerGetLinkedSimsResponseItem.Raw, UnlimitedMessagingApi.SimControllerGetLinkedSimsResponseItem>;
 export declare namespace SimControllerGetLinkedSimsResponseItem {
     interface Raw {
         id: string;
         phone: string | null;
-        status: SimControllerGetLinkedSimsResponseItemStatus.Raw;
-        type: SimControllerGetLinkedSimsResponseItemType.Raw;
         createdAt: string;
         updatedAt: string;
     }

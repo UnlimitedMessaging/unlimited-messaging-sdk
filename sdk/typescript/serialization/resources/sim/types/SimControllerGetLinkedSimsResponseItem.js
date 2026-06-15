@@ -38,13 +38,9 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SimControllerGetLinkedSimsResponseItem = void 0;
 const core = __importStar(require("../../../../core"));
-const SimControllerGetLinkedSimsResponseItemStatus_1 = require("./SimControllerGetLinkedSimsResponseItemStatus");
-const SimControllerGetLinkedSimsResponseItemType_1 = require("./SimControllerGetLinkedSimsResponseItemType");
 exports.SimControllerGetLinkedSimsResponseItem = core.serialization.object({
     id: core.serialization.string(),
     phone: core.serialization.string().nullable(),
-    status: SimControllerGetLinkedSimsResponseItemStatus_1.SimControllerGetLinkedSimsResponseItemStatus,
-    type: SimControllerGetLinkedSimsResponseItemType_1.SimControllerGetLinkedSimsResponseItemType,
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

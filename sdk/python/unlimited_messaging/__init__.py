@@ -2,7 +2,6 @@
 
 from . import message, sim
 from .client import AsyncUnlimitedMessagingApi, UnlimitedMessagingApi
-from .environment import UnlimitedMessagingApiEnvironment
 from .message import (
     MessageControllerFindAllRequestStatus,
     MessageControllerFindAllResponse,
@@ -13,11 +12,7 @@ from .message import (
     MessageControllerSendResponseDirection,
     MessageControllerSendResponseStatus,
 )
-from .sim import (
-    SimControllerGetLinkedSimsResponseItem,
-    SimControllerGetLinkedSimsResponseItemStatus,
-    SimControllerGetLinkedSimsResponseItemType,
-)
+from .sim import SimControllerGetLinkedSimsResponseItem
 
 __all__ = [
     "AsyncUnlimitedMessagingApi",
@@ -30,10 +25,7 @@ __all__ = [
     "MessageControllerSendResponseDirection",
     "MessageControllerSendResponseStatus",
     "SimControllerGetLinkedSimsResponseItem",
-    "SimControllerGetLinkedSimsResponseItemStatus",
-    "SimControllerGetLinkedSimsResponseItemType",
     "UnlimitedMessagingApi",
-    "UnlimitedMessagingApiEnvironment",
     "message",
     "sim",
 ]
