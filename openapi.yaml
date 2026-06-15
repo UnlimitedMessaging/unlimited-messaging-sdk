@@ -1,0 +1,298 @@
+openapi: 3.0.0
+paths:
+  /message:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        No description provided
+      operationId: MessageController_findAll
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+        - name: limit
+          required: true
+          in: query
+          schema:
+            default: 20
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: status
+          required: false
+          in: query
+          schema:
+            type: string
+            enum:
+              - PENDING
+              - SENDING
+              - SENT
+              - DELIVERED
+              - READ
+              - FAILED
+        - name: simId
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        content:
+                          type: string
+                        direction:
+                          type: string
+                          enum:
+                            - IN
+                            - OUT
+                        externalId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        interlocutor:
+                          type: string
+                        retryCount:
+                          type: integer
+                          minimum: -9007199254740991
+                          maximum: 9007199254740991
+                        simId:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                            - PENDING
+                            - SENDING
+                            - SENT
+                            - DELIVERED
+                            - READ
+                            - FAILED
+                        createdAt:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      required:
+                        - id
+                        - content
+                        - direction
+                        - externalId
+                        - interlocutor
+                        - retryCount
+                        - simId
+                        - status
+                        - createdAt
+                        - updatedAt
+                      additionalProperties: false
+                  total:
+                    type: integer
+                    minimum: -9007199254740991
+                    maximum: 9007199254740991
+                  page:
+                    type: integer
+                    minimum: -9007199254740991
+                    maximum: 9007199254740991
+                  limit:
+                    type: integer
+                    minimum: -9007199254740991
+                    maximum: 9007199254740991
+                  totalPages:
+                    type: integer
+                    minimum: -9007199254740991
+                    maximum: 9007199254740991
+                required:
+                  - data
+                  - total
+                  - page
+                  - limit
+                  - totalPages
+                additionalProperties: false
+          description: ""
+      security:
+        - bearer: []
+      summary: List messages with pagination and filters.
+      tags:
+        - Message
+    post:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
+
+        No description provided
+      operationId: MessageController_send
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipient:
+                  type: string
+                  minLength: 1
+                text:
+                  type: string
+                  minLength: 1
+                  maxLength: 1600
+                simId:
+                  type: string
+              required:
+                - recipient
+                - text
+              additionalProperties: false
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  content:
+                    type: string
+                  direction:
+                    type: string
+                    enum:
+                      - IN
+                      - OUT
+                  externalId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  interlocutor:
+                    type: string
+                  retryCount:
+                    type: integer
+                    minimum: -9007199254740991
+                    maximum: 9007199254740991
+                  simId:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - PENDING
+                      - SENDING
+                      - SENT
+                      - DELIVERED
+                      - READ
+                      - FAILED
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                required:
+                  - id
+                  - content
+                  - direction
+                  - externalId
+                  - interlocutor
+                  - retryCount
+                  - simId
+                  - status
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+          description: ""
+      security:
+        - bearer: []
+      summary: Send a WhatsApp message.
+      tags:
+        - Message
+  /sim:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        No description provided
+      operationId: SimController_getLinkedSims
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    phone:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    status:
+                      type: string
+                      enum:
+                        - ACTIVE
+                        - INACTIVE
+                    type:
+                      type: string
+                      enum:
+                        - SYSTEM
+                        - USER
+                    createdAt:
+                      type: string
+                      format: date-time
+                      pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  required:
+                    - id
+                    - phone
+                    - status
+                    - type
+                    - createdAt
+                    - updatedAt
+                  additionalProperties: false
+          description: ""
+      security:
+        - bearer: []
+      summary: Get the list of active SIMs.
+      tags:
+        - Sim
+info:
+  title: Unlimited Messaging
+  description: Unlimited Messaging API
+  version: "1.0"
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+  schemas: {}

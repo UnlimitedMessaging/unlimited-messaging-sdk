@@ -1,0 +1,37 @@
+name: Release SDKs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - openapi.yaml
+
+jobs:
+  release:
+    name: Generate & publish SDKs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Fern
+        run: npm install -g fern-api
+
+      - name: Generate SDKs (local files)
+        run: fern generate --group sdk --local --log-level debug
+
+      - name: Commit generated SDKs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sdk/
+          git diff --cached --quiet || git commit -m "chore: regenerate SDKs from openapi.yaml [skip ci]"
+          git push
+
+      - name: Publish to npm & PyPI
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: fern generate --group production --log-level debug

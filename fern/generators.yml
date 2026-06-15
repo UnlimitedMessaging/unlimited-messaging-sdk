@@ -1,0 +1,36 @@
+api:
+  specs:
+    - openapi: ../openapi.yaml
+
+groups:
+  sdk:
+    generators:
+      - name: fernapi/fern-typescript-node-sdk
+        version: 0.51.7
+        output:
+          location: local-file-system
+          path: ../sdk/typescript
+        config:
+          includeCredentialsOnCrossOriginRequests: true
+      - name: fernapi/fern-python-sdk
+        version: 3.10.8
+        output:
+          location: local-file-system
+          path: ../sdk/python
+
+  production:
+    generators:
+      - name: fernapi/fern-typescript-node-sdk
+        version: 0.51.7
+        output:
+          location: npm
+          package-name: "@unlimited-messaging/sdk"
+          token: ${NPM_TOKEN}
+        config:
+          includeCredentialsOnCrossOriginRequests: true
+      - name: fernapi/fern-python-sdk
+        version: 3.10.8
+        output:
+          location: pypi
+          package-name: unlimited-messaging
+          token: ${PYPI_TOKEN}
