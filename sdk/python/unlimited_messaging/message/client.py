@@ -11,6 +11,8 @@ from ..core.pydantic_utilities import parse_obj_as
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from .types.message_controller_send_response import MessageControllerSendResponse
+from .types.message_controller_find_one_response import MessageControllerFindOneResponse
+from ..core.jsonable_encoder import jsonable_encoder
 from ..core.client_wrapper import AsyncClientWrapper
 
 # this is used as the default value for optional parameters
@@ -152,6 +154,56 @@ class MessageClient:
                     MessageControllerSendResponse,
                     parse_obj_as(
                         type_=MessageControllerSendResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def message_controller_find_one(
+        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> MessageControllerFindOneResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        No description provided
+
+        Parameters
+        ----------
+        id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        MessageControllerFindOneResponse
+
+
+        Examples
+        --------
+        from unlimited_messaging import UnlimitedMessagingApi
+
+        client = UnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+        client.message.message_controller_find_one(
+            id="id",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"message/{jsonable_encoder(id)}",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    MessageControllerFindOneResponse,
+                    parse_obj_as(
+                        type_=MessageControllerFindOneResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -312,6 +364,64 @@ class AsyncMessageClient:
                     MessageControllerSendResponse,
                     parse_obj_as(
                         type_=MessageControllerSendResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def message_controller_find_one(
+        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> MessageControllerFindOneResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        No description provided
+
+        Parameters
+        ----------
+        id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        MessageControllerFindOneResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from unlimited_messaging import AsyncUnlimitedMessagingApi
+
+        client = AsyncUnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.message.message_controller_find_one(
+                id="id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"message/{jsonable_encoder(id)}",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    MessageControllerFindOneResponse,
+                    parse_obj_as(
+                        type_=MessageControllerFindOneResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

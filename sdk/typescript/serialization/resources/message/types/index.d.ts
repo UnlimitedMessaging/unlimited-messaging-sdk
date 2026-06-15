@@ -6,3 +6,6 @@ export * from "./MessageControllerFindAllResponse";
 export * from "./MessageControllerSendResponseDirection";
 export * from "./MessageControllerSendResponseStatus";
 export * from "./MessageControllerSendResponse";
+export * from "./MessageControllerFindOneResponseDirection";
+export * from "./MessageControllerFindOneResponseStatus";
+export * from "./MessageControllerFindOneResponse";

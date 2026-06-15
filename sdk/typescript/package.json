@@ -1,13 +1,22 @@
 {
   "name": "@unlimited-messaging/sdk",
   "version": "0.1.0",
-  "description": "TypeScript SDK for the Unlimited Messaging API",
+  "description": "TypeScript SDK for the Unlimited Messaging API at https://unlimitedmessaging.app",
   "main": "index.js",
   "types": "index.d.ts",
   "license": "MIT",
+  "homepage": "https://docs.unlimitedmessaging.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unlimitedmessaging/unlimited-messaging-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/unlimitedmessaging/unlimited-messaging-sdk/issues"
+  },
   "files": [
     "**/*.js",
     "**/*.d.ts",
+    "README.md",
     "!node_modules/**",
     "!**/*.test.*"
   ],

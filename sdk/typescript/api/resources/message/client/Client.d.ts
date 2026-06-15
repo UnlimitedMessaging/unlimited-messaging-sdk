@@ -57,5 +57,19 @@ export declare class Message {
      */
     messageControllerSend(request: UnlimitedMessagingApi.MessageControllerSendRequest, requestOptions?: Message.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageControllerSendResponse>;
     private __messageControllerSend;
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+     *
+     * No description provided
+     *
+     * @param {string} id
+     * @param {UnlimitedMessagingApi.MessageControllerFindOneRequest} request
+     * @param {Message.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.message.messageControllerFindOne("id")
+     */
+    messageControllerFindOne(id: string, request?: UnlimitedMessagingApi.MessageControllerFindOneRequest, requestOptions?: Message.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageControllerFindOneResponse>;
+    private __messageControllerFindOne;
     protected _getAuthorizationHeader(): Promise<string>;
 }

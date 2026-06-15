@@ -207,6 +207,70 @@ class Message {
             }
         });
     }
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+     *
+     * No description provided
+     *
+     * @param {string} id
+     * @param {UnlimitedMessagingApi.MessageControllerFindOneRequest} request
+     * @param {Message.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.message.messageControllerFindOne("id")
+     */
+    messageControllerFindOne(id, request = {}, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__messageControllerFindOne(id, request, requestOptions));
+    }
+    __messageControllerFindOne(id_1) {
+        return __awaiter(this, arguments, void 0, function* (id, request = {}, requestOptions) {
+            var _a, _b;
+            const _response = yield core.fetcher({
+                url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, `message/${encodeURIComponent(id)}`),
+                method: "GET",
+                headers: Object.assign({ Authorization: yield this._getAuthorizationHeader(), "X-Fern-Language": "JavaScript", "X-Fern-Runtime": core.RUNTIME.type, "X-Fern-Runtime-Version": core.RUNTIME.version }, requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.headers),
+                contentType: "application/json",
+                requestType: "json",
+                timeoutMs: (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeoutInSeconds) != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+                maxRetries: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.maxRetries,
+                withCredentials: true,
+                abortSignal: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.abortSignal,
+            });
+            if (_response.ok) {
+                return {
+                    data: serializers.MessageControllerFindOneResponse.parseOrThrow(_response.body, {
+                        unrecognizedObjectKeys: "passthrough",
+                        allowUnrecognizedUnionMembers: true,
+                        allowUnrecognizedEnumValues: true,
+                        breadcrumbsPrefix: ["response"],
+                    }),
+                    rawResponse: _response.rawResponse,
+                };
+            }
+            if (_response.error.reason === "status-code") {
+                throw new errors.UnlimitedMessagingApiError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.body,
+                    rawResponse: _response.rawResponse,
+                });
+            }
+            switch (_response.error.reason) {
+                case "non-json":
+                    throw new errors.UnlimitedMessagingApiError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.rawBody,
+                        rawResponse: _response.rawResponse,
+                    });
+                case "timeout":
+                    throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling GET /message/{id}.");
+                case "unknown":
+                    throw new errors.UnlimitedMessagingApiError({
+                        message: _response.error.errorMessage,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        });
+    }
     _getAuthorizationHeader() {
         return __awaiter(this, void 0, void 0, function* () {
             return `Bearer ${yield core.Supplier.get(this._options.token)}`;

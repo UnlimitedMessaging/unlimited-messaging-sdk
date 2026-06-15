@@ -97,3 +97,37 @@ async def test_message_controller_send(
         recipient="recipient", text="text"
     )
     validate_response(async_response, expected_response, expected_types)
+
+
+async def test_message_controller_find_one(
+    client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
+) -> None:
+    expected_response: typing.Any = {
+        "id": "id",
+        "content": "content",
+        "direction": "IN",
+        "externalId": "externalId",
+        "interlocutor": "interlocutor",
+        "retryCount": 1,
+        "simId": "simId",
+        "status": "PENDING",
+        "createdAt": "2024-01-15T09:30:00Z",
+        "updatedAt": "2024-01-15T09:30:00Z",
+    }
+    expected_types: typing.Any = {
+        "id": None,
+        "content": None,
+        "direction": None,
+        "externalId": None,
+        "interlocutor": None,
+        "retryCount": "integer",
+        "simId": None,
+        "status": None,
+        "createdAt": "datetime",
+        "updatedAt": "datetime",
+    }
+    response = client.message.message_controller_find_one(id="id")
+    validate_response(response, expected_response, expected_types)
+
+    async_response = await async_client.message.message_controller_find_one(id="id")
+    validate_response(async_response, expected_response, expected_types)
