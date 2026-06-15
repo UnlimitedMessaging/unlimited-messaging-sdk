@@ -62,7 +62,6 @@ class MessageClient:
 
         client = UnlimitedMessagingApi(
             token="YOUR_TOKEN",
-            base_url="https://yourhost.com/path/to/api",
         )
         client.message.message_controller_find_all(
             page=1,
@@ -130,7 +129,6 @@ class MessageClient:
 
         client = UnlimitedMessagingApi(
             token="YOUR_TOKEN",
-            base_url="https://yourhost.com/path/to/api",
         )
         client.message.message_controller_send(
             recipient="recipient",
@@ -210,7 +208,6 @@ class AsyncMessageClient:
 
         client = AsyncUnlimitedMessagingApi(
             token="YOUR_TOKEN",
-            base_url="https://yourhost.com/path/to/api",
         )
 
 
@@ -286,7 +283,6 @@ class AsyncMessageClient:
 
         client = AsyncUnlimitedMessagingApi(
             token="YOUR_TOKEN",
-            base_url="https://yourhost.com/path/to/api",
         )
 
 
