@@ -31,7 +31,7 @@ client = UnlimitedMessagingApi(
 )
 
 # Send a WhatsApp message
-message = client.message.message_controller_send(
+message = client.message.send(
     recipient="+33612345678",
     text="Hello!",
 )
@@ -52,7 +52,7 @@ client = UnlimitedMessagingApi(token="your_api_token")
 ### Send a message
 
 ```python
-message = client.message.message_controller_send(
+message = client.message.send(
     recipient="+33612345678",
     text="Hello from the SDK!",
     sim_id="optional-sim-id",  # force a specific SIM
@@ -62,7 +62,7 @@ message = client.message.message_controller_send(
 ### List messages
 
 ```python
-result = client.message.message_controller_find_all(
+result = client.message.find_all(
     page=1,
     limit=20,
     status="DELIVERED",   # PENDING | SENDING | SENT | DELIVERED | READ | FAILED
@@ -74,10 +74,17 @@ for msg in result.data:
     print(msg.id, msg.status, msg.text)
 ```
 
+### Get a single message
+
+```python
+msg = client.message.find_one("message-id")
+print(msg.id, msg.status, msg.text)
+```
+
 ### List linked SIMs
 
 ```python
-sims = client.sim.sim_controller_get_linked_sims()
+sims = client.sim.get_linked_sims()
 
 for sim in sims:
     print(sim.id, sim.phone_number)
@@ -92,7 +99,7 @@ from unlimited_messaging import AsyncUnlimitedMessagingApi
 client = AsyncUnlimitedMessagingApi(token="your_api_token")
 
 async def main():
-    message = await client.message.message_controller_send(
+    message = await client.message.send(
         recipient="+33612345678",
         text="Hello async!",
     )
@@ -103,11 +110,12 @@ asyncio.run(main())
 
 ## API reference
 
-| Method                                | Description                               |
-| ------------------------------------- | ----------------------------------------- |
-| `message.message_controller_send`     | Send a WhatsApp message                   |
-| `message.message_controller_find_all` | List messages with pagination and filters |
-| `sim.sim_controller_get_linked_sims`  | List linked SIMs                          |
+| Method                | Description                               |
+| --------------------- | ----------------------------------------- |
+| `message.send`        | Send a WhatsApp message                   |
+| `message.find_all`    | List messages with pagination and filters |
+| `message.find_one`    | Get a single message by ID                |
+| `sim.get_linked_sims` | List linked SIMs                          |
 
 Official documentation: [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
 Full OpenAPI spec: [openapi.yaml](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/openapi.yaml)

@@ -33,7 +33,7 @@ const client = new UnlimitedMessagingApiClient({
 });
 
 // Send a message
-const message = await client.message.messageControllerSend({
+const message = await client.message.send({
   recipient: "+33612345678",
   text: "Hello!",
 });
@@ -41,7 +41,7 @@ const message = await client.message.messageControllerSend({
 console.log(message.id, message.status);
 
 // List messages
-const result = await client.message.messageControllerFindAll({
+const result = await client.message.findAll({
   page: 1,
   limit: 20,
 });
@@ -49,7 +49,7 @@ const result = await client.message.messageControllerFindAll({
 console.log(`${result.total} messages`);
 
 // List linked SIMs
-const sims = await client.sim.simControllerGetLinkedSims();
+const sims = await client.sim.getLinkedSims();
 ```
 
 ### Python
@@ -63,7 +63,7 @@ client = UnlimitedMessagingApi(
 )
 
 # Send a message
-message = client.message.message_controller_send(
+message = client.message.send(
     recipient="+33612345678",
     text="Hello!",
 )
@@ -71,11 +71,11 @@ message = client.message.message_controller_send(
 print(message.id, message.status)
 
 # List messages
-result = client.message.message_controller_find_all(page=1, limit=20)
+result = client.message.find_all(page=1, limit=20)
 print(f"{result.total} messages")
 
 # List linked SIMs
-sims = client.sim.sim_controller_get_linked_sims()
+sims = client.sim.get_linked_sims()
 ```
 
 ## Authentication
@@ -88,10 +88,11 @@ The full API spec is in [`openapi.yaml`](./openapi.yaml). More examples are avai
 
 ### Messages
 
-| Method                             | Description                               |
-| ---------------------------------- | ----------------------------------------- |
-| `message.messageControllerSend`    | Send a WhatsApp message                   |
-| `message.messageControllerFindAll` | List messages with pagination and filters |
+| Method                                 | Description                               |
+| -------------------------------------- | ----------------------------------------- |
+| `message.send` / `message.send`        | Send a WhatsApp message                   |
+| `message.findAll` / `message.find_all` | List messages with pagination and filters |
+| `message.findOne` / `message.find_one` | Get a single message by ID                |
 
 #### Send options
 
@@ -113,9 +114,9 @@ The full API spec is in [`openapi.yaml`](./openapi.yaml). More examples are avai
 
 ### SIMs
 
-| Method                           | Description                 |
-| -------------------------------- | --------------------------- |
-| `sim.simControllerGetLinkedSims` | Get the list of linked SIMs |
+| Method                                      | Description                 |
+| ------------------------------------------- | --------------------------- |
+| `sim.getLinkedSims` / `sim.get_linked_sims` | Get the list of linked SIMs |
 
 ## Async support (Python)
 

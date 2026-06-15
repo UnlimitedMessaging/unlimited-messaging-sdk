@@ -29,7 +29,7 @@ const client = new UnlimitedMessagingApiClient({
 });
 
 // Send a WhatsApp message
-const message = await client.message.messageControllerSend({
+const message = await client.message.send({
   recipient: "+33612345678",
   text: "Hello!",
 });
@@ -52,7 +52,7 @@ const client = new UnlimitedMessagingApiClient({
 ### Send a message
 
 ```typescript
-const message = await client.message.messageControllerSend({
+const message = await client.message.send({
   recipient: "+33612345678",
   text: "Hello from the SDK!",
   simId: "optional-sim-id", // force a specific SIM
@@ -62,7 +62,7 @@ const message = await client.message.messageControllerSend({
 ### List messages
 
 ```typescript
-const result = await client.message.messageControllerFindAll({
+const result = await client.message.findAll({
   page: 1,
   limit: 20,
   status: "DELIVERED",   // PENDING | SENDING | SENT | DELIVERED | READ | FAILED
@@ -75,10 +75,17 @@ for (const msg of result.data) {
 }
 ```
 
+### Get a single message
+
+```typescript
+const msg = await client.message.findOne("message-id");
+console.log(msg.id, msg.status, msg.text);
+```
+
 ### List linked SIMs
 
 ```typescript
-const sims = await client.sim.simControllerGetLinkedSims();
+const sims = await client.sim.getLinkedSims();
 
 for (const sim of sims) {
   console.log(sim.id, sim.phoneNumber);
@@ -87,11 +94,12 @@ for (const sim of sims) {
 
 ## API reference
 
-| Method | Description |
-| --- | --- |
-| `message.messageControllerSend` | Send a WhatsApp message |
-| `message.messageControllerFindAll` | List messages with pagination and filters |
-| `sim.simControllerGetLinkedSims` | List linked SIMs |
+| Method              | Description                               |
+| ------------------- | ----------------------------------------- |
+| `message.send`      | Send a WhatsApp message                   |
+| `message.findAll`   | List messages with pagination and filters |
+| `message.findOne`   | Get a single message by ID                |
+| `sim.getLinkedSims` | List linked SIMs                          |
 
 Official documentation: [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
 
