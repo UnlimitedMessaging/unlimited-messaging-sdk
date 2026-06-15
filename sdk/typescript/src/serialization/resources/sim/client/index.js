@@ -33,5 +33,5 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.simControllerGetLinkedSims = void 0;
-exports.simControllerGetLinkedSims = __importStar(require("./simControllerGetLinkedSims"));
+exports.getLinkedSims = void 0;
+exports.getLinkedSims = __importStar(require("./getLinkedSims"));

@@ -1,1 +1,1 @@
-export * from "./SimControllerGetLinkedSimsResponseItem";
+export * from "./SimGetLinkedSimsResponseItem";

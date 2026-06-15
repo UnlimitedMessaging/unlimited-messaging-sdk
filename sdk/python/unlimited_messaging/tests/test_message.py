@@ -6,7 +6,7 @@ import typing
 from .utilities import validate_response
 
 
-async def test_message_controller_find_all(
+async def test_find_all(
     client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
 ) -> None:
     expected_response: typing.Any = {
@@ -52,16 +52,14 @@ async def test_message_controller_find_all(
         "limit": "integer",
         "totalPages": "integer",
     }
-    response = client.message.message_controller_find_all(page=1, limit=1)
+    response = client.message.find_all(page=1, limit=1)
     validate_response(response, expected_response, expected_types)
 
-    async_response = await async_client.message.message_controller_find_all(
-        page=1, limit=1
-    )
+    async_response = await async_client.message.find_all(page=1, limit=1)
     validate_response(async_response, expected_response, expected_types)
 
 
-async def test_message_controller_send(
+async def test_send(
     client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
 ) -> None:
     expected_response: typing.Any = {
@@ -88,18 +86,14 @@ async def test_message_controller_send(
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
-    response = client.message.message_controller_send(
-        recipient="recipient", text="text"
-    )
+    response = client.message.send(recipient="recipient", text="text")
     validate_response(response, expected_response, expected_types)
 
-    async_response = await async_client.message.message_controller_send(
-        recipient="recipient", text="text"
-    )
+    async_response = await async_client.message.send(recipient="recipient", text="text")
     validate_response(async_response, expected_response, expected_types)
 
 
-async def test_message_controller_find_one(
+async def test_find_one(
     client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
 ) -> None:
     expected_response: typing.Any = {
@@ -126,8 +120,8 @@ async def test_message_controller_find_one(
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
-    response = client.message.message_controller_find_one(id="id")
+    response = client.message.find_one(id="id")
     validate_response(response, expected_response, expected_types)
 
-    async_response = await async_client.message.message_controller_find_one(id="id")
+    async_response = await async_client.message.find_one(id="id")
     validate_response(async_response, expected_response, expected_types)

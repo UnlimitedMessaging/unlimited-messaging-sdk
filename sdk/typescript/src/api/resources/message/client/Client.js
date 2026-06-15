@@ -63,19 +63,19 @@ class Message {
      *
      * No description provided
      *
-     * @param {UnlimitedMessagingApi.MessageControllerFindAllRequest} request
+     * @param {UnlimitedMessagingApi.MessageFindAllRequest} request
      * @param {Message.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.message.messageControllerFindAll({
+     *     await client.message.findAll({
      *         page: 1,
      *         limit: 1
      *     })
      */
-    messageControllerFindAll(request, requestOptions) {
-        return core.HttpResponsePromise.fromPromise(this.__messageControllerFindAll(request, requestOptions));
+    findAll(request, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__findAll(request, requestOptions));
     }
-    __messageControllerFindAll(request, requestOptions) {
+    __findAll(request, requestOptions) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             const { page, limit, status, simId, search } = request;
@@ -83,7 +83,7 @@ class Message {
             _queryParams["page"] = page.toString();
             _queryParams["limit"] = limit.toString();
             if (status != null) {
-                _queryParams["status"] = serializers.MessageControllerFindAllRequestStatus.jsonOrThrow(status, {
+                _queryParams["status"] = serializers.MessageFindAllRequestStatus.jsonOrThrow(status, {
                     unrecognizedObjectKeys: "strip",
                 });
             }
@@ -107,7 +107,7 @@ class Message {
             });
             if (_response.ok) {
                 return {
-                    data: serializers.MessageControllerFindAllResponse.parseOrThrow(_response.body, {
+                    data: serializers.MessageFindAllResponse.parseOrThrow(_response.body, {
                         unrecognizedObjectKeys: "passthrough",
                         allowUnrecognizedUnionMembers: true,
                         allowUnrecognizedEnumValues: true,
@@ -145,19 +145,19 @@ class Message {
      *
      * No description provided
      *
-     * @param {UnlimitedMessagingApi.MessageControllerSendRequest} request
+     * @param {UnlimitedMessagingApi.MessageSendRequest} request
      * @param {Message.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.message.messageControllerSend({
+     *     await client.message.send({
      *         recipient: "recipient",
      *         text: "text"
      *     })
      */
-    messageControllerSend(request, requestOptions) {
-        return core.HttpResponsePromise.fromPromise(this.__messageControllerSend(request, requestOptions));
+    send(request, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__send(request, requestOptions));
     }
-    __messageControllerSend(request, requestOptions) {
+    __send(request, requestOptions) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             const _response = yield core.fetcher({
@@ -166,7 +166,7 @@ class Message {
                 headers: Object.assign({ Authorization: yield this._getAuthorizationHeader(), "X-Fern-Language": "JavaScript", "X-Fern-Runtime": core.RUNTIME.type, "X-Fern-Runtime-Version": core.RUNTIME.version }, requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.headers),
                 contentType: "application/json",
                 requestType: "json",
-                body: serializers.MessageControllerSendRequest.jsonOrThrow(request, { unrecognizedObjectKeys: "strip" }),
+                body: serializers.MessageSendRequest.jsonOrThrow(request, { unrecognizedObjectKeys: "strip" }),
                 timeoutMs: (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeoutInSeconds) != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
                 maxRetries: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.maxRetries,
                 withCredentials: true,
@@ -174,7 +174,7 @@ class Message {
             });
             if (_response.ok) {
                 return {
-                    data: serializers.MessageControllerSendResponse.parseOrThrow(_response.body, {
+                    data: serializers.MessageSendResponse.parseOrThrow(_response.body, {
                         unrecognizedObjectKeys: "passthrough",
                         allowUnrecognizedUnionMembers: true,
                         allowUnrecognizedEnumValues: true,
@@ -213,16 +213,16 @@ class Message {
      * No description provided
      *
      * @param {string} id
-     * @param {UnlimitedMessagingApi.MessageControllerFindOneRequest} request
+     * @param {UnlimitedMessagingApi.MessageFindOneRequest} request
      * @param {Message.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.message.messageControllerFindOne("id")
+     *     await client.message.findOne("id")
      */
-    messageControllerFindOne(id, request = {}, requestOptions) {
-        return core.HttpResponsePromise.fromPromise(this.__messageControllerFindOne(id, request, requestOptions));
+    findOne(id, request = {}, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__findOne(id, request, requestOptions));
     }
-    __messageControllerFindOne(id_1) {
+    __findOne(id_1) {
         return __awaiter(this, arguments, void 0, function* (id, request = {}, requestOptions) {
             var _a, _b;
             const _response = yield core.fetcher({
@@ -238,7 +238,7 @@ class Message {
             });
             if (_response.ok) {
                 return {
-                    data: serializers.MessageControllerFindOneResponse.parseOrThrow(_response.body, {
+                    data: serializers.MessageFindOneResponse.parseOrThrow(_response.body, {
                         unrecognizedObjectKeys: "passthrough",
                         allowUnrecognizedUnionMembers: true,
                         allowUnrecognizedEnumValues: true,

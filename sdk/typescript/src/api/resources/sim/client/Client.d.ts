@@ -33,9 +33,9 @@ export declare class Sim {
      * @param {Sim.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.sim.simControllerGetLinkedSims()
+     *     await client.sim.getLinkedSims()
      */
-    simControllerGetLinkedSims(requestOptions?: Sim.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.SimControllerGetLinkedSimsResponseItem[]>;
-    private __simControllerGetLinkedSims;
+    getLinkedSims(requestOptions?: Sim.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.SimGetLinkedSimsResponseItem[]>;
+    private __getLinkedSims;
     protected _getAuthorizationHeader(): Promise<string>;
 }

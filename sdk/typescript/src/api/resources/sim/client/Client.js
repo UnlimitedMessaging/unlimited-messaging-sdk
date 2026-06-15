@@ -66,12 +66,12 @@ class Sim {
      * @param {Sim.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.sim.simControllerGetLinkedSims()
+     *     await client.sim.getLinkedSims()
      */
-    simControllerGetLinkedSims(requestOptions) {
-        return core.HttpResponsePromise.fromPromise(this.__simControllerGetLinkedSims(requestOptions));
+    getLinkedSims(requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__getLinkedSims(requestOptions));
     }
-    __simControllerGetLinkedSims(requestOptions) {
+    __getLinkedSims(requestOptions) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             const _response = yield core.fetcher({
@@ -87,7 +87,7 @@ class Sim {
             });
             if (_response.ok) {
                 return {
-                    data: serializers.sim.simControllerGetLinkedSims.Response.parseOrThrow(_response.body, {
+                    data: serializers.sim.getLinkedSims.Response.parseOrThrow(_response.body, {
                         unrecognizedObjectKeys: "passthrough",
                         allowUnrecognizedUnionMembers: true,
                         allowUnrecognizedEnumValues: true,

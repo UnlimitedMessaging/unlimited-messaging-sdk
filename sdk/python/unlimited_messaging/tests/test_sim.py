@@ -6,7 +6,7 @@ import typing
 from .utilities import validate_response
 
 
-async def test_sim_controller_get_linked_sims(
+async def test_get_linked_sims(
     client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
 ) -> None:
     expected_response: typing.Any = [
@@ -30,8 +30,8 @@ async def test_sim_controller_get_linked_sims(
             }
         },
     )
-    response = client.sim.sim_controller_get_linked_sims()
+    response = client.sim.get_linked_sims()
     validate_response(response, expected_response, expected_types)
 
-    async_response = await async_client.sim.sim_controller_get_linked_sims()
+    async_response = await async_client.sim.get_linked_sims()
     validate_response(async_response, expected_response, expected_types)

@@ -1,1 +1,1 @@
-export { MessageControllerSendRequest } from "./MessageControllerSendRequest";
+export { MessageSendRequest } from "./MessageSendRequest";

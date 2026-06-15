@@ -1,3 +1,3 @@
-export { type MessageControllerFindAllRequest } from "./MessageControllerFindAllRequest";
-export { type MessageControllerSendRequest } from "./MessageControllerSendRequest";
-export { type MessageControllerFindOneRequest } from "./MessageControllerFindOneRequest";
+export { type MessageFindAllRequest } from "./MessageFindAllRequest";
+export { type MessageSendRequest } from "./MessageSendRequest";
+export { type MessageFindOneRequest } from "./MessageFindOneRequest";

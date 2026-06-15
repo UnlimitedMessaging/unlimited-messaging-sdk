@@ -6,7 +6,7 @@ paths:
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
         No description provided
-      operationId: MessageController_findAll
+      operationId: Message_find_all
       parameters:
         - name: page
           required: true
@@ -142,7 +142,7 @@ paths:
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
         No description provided
-      operationId: MessageController_send
+      operationId: Message_send
       parameters: []
       requestBody:
         required: true
@@ -233,7 +233,7 @@ paths:
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
         No description provided
-      operationId: MessageController_findOne
+      operationId: Message_find_one
       parameters:
         - name: id
           required: true
@@ -309,7 +309,7 @@ paths:
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
         No description provided
-      operationId: SimController_getLinkedSims
+      operationId: Sim_get_linked_sims
       parameters: []
       responses:
         "200":

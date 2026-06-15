@@ -30,46 +30,46 @@ export declare class Message {
      *
      * No description provided
      *
-     * @param {UnlimitedMessagingApi.MessageControllerFindAllRequest} request
+     * @param {UnlimitedMessagingApi.MessageFindAllRequest} request
      * @param {Message.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.message.messageControllerFindAll({
+     *     await client.message.findAll({
      *         page: 1,
      *         limit: 1
      *     })
      */
-    messageControllerFindAll(request: UnlimitedMessagingApi.MessageControllerFindAllRequest, requestOptions?: Message.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageControllerFindAllResponse>;
-    private __messageControllerFindAll;
+    findAll(request: UnlimitedMessagingApi.MessageFindAllRequest, requestOptions?: Message.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageFindAllResponse>;
+    private __findAll;
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
      *
      * No description provided
      *
-     * @param {UnlimitedMessagingApi.MessageControllerSendRequest} request
+     * @param {UnlimitedMessagingApi.MessageSendRequest} request
      * @param {Message.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.message.messageControllerSend({
+     *     await client.message.send({
      *         recipient: "recipient",
      *         text: "text"
      *     })
      */
-    messageControllerSend(request: UnlimitedMessagingApi.MessageControllerSendRequest, requestOptions?: Message.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageControllerSendResponse>;
-    private __messageControllerSend;
+    send(request: UnlimitedMessagingApi.MessageSendRequest, requestOptions?: Message.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageSendResponse>;
+    private __send;
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
      *
      * No description provided
      *
      * @param {string} id
-     * @param {UnlimitedMessagingApi.MessageControllerFindOneRequest} request
+     * @param {UnlimitedMessagingApi.MessageFindOneRequest} request
      * @param {Message.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.message.messageControllerFindOne("id")
+     *     await client.message.findOne("id")
      */
-    messageControllerFindOne(id: string, request?: UnlimitedMessagingApi.MessageControllerFindOneRequest, requestOptions?: Message.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageControllerFindOneResponse>;
-    private __messageControllerFindOne;
+    findOne(id: string, request?: UnlimitedMessagingApi.MessageFindOneRequest, requestOptions?: Message.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageFindOneResponse>;
+    private __findOne;
     protected _getAuthorizationHeader(): Promise<string>;
 }

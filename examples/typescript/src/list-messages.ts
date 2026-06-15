@@ -6,7 +6,7 @@ const client = new UnlimitedMessagingApiClient({
 });
 
 // List all messages (first page)
-const result = await client.message.messageControllerFindAll({
+const result = await client.message.findAll({
   page: 1,
   limit: 20,
 });
@@ -18,7 +18,7 @@ for (const msg of result.data) {
 }
 
 // Filter by status
-const failed = await client.message.messageControllerFindAll({
+const failed = await client.message.findAll({
   page: 1,
   limit: 100,
   status: "FAILED",

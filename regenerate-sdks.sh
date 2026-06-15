@@ -4,9 +4,6 @@ set -e
 echo "▶ Regenerating SDKs from openapi.yaml..."
 echo "Yes" | fern generate --group sdk --local
 
-echo "▶ Restoring TypeScript package.json..."
-cp scripts/typescript-package.json sdk/typescript/package.json
-
 echo "▶ Installing TypeScript dependencies..."
 cd sdk/typescript && npm install --silent && cd ../..
 

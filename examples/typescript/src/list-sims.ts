@@ -6,7 +6,7 @@ const client = new UnlimitedMessagingApiClient({
 });
 
 // Get all linked SIMs
-const sims = await client.sim.simControllerGetLinkedSims();
+const sims = await client.sim.getLinkedSims();
 
 for (const sim of sims) {
   console.log(`SIM ${sim.id} — ${sim.phone ?? "no phone"}`);

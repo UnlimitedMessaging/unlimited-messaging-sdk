@@ -7,7 +7,7 @@ client = UnlimitedMessagingApi(
 )
 
 # List all messages (first page)
-result = client.message.message_controller_find_all(page=1, limit=20)
+result = client.message.find_all(page=1, limit=20)
 
 print(f"{result.total} messages total (page {result.page}/{result.total_pages})")
 
@@ -15,7 +15,7 @@ for msg in result.data:
     print(f"[{msg.direction}] {msg.interlocutor} — {msg.status} — {msg.content}")
 
 # Filter by status
-failed = client.message.message_controller_find_all(
+failed = client.message.find_all(
     page=1,
     limit=100,
     status="FAILED",

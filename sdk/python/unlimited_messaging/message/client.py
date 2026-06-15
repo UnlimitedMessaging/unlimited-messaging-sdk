@@ -2,16 +2,14 @@
 
 import typing
 from ..core.client_wrapper import SyncClientWrapper
-from .types.message_controller_find_all_request_status import (
-    MessageControllerFindAllRequestStatus,
-)
+from .types.message_find_all_request_status import MessageFindAllRequestStatus
 from ..core.request_options import RequestOptions
-from .types.message_controller_find_all_response import MessageControllerFindAllResponse
+from .types.message_find_all_response import MessageFindAllResponse
 from ..core.pydantic_utilities import parse_obj_as
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
-from .types.message_controller_send_response import MessageControllerSendResponse
-from .types.message_controller_find_one_response import MessageControllerFindOneResponse
+from .types.message_send_response import MessageSendResponse
+from .types.message_find_one_response import MessageFindOneResponse
 from ..core.jsonable_encoder import jsonable_encoder
 from ..core.client_wrapper import AsyncClientWrapper
 
@@ -23,16 +21,16 @@ class MessageClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def message_controller_find_all(
+    def find_all(
         self,
         *,
         page: int,
         limit: int,
-        status: typing.Optional[MessageControllerFindAllRequestStatus] = None,
+        status: typing.Optional[MessageFindAllRequestStatus] = None,
         sim_id: typing.Optional[str] = None,
         search: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> MessageControllerFindAllResponse:
+    ) -> MessageFindAllResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
@@ -44,7 +42,7 @@ class MessageClient:
 
         limit : int
 
-        status : typing.Optional[MessageControllerFindAllRequestStatus]
+        status : typing.Optional[MessageFindAllRequestStatus]
 
         sim_id : typing.Optional[str]
 
@@ -55,7 +53,7 @@ class MessageClient:
 
         Returns
         -------
-        MessageControllerFindAllResponse
+        MessageFindAllResponse
 
 
         Examples
@@ -65,7 +63,7 @@ class MessageClient:
         client = UnlimitedMessagingApi(
             token="YOUR_TOKEN",
         )
-        client.message.message_controller_find_all(
+        client.message.find_all(
             page=1,
             limit=1,
         )
@@ -85,9 +83,9 @@ class MessageClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    MessageControllerFindAllResponse,
+                    MessageFindAllResponse,
                     parse_obj_as(
-                        type_=MessageControllerFindAllResponse,  # type: ignore
+                        type_=MessageFindAllResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -96,14 +94,14 @@ class MessageClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def message_controller_send(
+    def send(
         self,
         *,
         recipient: str,
         text: str,
         sim_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> MessageControllerSendResponse:
+    ) -> MessageSendResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
@@ -122,7 +120,7 @@ class MessageClient:
 
         Returns
         -------
-        MessageControllerSendResponse
+        MessageSendResponse
 
 
         Examples
@@ -132,7 +130,7 @@ class MessageClient:
         client = UnlimitedMessagingApi(
             token="YOUR_TOKEN",
         )
-        client.message.message_controller_send(
+        client.message.send(
             recipient="recipient",
             text="text",
         )
@@ -151,9 +149,9 @@ class MessageClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    MessageControllerSendResponse,
+                    MessageSendResponse,
                     parse_obj_as(
-                        type_=MessageControllerSendResponse,  # type: ignore
+                        type_=MessageSendResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -162,9 +160,9 @@ class MessageClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def message_controller_find_one(
+    def find_one(
         self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> MessageControllerFindOneResponse:
+    ) -> MessageFindOneResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
@@ -179,7 +177,7 @@ class MessageClient:
 
         Returns
         -------
-        MessageControllerFindOneResponse
+        MessageFindOneResponse
 
 
         Examples
@@ -189,7 +187,7 @@ class MessageClient:
         client = UnlimitedMessagingApi(
             token="YOUR_TOKEN",
         )
-        client.message.message_controller_find_one(
+        client.message.find_one(
             id="id",
         )
         """
@@ -201,9 +199,9 @@ class MessageClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    MessageControllerFindOneResponse,
+                    MessageFindOneResponse,
                     parse_obj_as(
-                        type_=MessageControllerFindOneResponse,  # type: ignore
+                        type_=MessageFindOneResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -217,16 +215,16 @@ class AsyncMessageClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def message_controller_find_all(
+    async def find_all(
         self,
         *,
         page: int,
         limit: int,
-        status: typing.Optional[MessageControllerFindAllRequestStatus] = None,
+        status: typing.Optional[MessageFindAllRequestStatus] = None,
         sim_id: typing.Optional[str] = None,
         search: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> MessageControllerFindAllResponse:
+    ) -> MessageFindAllResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
@@ -238,7 +236,7 @@ class AsyncMessageClient:
 
         limit : int
 
-        status : typing.Optional[MessageControllerFindAllRequestStatus]
+        status : typing.Optional[MessageFindAllRequestStatus]
 
         sim_id : typing.Optional[str]
 
@@ -249,7 +247,7 @@ class AsyncMessageClient:
 
         Returns
         -------
-        MessageControllerFindAllResponse
+        MessageFindAllResponse
 
 
         Examples
@@ -264,7 +262,7 @@ class AsyncMessageClient:
 
 
         async def main() -> None:
-            await client.message.message_controller_find_all(
+            await client.message.find_all(
                 page=1,
                 limit=1,
             )
@@ -287,9 +285,9 @@ class AsyncMessageClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    MessageControllerFindAllResponse,
+                    MessageFindAllResponse,
                     parse_obj_as(
-                        type_=MessageControllerFindAllResponse,  # type: ignore
+                        type_=MessageFindAllResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -298,14 +296,14 @@ class AsyncMessageClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def message_controller_send(
+    async def send(
         self,
         *,
         recipient: str,
         text: str,
         sim_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> MessageControllerSendResponse:
+    ) -> MessageSendResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
@@ -324,7 +322,7 @@ class AsyncMessageClient:
 
         Returns
         -------
-        MessageControllerSendResponse
+        MessageSendResponse
 
 
         Examples
@@ -339,7 +337,7 @@ class AsyncMessageClient:
 
 
         async def main() -> None:
-            await client.message.message_controller_send(
+            await client.message.send(
                 recipient="recipient",
                 text="text",
             )
@@ -361,9 +359,9 @@ class AsyncMessageClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    MessageControllerSendResponse,
+                    MessageSendResponse,
                     parse_obj_as(
-                        type_=MessageControllerSendResponse,  # type: ignore
+                        type_=MessageSendResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -372,9 +370,9 @@ class AsyncMessageClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def message_controller_find_one(
+    async def find_one(
         self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> MessageControllerFindOneResponse:
+    ) -> MessageFindOneResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
@@ -389,7 +387,7 @@ class AsyncMessageClient:
 
         Returns
         -------
-        MessageControllerFindOneResponse
+        MessageFindOneResponse
 
 
         Examples
@@ -404,7 +402,7 @@ class AsyncMessageClient:
 
 
         async def main() -> None:
-            await client.message.message_controller_find_one(
+            await client.message.find_one(
                 id="id",
             )
 
@@ -419,9 +417,9 @@ class AsyncMessageClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    MessageControllerFindOneResponse,
+                    MessageFindOneResponse,
                     parse_obj_as(
-                        type_=MessageControllerFindOneResponse,  # type: ignore
+                        type_=MessageFindOneResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

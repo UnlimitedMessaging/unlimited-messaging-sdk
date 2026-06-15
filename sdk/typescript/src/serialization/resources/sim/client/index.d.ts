@@ -1,1 +1,1 @@
-export * as simControllerGetLinkedSims from "./simControllerGetLinkedSims";
+export * as getLinkedSims from "./getLinkedSims";

@@ -3,9 +3,7 @@
 from ..core.client_wrapper import SyncClientWrapper
 import typing
 from ..core.request_options import RequestOptions
-from .types.sim_controller_get_linked_sims_response_item import (
-    SimControllerGetLinkedSimsResponseItem,
-)
+from .types.sim_get_linked_sims_response_item import SimGetLinkedSimsResponseItem
 from ..core.pydantic_utilities import parse_obj_as
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
@@ -16,9 +14,9 @@ class SimClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def sim_controller_get_linked_sims(
+    def get_linked_sims(
         self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.List[SimControllerGetLinkedSimsResponseItem]:
+    ) -> typing.List[SimGetLinkedSimsResponseItem]:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
@@ -31,7 +29,7 @@ class SimClient:
 
         Returns
         -------
-        typing.List[SimControllerGetLinkedSimsResponseItem]
+        typing.List[SimGetLinkedSimsResponseItem]
 
 
         Examples
@@ -41,7 +39,7 @@ class SimClient:
         client = UnlimitedMessagingApi(
             token="YOUR_TOKEN",
         )
-        client.sim.sim_controller_get_linked_sims()
+        client.sim.get_linked_sims()
         """
         _response = self._client_wrapper.httpx_client.request(
             "sim",
@@ -51,9 +49,9 @@ class SimClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    typing.List[SimControllerGetLinkedSimsResponseItem],
+                    typing.List[SimGetLinkedSimsResponseItem],
                     parse_obj_as(
-                        type_=typing.List[SimControllerGetLinkedSimsResponseItem],  # type: ignore
+                        type_=typing.List[SimGetLinkedSimsResponseItem],  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -67,9 +65,9 @@ class AsyncSimClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def sim_controller_get_linked_sims(
+    async def get_linked_sims(
         self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.List[SimControllerGetLinkedSimsResponseItem]:
+    ) -> typing.List[SimGetLinkedSimsResponseItem]:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
@@ -82,7 +80,7 @@ class AsyncSimClient:
 
         Returns
         -------
-        typing.List[SimControllerGetLinkedSimsResponseItem]
+        typing.List[SimGetLinkedSimsResponseItem]
 
 
         Examples
@@ -97,7 +95,7 @@ class AsyncSimClient:
 
 
         async def main() -> None:
-            await client.sim.sim_controller_get_linked_sims()
+            await client.sim.get_linked_sims()
 
 
         asyncio.run(main())
@@ -110,9 +108,9 @@ class AsyncSimClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    typing.List[SimControllerGetLinkedSimsResponseItem],
+                    typing.List[SimGetLinkedSimsResponseItem],
                     parse_obj_as(
-                        type_=typing.List[SimControllerGetLinkedSimsResponseItem],  # type: ignore
+                        type_=typing.List[SimGetLinkedSimsResponseItem],  # type: ignore
                         object_=_response.json(),
                     ),
                 )

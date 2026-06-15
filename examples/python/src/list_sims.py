@@ -7,7 +7,7 @@ client = UnlimitedMessagingApi(
 )
 
 # Get all linked SIMs
-sims = client.sim.sim_controller_get_linked_sims()
+sims = client.sim.get_linked_sims()
 
 for sim in sims:
     print(f"SIM {sim.id} — {sim.phone or 'no phone'}")

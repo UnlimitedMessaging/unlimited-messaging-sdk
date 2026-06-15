@@ -1,5 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MessageControllerSendRequest = void 0;
-var MessageControllerSendRequest_1 = require("./MessageControllerSendRequest");
-Object.defineProperty(exports, "MessageControllerSendRequest", { enumerable: true, get: function () { return MessageControllerSendRequest_1.MessageControllerSendRequest; } });
+exports.MessageSendRequest = void 0;
+var MessageSendRequest_1 = require("./MessageSendRequest");
+Object.defineProperty(exports, "MessageSendRequest", { enumerable: true, get: function () { return MessageSendRequest_1.MessageSendRequest; } });
