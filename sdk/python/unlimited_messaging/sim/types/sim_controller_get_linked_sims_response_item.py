@@ -10,6 +10,7 @@ from ...core.pydantic_utilities import IS_PYDANTIC_V2
 class SimControllerGetLinkedSimsResponseItem(UniversalBaseModel):
     id: str
     phone: typing.Optional[str] = None
+    name: typing.Optional[str] = None
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
 

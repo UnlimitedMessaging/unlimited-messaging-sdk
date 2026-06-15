@@ -41,6 +41,7 @@ const core = __importStar(require("../../../../core"));
 exports.SimControllerGetLinkedSimsResponseItem = core.serialization.object({
     id: core.serialization.string(),
     phone: core.serialization.string().nullable(),
+    name: core.serialization.string().nullable(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

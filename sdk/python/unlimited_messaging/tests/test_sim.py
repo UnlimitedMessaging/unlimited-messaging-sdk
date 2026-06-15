@@ -13,6 +13,7 @@ async def test_sim_controller_get_linked_sims(
         {
             "id": "id",
             "phone": "phone",
+            "name": "name",
             "createdAt": "2024-01-15T09:30:00Z",
             "updatedAt": "2024-01-15T09:30:00Z",
         }
@@ -23,6 +24,7 @@ async def test_sim_controller_get_linked_sims(
             0: {
                 "id": None,
                 "phone": None,
+                "name": None,
                 "createdAt": "datetime",
                 "updatedAt": "datetime",
             }

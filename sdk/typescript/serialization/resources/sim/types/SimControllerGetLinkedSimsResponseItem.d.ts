@@ -9,6 +9,7 @@ export declare namespace SimControllerGetLinkedSimsResponseItem {
     interface Raw {
         id: string;
         phone: string | null;
+        name: string | null;
         createdAt: string;
         updatedAt: string;
     }

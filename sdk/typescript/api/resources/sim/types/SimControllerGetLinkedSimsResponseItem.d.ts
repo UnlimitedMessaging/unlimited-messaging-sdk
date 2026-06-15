@@ -4,6 +4,7 @@
 export interface SimControllerGetLinkedSimsResponseItem {
     id: string;
     phone: string | null;
+    name: string | null;
     createdAt: Date;
     updatedAt: Date;
 }
