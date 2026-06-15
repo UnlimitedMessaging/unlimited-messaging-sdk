@@ -1,6 +1,6 @@
 {
   "name": "@unlimited-messaging/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript SDK for the Unlimited Messaging API at https://unlimitedmessaging.app",
   "main": "index.js",
   "types": "index.d.ts",
