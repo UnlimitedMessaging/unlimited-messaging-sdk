@@ -288,7 +288,8 @@ info:
   version: "1.0"
   contact: {}
 tags: []
-servers: []
+servers:
+  - url: https://api.unlimitedmessaging.app
 components:
   securitySchemes:
     bearer:

@@ -2,7 +2,7 @@ import os
 from unlimited_messaging import UnlimitedMessagingApi
 
 client = UnlimitedMessagingApi(
-    base_url="https://api.unlimited-messaging.com",
+    base_url="https://api.unlimitedmessaging.app",
     token=os.environ["API_TOKEN"],
 )
 
