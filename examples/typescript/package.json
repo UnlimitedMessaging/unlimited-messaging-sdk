@@ -1,0 +1,18 @@
+{
+  "name": "unlimited-messaging-examples",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "send-message": "tsx send-message.ts",
+    "list-messages": "tsx list-messages.ts",
+    "list-sims": "tsx list-sims.ts"
+  },
+  "dependencies": {
+    "@unlimited-messaging/sdk": "file:../../sdk/typescript"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "@types/node": "^22.0.0"
+  }
+}

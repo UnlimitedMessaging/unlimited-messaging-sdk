@@ -1,7 +1,6 @@
 import { UnlimitedMessagingApiClient } from "@unlimited-messaging/sdk";
 
 const client = new UnlimitedMessagingApiClient({
-  environment: "https://api.unlimitedmessaging.app",
   token: process.env.API_TOKEN!,
 });
 
@@ -11,7 +10,7 @@ const message = await client.message.messageControllerSend({
   text: "Hello from the SDK!",
 });
 
-console.log(`Message sent — id: ${message.body.id}, status: ${message.body.status}`);
+console.log(`Message sent — id: ${message.id}, status: ${message.status}`);
 
 // Send with a specific SIM
 const messageWithSim = await client.message.messageControllerSend({
@@ -20,4 +19,4 @@ const messageWithSim = await client.message.messageControllerSend({
   simId: "sim_abc123",
 });
 
-console.log(`Sent via SIM ${messageWithSim.body.simId}`);
+console.log(`Sent via SIM ${messageWithSim.simId}`);

@@ -1,7 +1,6 @@
 import { UnlimitedMessagingApiClient } from "@unlimited-messaging/sdk";
 
 const client = new UnlimitedMessagingApiClient({
-  environment: "https://api.unlimitedmessaging.app",
   token: process.env.API_TOKEN!,
 });
 
@@ -11,9 +10,9 @@ const result = await client.message.messageControllerFindAll({
   limit: 20,
 });
 
-console.log(`${result.body.total} messages total (page ${result.body.page}/${result.body.totalPages})`);
+console.log(`${result.total} messages total (page ${result.page}/${result.totalPages})`);
 
-for (const msg of result.body.data) {
+for (const msg of result.data) {
   console.log(`[${msg.direction}] ${msg.interlocutor} — ${msg.status} — ${msg.content}`);
 }
 
@@ -24,4 +23,4 @@ const failed = await client.message.messageControllerFindAll({
   status: "FAILED",
 });
 
-console.log(`${failed.body.total} failed messages`);
+console.log(`${failed.total} failed messages`);

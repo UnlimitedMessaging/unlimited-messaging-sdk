@@ -1,0 +1,14 @@
+{
+  "name": "@unlimited-messaging/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for the Unlimited Messaging API",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "MIT",
+  "dependencies": {
+    "qs": "^6.11.0",
+    "node-fetch": "^2.7.0",
+    "js-base64": "^3.7.0",
+    "url-join": "^4.0.1"
+  }
+}
