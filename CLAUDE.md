@@ -102,8 +102,18 @@ Triggered on push to `main` when `openapi.yaml` changes:
 No Fern cloud auth needed — publishing is done directly with npm/twine.
 
 Secrets required in GitHub Settings → Secrets:
-- `NPM_TOKEN` — npm token with publish permission on `@unlimited-messaging/sdk`
+
+- `NPM_TOKEN` — granular access token with read+write on `@unlimited-messaging/sdk` and "bypass 2FA" enabled. **Expires periodically** — if CI publish fails with 403, regenerate it on npmjs.com → Account Settings → Access Tokens, then update the secret in GitHub Settings → Secrets.
 - `PYPI_TOKEN` — PyPI token with upload permission on `unlimited-messaging`
+
+## Package READMEs
+
+Each package has its own README displayed on npm and PyPI:
+
+- `sdk/typescript/README.md` → shown on [npmjs.com/@unlimited-messaging/sdk](https://www.npmjs.com/package/@unlimited-messaging/sdk)
+- `sdk/python/README.md` → shown on [pypi.org/project/unlimited-messaging](https://pypi.org/project/unlimited-messaging/)
+
+**Always keep these files up to date** when adding new endpoints, changing method names, or updating examples. These are the public-facing docs for SDK users — the root `README.md` is for the GitHub repo only.
 
 ## SDK versioning
 
