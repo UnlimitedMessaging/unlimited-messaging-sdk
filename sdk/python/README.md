@@ -102,4 +102,5 @@ asyncio.run(main())
 | `message.message_controller_find_all` | List messages with pagination and filters |
 | `sim.sim_controller_get_linked_sims` | List linked SIMs |
 
+Official documentation: [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
 Full OpenAPI spec: [openapi.yaml](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/openapi.yaml)

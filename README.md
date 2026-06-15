@@ -4,12 +4,14 @@ Official TypeScript and Python clients for the [Unlimited Messaging](https://unl
 
 ## Installation
 
-**TypeScript / Node.js**
+### TypeScript / Node.js package
+
 ```bash
 npm install @unlimited-messaging/sdk
 ```
 
-**Python**
+### Python package
+
 ```bash
 pip install unlimited-messaging
 ```
@@ -81,33 +83,33 @@ The full API spec is in [`openapi.yaml`](./openapi.yaml). More examples are avai
 
 ### Messages
 
-| Method | Description |
-|---|---|
-| `message.messageControllerSend` | Send a WhatsApp message |
+| Method                             | Description                               |
+| ---------------------------------- | ----------------------------------------- |
+| `message.messageControllerSend`    | Send a WhatsApp message                   |
 | `message.messageControllerFindAll` | List messages with pagination and filters |
 
-**Send options**
+#### Send options
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `recipient` | string | yes | Phone number (E.164 format) |
-| `text` | string | yes | Message content (max 1600 chars) |
-| `simId` | string | no | Force a specific SIM |
+| Field       | Type   | Required | Description                      |
+| ----------- | ------ | -------- | -------------------------------- |
+| `recipient` | string | yes      | Phone number (E.164 format)      |
+| `text`      | string | yes      | Message content (max 1600 chars) |
+| `simId`     | string | no       | Force a specific SIM             |
 
-**List filters**
+#### List filters
 
-| Field | Type | Description |
-|---|---|---|
-| `page` | number | Page number (default: 1) |
-| `limit` | number | Results per page, max 100 (default: 20) |
+| Field    | Type   | Description                                                              |
+| -------- | ------ | ------------------------------------------------------------------------ |
+| `page`   | number | Page number (default: 1)                                                 |
+| `limit`  | number | Results per page, max 100 (default: 20)                                  |
 | `status` | string | Filter by status: `PENDING` `SENDING` `SENT` `DELIVERED` `READ` `FAILED` |
-| `simId` | string | Filter by SIM |
-| `search` | string | Search in content |
+| `simId`  | string | Filter by SIM                                                            |
+| `search` | string | Search in content                                                        |
 
 ### SIMs
 
-| Method | Description |
-|---|---|
+| Method                           | Description                 |
+| -------------------------------- | --------------------------- |
 | `sim.simControllerGetLinkedSims` | Get the list of linked SIMs |
 
 ## Async support (Python)

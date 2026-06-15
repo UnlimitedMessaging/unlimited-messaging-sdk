@@ -81,10 +81,11 @@ for (const sim of sims) {
 
 ## API reference
 
-| Method | Description |
-|---|---|
-| `message.messageControllerSend` | Send a WhatsApp message |
+| Method                             | Description                               |
+| ---------------------------------- | ----------------------------------------- |
+| `message.messageControllerSend`    | Send a WhatsApp message                   |
 | `message.messageControllerFindAll` | List messages with pagination and filters |
-| `sim.simControllerGetLinkedSims` | List linked SIMs |
+| `sim.simControllerGetLinkedSims`   | List linked SIMs                          |
 
+Official documentation: [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
 Full OpenAPI spec: [openapi.yaml](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/openapi.yaml)
