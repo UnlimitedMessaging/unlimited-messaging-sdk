@@ -58,6 +58,14 @@ jobs:
           v = r2.search(r'version = \"(.+?)\"', content).group(1)
           print('Python version:', v)
           "
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('sdk/n8n/package.json', 'utf8'));
+            const [major, minor, patch] = pkg.version.split('.').map(Number);
+            pkg.version = \`\${major}.\${minor}.\${patch + 1}\`;
+            fs.writeFileSync('sdk/n8n/package.json', JSON.stringify(pkg, null, 2) + '\n');
+            console.log('n8n node version:', pkg.version);
+          "
 
       - name: Commit generated SDKs
         run: |
@@ -85,6 +93,16 @@ jobs:
           cd sdk/python
           python -m build
           twine upload dist/* --username __token__ --password $PYPI_TOKEN
+
+      - name: Build & publish n8n node
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          cp LICENSE sdk/n8n/LICENSE
+          cd sdk/n8n
+          npm install
+          npm publish --access public --provenance
 
       - name: Generate release notes from OpenAPI diff
         env:

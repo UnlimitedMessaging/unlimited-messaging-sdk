@@ -1,0 +1,57 @@
+{
+  "name": "n8n-nodes-unlimited-messaging",
+  "version": "0.1.1",
+  "description": "n8n community node for Unlimited Messaging — send and receive WhatsApp messages in your workflows on unlimitedmessaging.app",
+  "keywords": [
+    "n8n-community-node-package",
+    "whatsapp",
+    "messaging",
+    "unlimited-messaging",
+    "whatsapp-api",
+    "n8n"
+  ],
+  "license": "MIT",
+  "homepage": "https://unlimitedmessaging.app",
+  "author": {
+    "name": "Ilian",
+    "email": "ilian572@gmail.com",
+    "url": "https://ilianazz.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unlimitedmessaging/unlimited-messaging-sdk.git",
+    "directory": "sdk/n8n"
+  },
+  "bugs": {
+    "url": "https://github.com/unlimitedmessaging/unlimited-messaging-sdk/issues"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/UnlimitedMessagingApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/UnlimitedMessaging/UnlimitedMessaging.node.js"
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && copyfiles -u 1 \"nodes/**/*.svg\" \"nodes/**/*.json\" dist/nodes/",
+    "dev": "tsc -p tsconfig.json --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "copyfiles": "^2.4.1",
+    "n8n-workflow": "*",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
