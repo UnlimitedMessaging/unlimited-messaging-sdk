@@ -2,6 +2,21 @@
 
 Official [n8n](https://n8n.io) community node for the [Unlimited Messaging](https://unlimitedmessaging.app) API — send and receive WhatsApp messages directly in your n8n workflows.
 
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-unlimited-messaging?style=flat-square&color=cb0000)](https://www.npmjs.com/package/n8n-nodes-unlimited-messaging)
+[![npm downloads](https://img.shields.io/npm/dm/n8n-nodes-unlimited-messaging?style=flat-square&color=cb0000)](https://www.npmjs.com/package/n8n-nodes-unlimited-messaging)
+[![npm total downloads](https://img.shields.io/npm/dt/n8n-nodes-unlimited-messaging?style=flat-square&label=total%20downloads&color=cb0000)](https://www.npmjs.com/package/n8n-nodes-unlimited-messaging)
+[![Bundle size](https://img.shields.io/bundlephobia/minzip/n8n-nodes-unlimited-messaging?style=flat-square&label=gzipped)](https://bundlephobia.com/package/n8n-nodes-unlimited-messaging)
+[![CI](https://img.shields.io/github/actions/workflow/status/unlimitedmessaging/unlimited-messaging-sdk/release.yml?style=flat-square&label=CI)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/actions/workflows/release.yml)
+[![License](https://img.shields.io/npm/l/n8n-nodes-unlimited-messaging?style=flat-square)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/LICENSE)
+[![Socket](https://socket.dev/api/badge/npm/package/n8n-nodes-unlimited-messaging)](https://socket.dev/npm/package/n8n-nodes-unlimited-messaging)
+
+- **Website:** [unlimitedmessaging.app](https://unlimitedmessaging.app)
+- **Docs:** [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
+- **API reference:** [api.unlimitedmessaging.app](https://api.unlimitedmessaging.app)
+- **GitHub:** [unlimitedmessaging/unlimited-messaging-sdk](https://github.com/unlimitedmessaging/unlimited-messaging-sdk)
+- **npm:** [n8n-nodes-unlimited-messaging](https://www.npmjs.com/package/n8n-nodes-unlimited-messaging)
+
+
 ## Installation
 
 In your n8n instance, go to **Settings → Community Nodes** and install:

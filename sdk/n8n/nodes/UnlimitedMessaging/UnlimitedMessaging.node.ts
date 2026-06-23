@@ -7,7 +7,8 @@ import type {
 	INodeTypeDescription,
 	IAllExecuteFunctions,
 } from 'n8n-workflow';
-import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { NodeConnectionTypes, NodeOperationError, NodeApiError } from 'n8n-workflow';
+import type { JsonObject } from 'n8n-workflow';
 
 const BASE_URL = 'https://api.unlimitedmessaging.app';
 
@@ -35,6 +36,7 @@ export class UnlimitedMessaging implements INodeType {
 		subtitle: '={{$parameter["operation"] + " " + $parameter["resource"]}}',
 		description: 'Send and receive WhatsApp messages via the Unlimited Messaging API',
 		defaults: { name: 'Unlimited Messaging' },
+		usableAsTool: true,
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
 		credentials: [
@@ -66,12 +68,6 @@ export class UnlimitedMessaging implements INodeType {
 				displayOptions: { show: { resource: ['message'] } },
 				options: [
 					{
-						name: 'Send',
-						value: 'send',
-						description: 'Send a WhatsApp message',
-						action: 'Send a message',
-					},
-					{
 						name: 'Get',
 						value: 'get',
 						description: 'Get a message by ID',
@@ -82,6 +78,12 @@ export class UnlimitedMessaging implements INodeType {
 						value: 'list',
 						description: 'List messages with optional filters',
 						action: 'List messages',
+					},
+					{
+						name: 'Send',
+						value: 'send',
+						description: 'Send a WhatsApp message',
+						action: 'Send a message',
 					},
 				],
 				default: 'send',
@@ -281,7 +283,7 @@ export class UnlimitedMessaging implements INodeType {
 							responseData = resp.data as IDataObject[];
 						}
 					} else {
-						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
+						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`, { itemIndex: i });
 					}
 				} else if (resource === 'sim') {
 					if (operation === 'list') {
@@ -291,10 +293,10 @@ export class UnlimitedMessaging implements INodeType {
 							json: true,
 						})) as unknown as IDataObject[];
 					} else {
-						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
+						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`, { itemIndex: i });
 					}
 				} else {
-					throw new NodeOperationError(this.getNode(), `Unknown resource: ${resource}`);
+					throw new NodeOperationError(this.getNode(), `Unknown resource: ${resource}`, { itemIndex: i });
 				}
 
 				const executionData = this.helpers.constructExecutionMetaData(
@@ -310,7 +312,7 @@ export class UnlimitedMessaging implements INodeType {
 					results.push({ json: { error: (error as Error).message }, pairedItem: { item: i } });
 					continue;
 				}
-				throw error;
+				throw new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
 			}
 		}
 

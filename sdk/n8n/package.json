@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-unlimited-messaging",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "n8n community node for Unlimited Messaging — send and receive WhatsApp messages in your workflows on unlimitedmessaging.app",
   "keywords": [
     "n8n-community-node-package",
@@ -38,13 +38,18 @@
     ]
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && copyfiles -u 1 \"nodes/**/*.svg\" \"nodes/**/*.json\" dist/nodes/",
+    "build": "tsc -p tsconfig.json && copyfiles -u 1 \"nodes/**/*.svg\" \"nodes/**/*.json\" dist/nodes/ && copyfiles -u 1 \"credentials/**/*.svg\" dist/credentials/",
     "dev": "tsc -p tsconfig.json --watch",
+    "lint": "eslint nodes credentials",
+    "lintFix": "eslint nodes credentials --fix",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "@n8n/eslint-plugin-community-nodes": "^0.21.0",
     "@types/node": "^18.0.0",
+    "@typescript-eslint/parser": "^8.62.0",
     "copyfiles": "^2.4.1",
+    "eslint": "^9.29.0",
     "n8n-workflow": "*",
     "typescript": "^5.0.0"
   },

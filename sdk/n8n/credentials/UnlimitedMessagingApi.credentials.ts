@@ -3,12 +3,14 @@ import type {
 	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
+	Icon,
 } from 'n8n-workflow';
 
 export class UnlimitedMessagingApi implements ICredentialType {
 	name = 'unlimitedMessagingApi';
 	displayName = 'Unlimited Messaging API';
 	documentationUrl = 'https://docs.unlimitedmessaging.app';
+	icon: Icon = 'file:unlimitedmessaging.svg';
 
 	properties: INodeProperties[] = [
 		{
