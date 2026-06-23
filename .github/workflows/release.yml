@@ -3,9 +3,6 @@ name: Release SDKs
 on:
   push:
     branches: [main]
-    paths:
-      - openapi.yaml
-      - sdk/n8n/**
   workflow_dispatch:
 
 jobs:
@@ -21,13 +18,10 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Detect changed files
+      - name: Detect OpenAPI change
         id: detect
         run: |
-          CHANGED=$(git diff HEAD~1 --name-only 2>/dev/null || echo "")
-          echo "$CHANGED"
-
-          if echo "$CHANGED" | grep -q "openapi.yaml"; then
+          if git diff HEAD~1 --name-only 2>/dev/null | grep -q "openapi.yaml"; then
             echo "openapi_changed=true" >> $GITHUB_OUTPUT
           else
             echo "openapi_changed=false" >> $GITHUB_OUTPUT
@@ -53,105 +47,35 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 
-      # ─── TypeScript SDK ────────────────────────────────────────────────────────
       - name: Check & publish TypeScript SDK
         id: ts
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          cp LICENSE sdk/typescript/LICENSE
-          cd sdk/typescript
-          npm install
+          OPENAPI_CHANGED: ${{ steps.detect.outputs.openapi_changed }}
+        run: bash .github/workflows/_publish-typescript.sh
 
-          TARBALL=$(npm pack | tail -1)
-          LOCAL=$(shasum "$TARBALL" | awk '{print $1}')
-          REMOTE=$(npm view @unlimited-messaging/sdk dist.shasum 2>/dev/null || echo "none")
-          rm -f "$TARBALL"
-
-          if [ "$LOCAL" = "$REMOTE" ]; then
-            echo "TypeScript SDK unchanged, skipping"
-          else
-            node -e "
-              const fs = require('fs');
-              const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-              const [M,m,p] = pkg.version.split('.').map(Number);
-              pkg.version = \`\${M}.\${m}.\${p+1}\`;
-              fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
-              console.log('TypeScript version:', pkg.version);
-            "
-            npm publish --access public --provenance
-            echo "published=true" >> $GITHUB_OUTPUT
-          fi
-
-      # ─── Python SDK ────────────────────────────────────────────────────────────
       - name: Check & publish Python SDK
         id: python
-        if: steps.detect.outputs.openapi_changed == 'true'
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          pip install build twine
-          cd sdk/python
+          OPENAPI_CHANGED: ${{ steps.detect.outputs.openapi_changed }}
+        run: bash .github/workflows/_publish-python.sh
 
-          python3 -c "
-          import re
-          with open('pyproject.toml', 'r') as f:
-              content = f.read()
-          def bump(m):
-              return f'version = \"{m.group(1)}.{m.group(2)}.{int(m.group(3))+1}\"'
-          content = re.sub(r'version = \"(\d+)\.(\d+)\.(\d+)\"', bump, content, count=1)
-          with open('pyproject.toml', 'w') as f:
-              f.write(content)
-          import re as r2
-          v = r2.search(r'version = \"(.+?)\"', content).group(1)
-          print('Python version:', v)
-          "
-
-          python -m build
-          twine upload dist/* --username __token__ --password $PYPI_TOKEN --skip-existing
-          echo "published=true" >> $GITHUB_OUTPUT
-
-      # ─── n8n node ──────────────────────────────────────────────────────────────
       - name: Check & publish n8n node
         id: n8n
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          cp LICENSE sdk/n8n/LICENSE
-          cd sdk/n8n
-          npm install
-          npm run build
+        run: bash .github/workflows/_publish-n8n.sh
 
-          TARBALL=$(npm pack | tail -1)
-          LOCAL=$(shasum "$TARBALL" | awk '{print $1}')
-          REMOTE=$(npm view n8n-nodes-unlimited-messaging dist.shasum 2>/dev/null || echo "none")
-          rm -f "$TARBALL"
-
-          if [ "$LOCAL" = "$REMOTE" ]; then
-            echo "n8n node unchanged, skipping"
-          else
-            node -e "
-              const fs = require('fs');
-              const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-              const [M,m,p] = pkg.version.split('.').map(Number);
-              pkg.version = \`\${M}.\${m}.\${p+1}\`;
-              fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
-              console.log('n8n node version:', pkg.version);
-            "
-            npm publish --access public --provenance
-            echo "published=true" >> $GITHUB_OUTPUT
-          fi
-
-      # ─── Commit version bumps ──────────────────────────────────────────────────
       - name: Commit version bumps
+        if: steps.detect.outputs.openapi_changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add sdk/
+          git add sdk/typescript/package.json sdk/python/pyproject.toml sdk/
           git diff --cached --quiet || git commit -m "chore: bump versions [skip ci]"
           git push
 
-      # ─── Release notes + GitHub Release ───────────────────────────────────────
       - name: Generate release notes
         if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true'
         env:
@@ -166,18 +90,12 @@ jobs:
               "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$GEMINI_API_KEY" \
               -H "Content-Type: application/json" \
               --data "$(jq -n --arg diff "$OPENAPI_DIFF" '{
-                contents: [{
-                  parts: [{
-                    text: ("You write release notes for a WhatsApp messaging SDK. Analyze this OpenAPI spec diff and write ONLY what actually changed: new endpoints, removed endpoints, changed parameters, new or removed response fields, renamed methods. If nothing changed in a category, do not mention it. Output only markdown bullet points, no intro sentence, no \"nothing changed\" statements.\n\nDiff:\n" + $diff)
-                  }]
-                }],
+                contents: [{parts: [{text: ("You write release notes for a WhatsApp messaging SDK. Analyze this OpenAPI spec diff and write ONLY what actually changed: new endpoints, removed endpoints, changed parameters, new or removed response fields, renamed methods. If nothing changed in a category, do not mention it. Output only markdown bullet points, no intro sentence, no \"nothing changed\" statements.\n\nDiff:\n" + $diff)}]}],
                 generationConfig: {}
               }')" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null) || NOTES=""
           fi
 
-          if [ -z "$NOTES" ]; then
-            NOTES="SDK update."
-          fi
+          [ -z "$NOTES" ] && NOTES="SDK update."
 
           {
             echo "RELEASE_NOTES<<EOFMARKER"
