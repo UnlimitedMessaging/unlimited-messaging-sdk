@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - openapi.yaml
+      - sdk/n8n/**
   workflow_dispatch:
 
 jobs:
@@ -20,7 +21,19 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Capture OpenAPI diff
+      - name: Detect changed files
+        id: detect
+        run: |
+          CHANGED=$(git diff HEAD~1 --name-only 2>/dev/null || echo "")
+          echo "$CHANGED"
+
+          if echo "$CHANGED" | grep -q "openapi.yaml"; then
+            echo "openapi_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "openapi_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Capture OpenAPI diff (for release notes)
         run: |
           DIFF=$(git diff HEAD~1 -- openapi.yaml 2>/dev/null || echo "")
           {
@@ -29,82 +42,118 @@ jobs:
             echo "EOFMARKER"
           } >> $GITHUB_ENV
 
-      - name: Install Fern
-        run: npm install -g fern-api
-
-      - name: Generate SDKs (local files)
-        run: fern generate --group sdk --local --log-level debug
-
-      - name: Bump patch version
+      - name: Install Fern & regenerate SDKs
+        if: steps.detect.outputs.openapi_changed == 'true'
         run: |
-          node -e "
-            const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('sdk/typescript/package.json', 'utf8'));
-            const [major, minor, patch] = pkg.version.split('.').map(Number);
-            pkg.version = \`\${major}.\${minor}.\${patch + 1}\`;
-            fs.writeFileSync('sdk/typescript/package.json', JSON.stringify(pkg, null, 2) + '\n');
-            console.log('TypeScript version:', pkg.version);
-          "
-          python3 -c "
-          import re
-          with open('sdk/python/pyproject.toml', 'r') as f:
-              content = f.read()
-          def bump(m):
-              return f'version = \"{m.group(1)}.{m.group(2)}.{int(m.group(3))+1}\"'
-          content = re.sub(r'version = \"(\d+)\.(\d+)\.(\d+)\"', bump, content, count=1)
-          with open('sdk/python/pyproject.toml', 'w') as f:
-              f.write(content)
-          import re as r2
-          v = r2.search(r'version = \"(.+?)\"', content).group(1)
-          print('Python version:', v)
-          "
-          node -e "
-            const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('sdk/n8n/package.json', 'utf8'));
-            const [major, minor, patch] = pkg.version.split('.').map(Number);
-            pkg.version = \`\${major}.\${minor}.\${patch + 1}\`;
-            fs.writeFileSync('sdk/n8n/package.json', JSON.stringify(pkg, null, 2) + '\n');
-            console.log('n8n node version:', pkg.version);
-          "
+          npm install -g fern-api
+          fern generate --group sdk --local --log-level debug
 
-      - name: Commit generated SDKs
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add sdk/ sdk/python/pyproject.toml
-          git diff --cached --quiet || git commit -m "chore: regenerate SDKs [skip ci]"
-          git push
+      - name: Setup npm auth
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 
-      - name: Publish to npm
+      # ─── TypeScript SDK ────────────────────────────────────────────────────────
+      - name: Check & publish TypeScript SDK
+        id: ts
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
           cp LICENSE sdk/typescript/LICENSE
           cd sdk/typescript
           npm install
-          npm publish --access public --provenance
 
-      - name: Publish to PyPI
+          TARBALL=$(npm pack | tail -1)
+          LOCAL=$(shasum "$TARBALL" | awk '{print $1}')
+          REMOTE=$(npm view @unlimited-messaging/sdk dist.shasum 2>/dev/null || echo "none")
+          rm -f "$TARBALL"
+
+          if [ "$LOCAL" = "$REMOTE" ]; then
+            echo "TypeScript SDK unchanged, skipping"
+          else
+            node -e "
+              const fs = require('fs');
+              const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+              const [M,m,p] = pkg.version.split('.').map(Number);
+              pkg.version = \`\${M}.\${m}.\${p+1}\`;
+              fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+              console.log('TypeScript version:', pkg.version);
+            "
+            npm publish --access public --provenance
+            echo "published=true" >> $GITHUB_OUTPUT
+          fi
+
+      # ─── Python SDK ────────────────────────────────────────────────────────────
+      - name: Check & publish Python SDK
+        id: python
+        if: steps.detect.outputs.openapi_changed == 'true'
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
           pip install build twine
           cd sdk/python
-          python -m build
-          twine upload dist/* --username __token__ --password $PYPI_TOKEN
 
-      - name: Build & publish n8n node
+          python3 -c "
+          import re
+          with open('pyproject.toml', 'r') as f:
+              content = f.read()
+          def bump(m):
+              return f'version = \"{m.group(1)}.{m.group(2)}.{int(m.group(3))+1}\"'
+          content = re.sub(r'version = \"(\d+)\.(\d+)\.(\d+)\"', bump, content, count=1)
+          with open('pyproject.toml', 'w') as f:
+              f.write(content)
+          import re as r2
+          v = r2.search(r'version = \"(.+?)\"', content).group(1)
+          print('Python version:', v)
+          "
+
+          python -m build
+          twine upload dist/* --username __token__ --password $PYPI_TOKEN --skip-existing
+          echo "published=true" >> $GITHUB_OUTPUT
+
+      # ─── n8n node ──────────────────────────────────────────────────────────────
+      - name: Check & publish n8n node
+        id: n8n
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
           cp LICENSE sdk/n8n/LICENSE
           cd sdk/n8n
           npm install
-          npm publish --access public --provenance
+          npm run build
 
-      - name: Generate release notes from OpenAPI diff
+          TARBALL=$(npm pack | tail -1)
+          LOCAL=$(shasum "$TARBALL" | awk '{print $1}')
+          REMOTE=$(npm view n8n-nodes-unlimited-messaging dist.shasum 2>/dev/null || echo "none")
+          rm -f "$TARBALL"
+
+          if [ "$LOCAL" = "$REMOTE" ]; then
+            echo "n8n node unchanged, skipping"
+          else
+            node -e "
+              const fs = require('fs');
+              const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+              const [M,m,p] = pkg.version.split('.').map(Number);
+              pkg.version = \`\${M}.\${m}.\${p+1}\`;
+              fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+              console.log('n8n node version:', pkg.version);
+            "
+            npm publish --access public --provenance
+            echo "published=true" >> $GITHUB_OUTPUT
+          fi
+
+      # ─── Commit version bumps ──────────────────────────────────────────────────
+      - name: Commit version bumps
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sdk/
+          git diff --cached --quiet || git commit -m "chore: bump versions [skip ci]"
+          git push
+
+      # ─── Release notes + GitHub Release ───────────────────────────────────────
+      - name: Generate release notes
+        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
@@ -137,6 +186,7 @@ jobs:
           } >> $GITHUB_ENV
 
       - name: Create GitHub Release
+        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -146,6 +196,7 @@ jobs:
             --latest
 
       - name: Update CHANGELOG.md
+        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true'
         run: |
           node -e "
             const fs = require('fs');
