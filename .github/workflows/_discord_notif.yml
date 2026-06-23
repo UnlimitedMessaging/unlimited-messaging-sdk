@@ -1,0 +1,87 @@
+name: Discord Notification
+
+on:
+  workflow_call:
+    inputs:
+      message:
+        required: true
+        type: string
+
+      status:
+        required: true
+        type: string
+
+jobs:
+  send-notification:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate Status Input
+        run: |
+          case "${{ inputs.status }}" in
+            neutral|success|pending|fail) ;; # Valid statuses
+            *) echo "Invalid status: ${{ inputs.status }}. Must be one of: neutral, success, pending, fail." && exit 1 ;;
+          esac
+
+      - name: Send Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          REPO_NAME: ${{ github.repository }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
+          TRIGGER_URL: 'https://github.com/${{ github.repository }}/commit/${{ github.event.after }}'
+          MESSAGE: ${{ inputs.message }}
+          STATUS: ${{ inputs.status }}
+        run: |
+          # Escape special characters in COMMIT_MESSAGE
+          ESCAPED_COMMIT_MESSAGE=$(echo "$COMMIT_MESSAGE" | jq -R .)
+
+          # Set color based on status
+          case "$STATUS" in
+            neutral) COLOR=3447003 ;; # Blue
+            success) COLOR=3066993 ;; # Green
+            pending) COLOR=15105570 ;; # Orange
+            fail)    COLOR=15158332 ;; # Red
+            *)       COLOR=3447003 ;; # Default to blue
+          esac
+
+          # Construct JSON payload using jq
+          ESCAPED_PAYLOAD=$(jq -n \
+            --arg branch_name "$BRANCH_NAME" \
+            --arg repo_name "$REPO_NAME" \
+            --arg commit_message "$ESCAPED_COMMIT_MESSAGE" \
+            --arg commit_url "$COMMIT_URL" \
+            --arg trigger_url "$TRIGGER_URL" \
+            --arg description "$MESSAGE" \
+            --arg environment "$([ "$BRANCH_NAME" = "main" ] && echo "Production" || echo "Development")" \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            --argjson color "$COLOR" \
+            '{
+              content: null,
+              embeds: [
+                {
+                  title: "🚀 Deployment Notification",
+                  description: $description,
+                  color: $color,
+                  fields: [
+                    { name: "Branch", value: "**\($branch_name)**", inline: true },
+                    { name: "Environment", value: "**\($environment)**", inline: true },
+                    { name: "Commit", value: "[\($commit_message)](\($commit_url))" },
+                    { name: "Trigger", value: "[View Commit](\($trigger_url))" }
+                  ],
+                  footer: { text: "Repository: \($repo_name)" },
+                  timestamp: $timestamp
+                }
+              ]
+            }'
+          )
+
+          # Output for debugging (optional)
+          echo "$ESCAPED_PAYLOAD" | jq .
+
+          # Send the notification
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "$ESCAPED_PAYLOAD" \
+            "$DISCORD_WEBHOOK"

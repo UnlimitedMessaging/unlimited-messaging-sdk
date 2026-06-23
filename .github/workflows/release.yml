@@ -6,8 +6,19 @@ on:
   workflow_dispatch:
 
 jobs:
+  # ─── Notification de début ─────────────────────────────────────────────────
+  notify-start:
+    uses: ./.github/workflows/_discord_notif.yml
+    with:
+      message: "Release pipeline démarrée"
+      status: "pending"
+    secrets: inherit
+
+  # ─── Pipeline principale ───────────────────────────────────────────────────
   release:
     name: Generate & publish SDKs
+    needs: notify-start
+    if: always()
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -131,3 +142,13 @@ jobs:
           git add CHANGELOG.md
           git diff --cached --quiet || git commit -m "chore: update CHANGELOG for v$RELEASE_VERSION [skip ci]"
           git push
+
+  # ─── Notification de fin ───────────────────────────────────────────────────
+  notify-end:
+    needs: release
+    if: always()
+    uses: ./.github/workflows/_discord_notif.yml
+    with:
+      message: ${{ needs.release.result == 'success' && 'Release pipeline réussie' || 'Release pipeline échouée' }}
+      status: ${{ needs.release.result == 'success' && 'success' || 'fail' }}
+    secrets: inherit
