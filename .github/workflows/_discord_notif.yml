@@ -11,6 +11,11 @@ on:
         required: true
         type: string
 
+      packages:
+        required: false
+        type: string
+        default: ''
+
 jobs:
   send-notification:
     runs-on: ubuntu-latest
@@ -34,6 +39,7 @@ jobs:
           RUN_URL: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
           MESSAGE: ${{ inputs.message }}
           STATUS: ${{ inputs.status }}
+          PACKAGES: ${{ inputs.packages }}
         run: |
           # Escape special characters in COMMIT_MESSAGE
           ESCAPED_COMMIT_MESSAGE=$(echo "$COMMIT_MESSAGE" | jq -R .)
@@ -55,6 +61,7 @@ jobs:
             --arg commit_url "$COMMIT_URL" \
             --arg trigger_url "$TRIGGER_URL" \
             --arg run_url "$RUN_URL" \
+            --arg packages "$PACKAGES" \
             --arg description "$MESSAGE" \
             --arg environment "$([ "$BRANCH_NAME" = "main" ] && echo "Production" || echo "Development")" \
             --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
@@ -66,13 +73,15 @@ jobs:
                   title: "🚀 Deployment Notification",
                   description: $description,
                   color: $color,
-                  fields: [
-                    { name: "Branch", value: "**\($branch_name)**", inline: true },
-                    { name: "Environment", value: "**\($environment)**", inline: true },
-                    { name: "Commit", value: "[\($commit_message)](\($commit_url))" },
-                    { name: "Trigger", value: "[View Commit](\($trigger_url))" },
-                    { name: "Workflow", value: "[View Run](\($run_url))" }
-                  ],
+                  fields: (
+                    [
+                      { name: "Branch", value: "**\($branch_name)**", inline: true },
+                      { name: "Environment", value: "**\($environment)**", inline: true },
+                      { name: "Commit", value: "[\($commit_message)](\($commit_url))" },
+                      { name: "Trigger", value: "[View Commit](\($trigger_url))" },
+                      { name: "Workflow", value: "[View Run](\($run_url))" }
+                    ] + (if $packages != "" then [{ name: "📦 Published", value: $packages }] else [] end)
+                  ),
                   footer: { text: "Repository: \($repo_name)" },
                   timestamp: $timestamp
                 }

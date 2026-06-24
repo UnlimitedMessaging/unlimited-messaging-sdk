@@ -23,6 +23,8 @@ jobs:
     permissions:
       contents: write
       id-token: write
+    outputs:
+      packages: ${{ steps.summary.outputs.packages }}
 
     steps:
       - uses: actions/checkout@v4
@@ -36,6 +38,15 @@ jobs:
             echo "openapi_changed=true" >> $GITHUB_OUTPUT
           else
             echo "openapi_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Detect n8n changes
+        id: detect_n8n
+        run: |
+          if git diff HEAD~1 --name-only 2>/dev/null | grep -E "^sdk/n8n/" | grep -qv "^sdk/n8n/node_modules/"; then
+            echo "n8n_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "n8n_changed=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Capture OpenAPI diff (for release notes)
@@ -76,6 +87,7 @@ jobs:
         id: n8n
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          N8N_CHANGED: ${{ steps.detect_n8n.outputs.n8n_changed }}
         run: bash .github/workflows/_publish-n8n.sh
 
       - name: Commit version bumps
@@ -83,7 +95,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add sdk/typescript/package.json sdk/python/pyproject.toml sdk/
+          git add sdk/typescript/package.json sdk/python/pyproject.toml sdk/n8n/package.json sdk/
           git diff --cached --quiet || git commit -m "chore: bump versions [skip ci]"
           git push
 
@@ -143,6 +155,24 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: update CHANGELOG for v$RELEASE_VERSION [skip ci]"
           git push
 
+      - name: Build packages summary
+        id: summary
+        if: always()
+        run: |
+          {
+            echo "packages<<EOFMARKER"
+            if [ "${{ steps.ts.outputs.published }}" = "true" ]; then
+              echo "[@unlimited-messaging/sdk@${{ steps.ts.outputs.version }}](https://www.npmjs.com/package/@unlimited-messaging/sdk)"
+            fi
+            if [ "${{ steps.python.outputs.published }}" = "true" ]; then
+              echo "[unlimited-messaging@${{ steps.python.outputs.version }}](https://pypi.org/project/unlimited-messaging/${{ steps.python.outputs.version }}/)"
+            fi
+            if [ "${{ steps.n8n.outputs.published }}" = "true" ]; then
+              echo "[n8n-nodes-unlimited-messaging@${{ steps.n8n.outputs.version }}](https://www.npmjs.com/package/n8n-nodes-unlimited-messaging)"
+            fi
+            echo "EOFMARKER"
+          } >> $GITHUB_OUTPUT
+
   # ─── Notification de fin ───────────────────────────────────────────────────
   notify-end:
     needs: release
@@ -151,4 +181,5 @@ jobs:
     with:
       message: ${{ needs.release.result == 'success' && 'Release pipeline réussie' || 'Release pipeline échouée' }}
       status: ${{ needs.release.result == 'success' && 'success' || 'fail' }}
+      packages: ${{ needs.release.outputs.packages }}
     secrets: inherit
