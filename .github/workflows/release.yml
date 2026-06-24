@@ -78,6 +78,7 @@ jobs:
         id: n8n
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          OPENAPI_CHANGED: ${{ steps.detect.outputs.openapi_changed }}
         run: bash .github/workflows/_publish-n8n.sh
 
       - name: Commit regenerated SDKs
