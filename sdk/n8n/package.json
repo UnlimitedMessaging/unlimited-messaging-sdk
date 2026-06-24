@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-unlimited-messaging",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "n8n community node for Unlimited Messaging — send and receive WhatsApp messages in your workflows on unlimitedmessaging.app",
   "keywords": [
     "n8n-community-node-package",
