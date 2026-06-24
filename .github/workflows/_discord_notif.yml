@@ -80,7 +80,7 @@ jobs:
                       { name: "Commit", value: "[\($commit_message)](\($commit_url))" },
                       { name: "Trigger", value: "[View Commit](\($trigger_url))" },
                       { name: "Workflow", value: "[View Run](\($run_url))" }
-                    ] + (if $packages != "" then [{ name: "📦 Published", value: $packages }] else [] end)
+                    ] + [{ name: "📦 Published", value: (if $packages != "" then $packages else "_Aucun package publié_" end) }]
                   ),
                   footer: { text: "Repository: \($repo_name)" },
                   timestamp: $timestamp
