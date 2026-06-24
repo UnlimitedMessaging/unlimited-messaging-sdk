@@ -64,12 +64,14 @@ jobs:
         id: ts
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          OPENAPI_CHANGED: ${{ steps.detect.outputs.openapi_changed }}
         run: bash .github/workflows/_publish-typescript.sh
 
       - name: Check & publish Python SDK
         id: python
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          OPENAPI_CHANGED: ${{ steps.detect.outputs.openapi_changed }}
         run: bash .github/workflows/_publish-python.sh
 
       - name: Check & publish n8n node

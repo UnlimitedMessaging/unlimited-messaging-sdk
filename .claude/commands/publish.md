@@ -27,12 +27,12 @@ You can bump one, two, or all three in the same commit — CI publishes whicheve
 
 ## What CI does on push to `main`
 
-1. Reads the local version from each package file
-2. Reads the currently published version from npm / PyPI
-3. If `local != remote` → builds and publishes
-4. If `local == remote` → skips
+**TypeScript & Python SDKs:**
+- If `openapi.yaml` changed → auto-bumps patch to `max(local, remote) + 1` and publishes. No manual version bump needed — it's fully automatic. The `max` logic prevents conflicts when two CI runs fire in parallel (e.g. two openapi PRs merged back-to-back).
+- If `openapi.yaml` did NOT change but local version ≠ remote → publishes the local version as-is (manual release).
 
-For the TypeScript and Python SDKs, if `openapi.yaml` also changed in the same push, Fern regenerates the SDK source first, then publishes.
+**n8n node:**
+- Only publishes if local version ≠ remote. Always bump manually before pushing.
 
 ---
 
