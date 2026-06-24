@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <defs>
+    <style><![CDATA[
+      @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap');
+    ]]></style>
+  </defs>
+  <rect width="300" height="300" fill="#ffffff"/>
+  <text x="150" y="140" text-anchor="middle" font-family="'Bricolage Grotesque', sans-serif" font-weight="800" font-size="48" letter-spacing="-0.03em" fill="#0D1F16">Unlimited</text>
+  <text x="150" y="184" text-anchor="middle" font-family="'Bricolage Grotesque', sans-serif" font-weight="800" font-size="48" letter-spacing="-0.03em" fill="#075E54">Messaging</text>
+</svg>
