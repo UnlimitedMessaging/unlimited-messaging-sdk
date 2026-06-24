@@ -40,15 +40,6 @@ jobs:
             echo "openapi_changed=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Detect n8n changes
-        id: detect_n8n
-        run: |
-          if git diff HEAD~1 --name-only 2>/dev/null | grep -E "^sdk/n8n/" | grep -qv "^sdk/n8n/node_modules/"; then
-            echo "n8n_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "n8n_changed=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Capture OpenAPI diff (for release notes)
         run: |
           DIFF=$(git diff HEAD~1 -- openapi.yaml 2>/dev/null || echo "")
@@ -73,34 +64,31 @@ jobs:
         id: ts
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          OPENAPI_CHANGED: ${{ steps.detect.outputs.openapi_changed }}
         run: bash .github/workflows/_publish-typescript.sh
 
       - name: Check & publish Python SDK
         id: python
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-          OPENAPI_CHANGED: ${{ steps.detect.outputs.openapi_changed }}
         run: bash .github/workflows/_publish-python.sh
 
       - name: Check & publish n8n node
         id: n8n
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          N8N_CHANGED: ${{ steps.detect_n8n.outputs.n8n_changed }}
         run: bash .github/workflows/_publish-n8n.sh
 
-      - name: Commit version bumps
+      - name: Commit regenerated SDKs
         if: steps.detect.outputs.openapi_changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add sdk/typescript/package.json sdk/python/pyproject.toml sdk/n8n/package.json sdk/
-          git diff --cached --quiet || git commit -m "chore: bump versions [skip ci]"
+          git add sdk/
+          git diff --cached --quiet || git commit -m "chore: regenerate SDKs [skip ci]"
           git push
 
       - name: Generate release notes
-        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true'
+        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true' || steps.n8n.outputs.published == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
@@ -127,7 +115,7 @@ jobs:
           } >> $GITHUB_ENV
 
       - name: Create GitHub Release
-        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true'
+        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true' || steps.n8n.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -137,7 +125,7 @@ jobs:
             --latest
 
       - name: Update CHANGELOG.md
-        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true'
+        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true' || steps.n8n.outputs.published == 'true'
         run: |
           node -e "
             const fs = require('fs');

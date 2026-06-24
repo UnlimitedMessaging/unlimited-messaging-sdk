@@ -26,21 +26,21 @@ Private API repo (NestJS)
 
 ## Key files
 
-| File | Role |
-|---|---|
-| `openapi.yaml` | OpenAPI 3.0 spec, auto-synced from the private API |
-| `fern/generators.yml` | Fern config: `sdk` group (local output to sdk/) and `production` group (unused — publishing is done directly) |
-| `fern/fern.config.json` | Fern org + CLI version |
-| `sdk/typescript/src/` | Generated TypeScript SDK source (compiled JS + .d.ts) — deleted/recreated by Fern |
-| `sdk/typescript/package.json` | npm package config — survives Fern regen (outside `src/`) |
-| `sdk/typescript/README.md` | npm package README — survives Fern regen (outside `src/`) |
-| `sdk/python/unlimited_messaging/` | Generated Python SDK source — deleted/recreated by Fern |
-| `sdk/python/pyproject.toml` | Python package config — survives Fern regen (outside `unlimited_messaging/`) |
-| `sdk/python/README.md` | PyPI package README — survives Fern regen (outside `unlimited_messaging/`) |
-| `examples/typescript/` | TypeScript usage examples (tsx runner) |
-| `examples/python/` | Python usage examples |
-| `Makefile` | Local dev commands: `make generate`, `make install` |
-| `.github/workflows/release.yml` | CI: regenerates sdk/, commits, publishes to npm + PyPI directly |
+| File                              | Role                                                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `openapi.yaml`                    | OpenAPI 3.0 spec, auto-synced from the private API                                                            |
+| `fern/generators.yml`             | Fern config: `sdk` group (local output to sdk/) and `production` group (unused — publishing is done directly) |
+| `fern/fern.config.json`           | Fern org + CLI version                                                                                        |
+| `sdk/typescript/src/`             | Generated TypeScript SDK source (compiled JS + .d.ts) — deleted/recreated by Fern                             |
+| `sdk/typescript/package.json`     | npm package config — survives Fern regen (outside `src/`)                                                     |
+| `sdk/typescript/README.md`        | npm package README — survives Fern regen (outside `src/`)                                                     |
+| `sdk/python/unlimited_messaging/` | Generated Python SDK source — deleted/recreated by Fern                                                       |
+| `sdk/python/pyproject.toml`       | Python package config — survives Fern regen (outside `unlimited_messaging/`)                                  |
+| `sdk/python/README.md`            | PyPI package README — survives Fern regen (outside `unlimited_messaging/`)                                    |
+| `examples/typescript/`            | TypeScript usage examples (tsx runner)                                                                        |
+| `examples/python/`                | Python usage examples                                                                                         |
+| `Makefile`                        | Local dev commands: `make generate`, `make install`                                                           |
+| `.github/workflows/release.yml`   | CI: regenerates sdk/, commits, publishes to npm + PyPI directly                                               |
 
 ## API
 
@@ -50,10 +50,10 @@ Private API repo (NestJS)
 
 ## SDK packages
 
-| Language | Package | Import |
-|---|---|---|
-| TypeScript | `@unlimited-messaging/sdk` (npm) | `UnlimitedMessagingApiClient` |
-| Python | `unlimited-messaging` (PyPI) | `from unlimited_messaging import UnlimitedMessagingApi` |
+| Language   | Package                          | Import                                                  |
+| ---------- | -------------------------------- | ------------------------------------------------------- |
+| TypeScript | `@unlimited-messaging/sdk` (npm) | `UnlimitedMessagingApiClient`                           |
+| Python     | `unlimited-messaging` (PyPI)     | `from unlimited_messaging import UnlimitedMessagingApi` |
 
 ## Local development
 
@@ -78,23 +78,27 @@ API_TOKEN=your_token npx tsx examples/typescript/src/send-message.ts
 
 ## Fern generator versions
 
-| Generator | Version |
-|---|---|
-| fernapi/fern-typescript-node-sdk | 0.51.7 |
-| fernapi/fern-python-sdk | 3.10.8 |
+| Generator                        | Version |
+| -------------------------------- | ------- |
+| fernapi/fern-typescript-node-sdk | 0.51.7  |
+| fernapi/fern-python-sdk          | 3.10.8  |
 
 To upgrade: `fern generator upgrade`
 To include major versions: `fern generator upgrade --include-major`
 
 ## CI workflow
 
-Triggered on push to `main` when `openapi.yaml` changes:
+Triggered on every push to `main`. Publishing is **version-driven** — CI compares the version in each package file against the currently published version on npm/PyPI and publishes only if they differ. Nothing is auto-bumped.
 
-1. Bumps patch version in `sdk/typescript/package.json` and `sdk/python/pyproject.toml`
-2. Runs `fern generate --group sdk --local` — regenerates `sdk/typescript/src/` and `sdk/python/unlimited_messaging/`
-3. Commits `sdk/` + version files with `[skip ci]` to avoid loops
-4. Publishes TypeScript: `npm publish --access public` from `sdk/typescript/`
-5. Publishes Python: `python -m build && twine upload` from `sdk/python/`
+For each of the three packages:
+
+- If `local version != published version` → build and publish
+- If `local version == published version` → skip
+
+Additionally, if `openapi.yaml` changed:
+
+1. Runs `fern generate --group sdk --local` — regenerates `sdk/typescript/src/` and `sdk/python/unlimited_messaging/`
+2. Commits `sdk/` with `[skip ci]` to avoid loops
 
 No Fern cloud auth needed — publishing is done directly with npm/twine.
 
@@ -114,7 +118,10 @@ Each package has its own README displayed on npm and PyPI:
 
 ## SDK versioning
 
-The CI auto-bumps the patch version on every release. For minor or major bumps, edit manually before merging:
+Publishing is version-driven — bump the version manually to trigger a release. Use `/publish` for the full workflow guide.
 
-- TypeScript: `sdk/typescript/package.json` → `version`
-- Python: `sdk/python/pyproject.toml` → `[project] version`
+| Package    | File                          | Field                       |
+| ---------- | ----------------------------- | --------------------------- |
+| TypeScript | `sdk/typescript/package.json` | `"version"`                 |
+| Python     | `sdk/python/pyproject.toml`   | `version` under `[project]` |
+| n8n        | `sdk/n8n/package.json`        | `"version"`                 |

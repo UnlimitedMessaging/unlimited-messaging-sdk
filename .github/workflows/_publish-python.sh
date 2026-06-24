@@ -14,33 +14,12 @@ except:
     print('none')
 ")
 
-if [ "$OPENAPI_CHANGED" = "true" ]; then
-  LOCAL=$(python3 << 'EOF'
-import re, sys
-with open('pyproject.toml', 'r') as f:
-    content = f.read()
-def bump(m):
-    return f'version = "{m.group(1)}.{m.group(2)}.{int(m.group(3))+1}"'
-content = re.sub(r'version = "(\d+)\.(\d+)\.(\d+)"', bump, content, count=1)
-with open('pyproject.toml', 'w') as f:
-    f.write(content)
-v = re.search(r'version = "(.+?)"', content).group(1)
-print(v, file=sys.stderr)
-sys.stdout.write(v)
-EOF
-)
+if [ "$LOCAL" != "$REMOTE" ]; then
+  echo "Publishing unlimited-messaging@$LOCAL..."
   python -m build
   twine upload dist/* --username __token__ --password "$PYPI_TOKEN" --skip-existing
   echo "published=true" >> $GITHUB_OUTPUT
   echo "version=$LOCAL" >> $GITHUB_OUTPUT
-
-elif [ "$LOCAL" != "$REMOTE" ]; then
-  echo "Local v$LOCAL != published v$REMOTE, publishing..."
-  python -m build
-  twine upload dist/* --username __token__ --password "$PYPI_TOKEN" --skip-existing
-  echo "published=true" >> $GITHUB_OUTPUT
-  echo "version=$LOCAL" >> $GITHUB_OUTPUT
-
 else
-  echo "Python SDK up to date (v$LOCAL), skipping"
+  echo "unlimited-messaging up to date (v$LOCAL), skipping"
 fi
