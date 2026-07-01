@@ -5,7 +5,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        No description provided
+        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `simId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
       operationId: Message_find_all
       parameters:
         - name: page
@@ -24,6 +24,15 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
+        - name: channel
+          required: false
+          in: query
+          schema:
+            type: string
+            enum:
+              - WHATSAPP
+              - SMS
+              - EMAIL
         - name: status
           required: false
           in: query
@@ -36,6 +45,15 @@ paths:
               - DELIVERED
               - READ
               - FAILED
+              - UNDELIVERABLE
+        - name: direction
+          required: false
+          in: query
+          schema:
+            type: string
+            enum:
+              - IN
+              - OUT
         - name: simId
           required: false
           in: query
@@ -71,6 +89,10 @@ paths:
                           anyOf:
                             - type: string
                             - type: "null"
+                        error:
+                          anyOf:
+                            - type: string
+                            - type: "null"
                         interlocutor:
                           type: string
                         retryCount:
@@ -88,6 +110,13 @@ paths:
                             - DELIVERED
                             - READ
                             - FAILED
+                            - UNDELIVERABLE
+                        channel:
+                          type: string
+                          enum:
+                            - WHATSAPP
+                            - SMS
+                            - EMAIL
                         createdAt:
                           type: string
                           format: date-time
@@ -101,10 +130,12 @@ paths:
                         - content
                         - direction
                         - externalId
+                        - error
                         - interlocutor
                         - retryCount
                         - simId
                         - status
+                        - channel
                         - createdAt
                         - updatedAt
                       additionalProperties: false
@@ -132,16 +163,22 @@ paths:
                   - totalPages
                 additionalProperties: false
           description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
       security:
         - bearer: []
       summary: List messages with pagination and filters.
       tags:
-        - Message
+        - Messages
     post:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        No description provided
+        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `simId` is omitted, the platform resolves a SIM automatically using this priority order: (1) if the caller has exactly one active SIM, it is used; (2) if the caller has no SIM, the shared system SIM is used as fallback; (3) if the caller has multiple active SIMs, a `400` is returned asking to specify `simId`. Returns `404` if no SIM is available at all. Message text is limited to 1 600 characters.
       operationId: Message_send
       parameters: []
       requestBody:
@@ -154,12 +191,15 @@ paths:
                 recipient:
                   type: string
                   minLength: 1
+                  pattern: ^\+?\d{6,15}$
                 text:
                   type: string
                   minLength: 1
                   maxLength: 1600
                 simId:
-                  type: string
+                  anyOf:
+                    - type: string
+                    - type: "null"
               required:
                 - recipient
                 - text
@@ -184,6 +224,10 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  error:
+                    anyOf:
+                      - type: string
+                      - type: "null"
                   interlocutor:
                     type: string
                   retryCount:
@@ -201,6 +245,13 @@ paths:
                       - DELIVERED
                       - READ
                       - FAILED
+                      - UNDELIVERABLE
+                  channel:
+                    type: string
+                    enum:
+                      - WHATSAPP
+                      - SMS
+                      - EMAIL
                   createdAt:
                     type: string
                     format: date-time
@@ -214,25 +265,37 @@ paths:
                   - content
                   - direction
                   - externalId
+                  - error
                   - interlocutor
                   - retryCount
                   - simId
                   - status
+                  - channel
                   - createdAt
                   - updatedAt
                 additionalProperties: false
           description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+        "422":
+          description: The request could not be processed.
       security:
         - bearer: []
       summary: Send a WhatsApp message.
       tags:
-        - Message
+        - Messages
   /message/{id}:
     get:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        No description provided
+        Returns a single message by its unique identifier. Returns 404 if the message is not found or does not belong to the authenticated user.
       operationId: Message_find_one
       parameters:
         - name: id
@@ -260,6 +323,10 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  error:
+                    anyOf:
+                      - type: string
+                      - type: "null"
                   interlocutor:
                     type: string
                   retryCount:
@@ -277,6 +344,13 @@ paths:
                       - DELIVERED
                       - READ
                       - FAILED
+                      - UNDELIVERABLE
+                  channel:
+                    type: string
+                    enum:
+                      - WHATSAPP
+                      - SMS
+                      - EMAIL
                   createdAt:
                     type: string
                     format: date-time
@@ -290,25 +364,33 @@ paths:
                   - content
                   - direction
                   - externalId
+                  - error
                   - interlocutor
                   - retryCount
                   - simId
                   - status
+                  - channel
                   - createdAt
                   - updatedAt
                 additionalProperties: false
           description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
       security:
         - bearer: []
       summary: Get a message by ID.
       tags:
-        - Message
+        - Messages
   /sim:
     get:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        No description provided
+        Returns all active SIM cards linked to the authenticated user's account. Deactivated SIMs are excluded from the response.
       operationId: Sim_get_linked_sims
       parameters: []
       responses:
@@ -322,6 +404,18 @@ paths:
                   properties:
                     id:
                       type: string
+                    type:
+                      type: string
+                      enum:
+                        - SYSTEM
+                        - USER
+                    status:
+                      type: string
+                      enum:
+                        - ACTIVE
+                        - INACTIVE
+                        - LINKING
+                        - DUPLICATE_PHONE
                     phone:
                       anyOf:
                         - type: string
@@ -340,17 +434,460 @@ paths:
                       pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
                   required:
                     - id
+                    - type
+                    - status
                     - phone
                     - name
                     - createdAt
                     - updatedAt
                   additionalProperties: false
           description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
       security:
         - bearer: []
-      summary: Get the list of active SIMs.
+      summary: List active SIMs.
       tags:
-        - Sim
+        - SIMs
+  /sim/link:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Creates a new SIM in Linking status and starts the Baileys session. Poll GET /sim/:simId/qrcode every second to get the QR code to scan.
+      operationId: Sim_link_sim
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  simId:
+                    type: string
+                required:
+                  - simId
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+      security:
+        - bearer: []
+      summary: Start a WhatsApp linking session.
+      tags:
+        - SIMs
+  /sim/{simId}/qrcode:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Returns the latest QR code for a SIM in Linking status. Poll every second until a QR code is available, then display it. Returns null if the QR is not yet ready.
+      operationId: Sim_get_sim_qr_code
+      parameters:
+        - name: simId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  qrCode:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                required:
+                  - qrCode
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Get the current QR code for a SIM.
+      tags:
+        - SIMs
+  /sim/{simId}:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Returns the current state of a SIM including its status. Use this to poll during the linking flow (LINKING → ACTIVE).
+      operationId: Sim_get_sim
+      parameters:
+        - name: simId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                    enum:
+                      - SYSTEM
+                      - USER
+                  status:
+                    type: string
+                    enum:
+                      - ACTIVE
+                      - INACTIVE
+                      - LINKING
+                      - DUPLICATE_PHONE
+                  phone:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  name:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                required:
+                  - id
+                  - type
+                  - status
+                  - phone
+                  - name
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Get a SIM by ID.
+      tags:
+        - SIMs
+    patch:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Updates the custom display name of a linked SIM card.
+      operationId: Sim_update_sim
+      parameters:
+        - name: simId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+              required:
+                - name
+              additionalProperties: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                    enum:
+                      - SYSTEM
+                      - USER
+                  status:
+                    type: string
+                    enum:
+                      - ACTIVE
+                      - INACTIVE
+                      - LINKING
+                      - DUPLICATE_PHONE
+                  phone:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  name:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                required:
+                  - id
+                  - type
+                  - status
+                  - phone
+                  - name
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+          description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Rename a SIM.
+      tags:
+        - SIMs
+    delete:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Disconnects and permanently deactivates a linked SIM. The associated WhatsApp session is terminated.
+      operationId: Sim_unlink_sim
+      parameters:
+        - name: simId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Deactivate a SIM.
+      tags:
+        - SIMs
+  /api-keys:
+    post:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
+
+        Generates a new API key for the authenticated user. The raw `key` value is only returned once — store it securely.
+      operationId: ApiKey_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                expiresAt:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+              required:
+                - name
+              additionalProperties: false
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  prefix:
+                    type: string
+                  expiresAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                  lastUsedAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                  revokedAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  key:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - prefix
+                  - expiresAt
+                  - lastUsedAt
+                  - revokedAt
+                  - createdAt
+                  - updatedAt
+                  - key
+                additionalProperties: false
+          description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+      security:
+        - bearer: []
+      summary: Create an API key
+      tags:
+        - API Keys
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        Returns all active API keys for the authenticated user. The raw key value is never returned — only metadata (id, name, prefix, dates).
+      operationId: ApiKey_list
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    prefix:
+                      type: string
+                    expiresAt:
+                      anyOf:
+                        - type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                        - type: "null"
+                    lastUsedAt:
+                      anyOf:
+                        - type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                        - type: "null"
+                    revokedAt:
+                      anyOf:
+                        - type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                        - type: "null"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  required:
+                    - id
+                    - name
+                    - prefix
+                    - expiresAt
+                    - lastUsedAt
+                    - revokedAt
+                    - createdAt
+                    - updatedAt
+                  additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+      security:
+        - bearer: []
+      summary: List API keys
+      tags:
+        - API Keys
+  /api-keys/{id}:
+    delete:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
+
+        Permanently revokes an API key by ID. The key is immediately invalidated and cannot be restored.
+      operationId: ApiKey_revoke
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Revoke an API key
+      tags:
+        - API Keys
 info:
   title: Unlimited Messaging
   description: |-
@@ -366,7 +903,11 @@ info:
     url: https://unlimitedmessaging.app
     email: support@unlimitedmessaging.app
   termsOfService: https://unlimitedmessaging.app/privacy
-tags: []
+tags:
+  - name: Messages
+    description: Send and retrieve WhatsApp messages.
+  - name: SIMs
+    description: Manage WhatsApp SIM cards linked to your account.
 servers:
   - url: https://api.unlimitedmessaging.app
     description: production
