@@ -33,10 +33,10 @@
   "homepage": "https://unlimitedmessaging.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/unlimitedmessaging/unlimited-messaging-sdk.git"
+    "url": "https://github.com/UnlimitedMessaging/unlimited-messaging-sdk.git"
   },
   "bugs": {
-    "url": "https://github.com/unlimitedmessaging/unlimited-messaging-sdk/issues"
+    "url": "https://github.com/UnlimitedMessaging/unlimited-messaging-sdk/issues"
   },
   "engines": {
     "node": ">=18"

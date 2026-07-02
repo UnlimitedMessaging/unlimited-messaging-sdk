@@ -48,9 +48,9 @@ dependencies = [
 Homepage = "https://unlimitedmessaging.app"
 Documentation = "https://docs.unlimitedmessaging.app"
 Dashboard = "https://app.unlimitedmessaging.app"
-Repository = "https://github.com/unlimitedmessaging/unlimited-messaging-sdk"
-Issues = "https://github.com/unlimitedmessaging/unlimited-messaging-sdk/issues"
-Changelog = "https://github.com/unlimitedmessaging/unlimited-messaging-sdk/releases"
+Repository = "https://github.com/UnlimitedMessaging/unlimited-messaging-sdk"
+Issues = "https://github.com/UnlimitedMessaging/unlimited-messaging-sdk/issues"
+Changelog = "https://github.com/UnlimitedMessaging/unlimited-messaging-sdk/releases"
 
 [tool.setuptools.packages.find]
 where = ["."]
