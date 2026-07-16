@@ -3,8 +3,9 @@
  */
 import * as environments from "./environments";
 import * as core from "./core";
-import { Message } from "./api/resources/message/client/Client";
-import { Sim } from "./api/resources/sim/client/Client";
+import { Messages } from "./api/resources/messages/client/Client";
+import { SiMs } from "./api/resources/siMs/client/Client";
+import { ApiKeys } from "./api/resources/apiKeys/client/Client";
 export declare namespace UnlimitedMessagingApiClient {
     interface Options {
         environment?: core.Supplier<environments.UnlimitedMessagingApiEnvironment | string>;
@@ -25,9 +26,11 @@ export declare namespace UnlimitedMessagingApiClient {
 }
 export declare class UnlimitedMessagingApiClient {
     protected readonly _options: UnlimitedMessagingApiClient.Options;
-    protected _message: Message | undefined;
-    protected _sim: Sim | undefined;
+    protected _messages: Messages | undefined;
+    protected _siMs: SiMs | undefined;
+    protected _apiKeys: ApiKeys | undefined;
     constructor(_options: UnlimitedMessagingApiClient.Options);
-    get message(): Message;
-    get sim(): Sim;
+    get messages(): Messages;
+    get siMs(): SiMs;
+    get apiKeys(): ApiKeys;
 }

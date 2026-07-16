@@ -4,19 +4,24 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UnlimitedMessagingApiClient = void 0;
-const Client_1 = require("./api/resources/message/client/Client");
-const Client_2 = require("./api/resources/sim/client/Client");
+const Client_1 = require("./api/resources/messages/client/Client");
+const Client_2 = require("./api/resources/siMs/client/Client");
+const Client_3 = require("./api/resources/apiKeys/client/Client");
 class UnlimitedMessagingApiClient {
     constructor(_options) {
         this._options = _options;
     }
-    get message() {
+    get messages() {
         var _a;
-        return ((_a = this._message) !== null && _a !== void 0 ? _a : (this._message = new Client_1.Message(this._options)));
+        return ((_a = this._messages) !== null && _a !== void 0 ? _a : (this._messages = new Client_1.Messages(this._options)));
     }
-    get sim() {
+    get siMs() {
         var _a;
-        return ((_a = this._sim) !== null && _a !== void 0 ? _a : (this._sim = new Client_2.Sim(this._options)));
+        return ((_a = this._siMs) !== null && _a !== void 0 ? _a : (this._siMs = new Client_2.SiMs(this._options)));
+    }
+    get apiKeys() {
+        var _a;
+        return ((_a = this._apiKeys) !== null && _a !== void 0 ? _a : (this._apiKeys = new Client_3.ApiKeys(this._options)));
     }
 }
 exports.UnlimitedMessagingApiClient = UnlimitedMessagingApiClient;

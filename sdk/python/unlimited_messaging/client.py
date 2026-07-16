@@ -4,11 +4,13 @@ import typing
 from .environment import UnlimitedMessagingApiEnvironment
 import httpx
 from .core.client_wrapper import SyncClientWrapper
-from .message.client import MessageClient
-from .sim.client import SimClient
+from .messages.client import MessagesClient
+from .si_ms.client import SiMsClient
+from .api_keys.client import ApiKeysClient
 from .core.client_wrapper import AsyncClientWrapper
-from .message.client import AsyncMessageClient
-from .sim.client import AsyncSimClient
+from .messages.client import AsyncMessagesClient
+from .si_ms.client import AsyncSiMsClient
+from .api_keys.client import AsyncApiKeysClient
 
 
 class UnlimitedMessagingApi:
@@ -73,8 +75,9 @@ class UnlimitedMessagingApi:
             else httpx.Client(timeout=_defaulted_timeout),
             timeout=_defaulted_timeout,
         )
-        self.message = MessageClient(client_wrapper=self._client_wrapper)
-        self.sim = SimClient(client_wrapper=self._client_wrapper)
+        self.messages = MessagesClient(client_wrapper=self._client_wrapper)
+        self.si_ms = SiMsClient(client_wrapper=self._client_wrapper)
+        self.api_keys = ApiKeysClient(client_wrapper=self._client_wrapper)
 
 
 class AsyncUnlimitedMessagingApi:
@@ -139,8 +142,9 @@ class AsyncUnlimitedMessagingApi:
             else httpx.AsyncClient(timeout=_defaulted_timeout),
             timeout=_defaulted_timeout,
         )
-        self.message = AsyncMessageClient(client_wrapper=self._client_wrapper)
-        self.sim = AsyncSimClient(client_wrapper=self._client_wrapper)
+        self.messages = AsyncMessagesClient(client_wrapper=self._client_wrapper)
+        self.si_ms = AsyncSiMsClient(client_wrapper=self._client_wrapper)
+        self.api_keys = AsyncApiKeysClient(client_wrapper=self._client_wrapper)
 
 
 def _get_base_url(
