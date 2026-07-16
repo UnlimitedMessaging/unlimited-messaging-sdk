@@ -3,10 +3,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UnlimitedMessaging = void 0;
 const n8n_workflow_1 = require("n8n-workflow");
 const BASE_URL = 'https://api.unlimitedmessaging.app';
+// Identifies this node to the API. Unlike the TypeScript and Python SDKs, which
+// Fern makes self-describing via X-Fern-Language, this node talks raw HTTP
+// through n8n's request helper - without this header its traffic is
+// indistinguishable from someone calling the API with curl.
+const CLIENT_HEADER = 'X-UM-Client';
+const CLIENT_NAME = 'n8n';
 // httpRequestWithAuthentication requires `this: IAllExecuteFunctions` (union type in n8n-workflow 2.x).
 // IExecuteFunctions is a member of that union, so we cast for the .call() invocation.
 function request(ctx, credentialName, options) {
-    return ctx.helpers.httpRequestWithAuthentication.call(ctx, credentialName, options);
+    return ctx.helpers.httpRequestWithAuthentication.call(ctx, credentialName, {
+        ...options,
+        headers: { [CLIENT_HEADER]: CLIENT_NAME, ...options.headers },
+    });
 }
 class UnlimitedMessaging {
     constructor() {
