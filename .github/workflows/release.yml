@@ -31,14 +31,30 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Detect OpenAPI change
+      - name: Detect what changed
         id: detect
         run: |
-          if git diff HEAD~1 --name-only 2>/dev/null | grep -q "openapi.yaml"; then
-            echo "openapi_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "openapi_changed=false" >> $GITHUB_OUTPUT
+          CHANGED=$(git diff HEAD~1 --name-only 2>/dev/null || echo "")
+
+          OPENAPI=false
+          if grep -qx "openapi.yaml" <<< "$CHANGED"; then OPENAPI=true; fi
+
+          # Hand-written SDK code (the n8n node) changes without the spec ever
+          # moving. Previously nothing triggered a release for that, so such a
+          # change would sit in main, published nowhere, until an unrelated spec
+          # update happened to carry it out.
+          SOURCE=false
+          if grep -qE "^sdk/" <<< "$CHANGED"; then SOURCE=true; fi
+
+          RELEASE=false
+          if [ "$OPENAPI" = "true" ] || [ "$SOURCE" = "true" ] \
+             || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            RELEASE=true
           fi
+
+          echo "openapi_changed=$OPENAPI" >> $GITHUB_OUTPUT
+          echo "should_release=$RELEASE" >> $GITHUB_OUTPUT
+          echo "openapi=$OPENAPI source=$SOURCE -> release=$RELEASE"
 
       - name: Capture OpenAPI diff (for release notes)
         run: |
@@ -60,43 +76,51 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 
-      - name: Check & publish TypeScript SDK
+      - name: Compute release version
+        id: version
+        if: steps.detect.outputs.should_release == 'true'
+        run: bash .github/workflows/_version.sh
+
+      - name: Publish TypeScript SDK
         id: ts
+        if: steps.detect.outputs.should_release == 'true'
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          OPENAPI_CHANGED: ${{ steps.detect.outputs.openapi_changed }}
         run: bash .github/workflows/_publish-typescript.sh
 
-      - name: Check & publish Python SDK
+      - name: Publish Python SDK
         id: python
+        if: steps.detect.outputs.should_release == 'true'
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-          OPENAPI_CHANGED: ${{ steps.detect.outputs.openapi_changed }}
         run: bash .github/workflows/_publish-python.sh
 
-      - name: Check & publish n8n node
+      - name: Publish n8n node
         id: n8n
+        if: steps.detect.outputs.should_release == 'true'
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          OPENAPI_CHANGED: ${{ steps.detect.outputs.openapi_changed }}
         run: bash .github/workflows/_publish-n8n.sh
 
-      - name: Commit regenerated SDKs
-        if: steps.detect.outputs.openapi_changed == 'true'
+      - name: Commit regenerated SDKs and version bump
+        if: steps.detect.outputs.should_release == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add sdk/
-          git diff --cached --quiet || git commit -m "chore: regenerate SDKs [skip ci]"
+          git diff --cached --quiet || \
+            git commit -m "chore: release v${{ steps.version.outputs.version }} [skip ci]"
           git push
 
       - name: Generate release notes
-        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true' || steps.n8n.outputs.published == 'true'
+        if: steps.detect.outputs.should_release == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          VERSION=$(node -e "console.log(require('./sdk/typescript/package.json').version)")
-          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          # The one version every package was just published at. Previously this
+          # read the TypeScript SDK's package.json regardless of what actually
+          # shipped, so an n8n-only release reused the existing tag and failed.
+          echo "RELEASE_VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
           NOTES=""
 
           if [ -n "$OPENAPI_DIFF" ] && [ -n "$GEMINI_API_KEY" ]; then
@@ -118,17 +142,24 @@ jobs:
           } >> $GITHUB_ENV
 
       - name: Create GitHub Release
-        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true' || steps.n8n.outputs.published == 'true'
+        if: steps.detect.outputs.should_release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # Idempotent so re-running a partially failed workflow cannot fail on
+          # the tag alone, after the packages are already on npm and PyPI.
+          if gh release view "v$RELEASE_VERSION" > /dev/null 2>&1; then
+            echo "::warning::Release v$RELEASE_VERSION already exists, skipping"
+            exit 0
+          fi
+
           gh release create "v$RELEASE_VERSION" \
             --title "v$RELEASE_VERSION" \
             --notes "$RELEASE_NOTES" \
             --latest
 
       - name: Update CHANGELOG.md
-        if: steps.ts.outputs.published == 'true' || steps.python.outputs.published == 'true' || steps.n8n.outputs.published == 'true'
+        if: steps.detect.outputs.should_release == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

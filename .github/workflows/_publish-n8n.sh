@@ -1,37 +1,24 @@
 #!/bin/bash
-set -e
+set -euo pipefail
+
+# Publish the n8n community node at whatever version _version.sh already wrote
+# into package.json. Version selection lives there, once, for all three packages.
+#
+# There is no "already published, skip" guard: _version.sh always yields a
+# version strictly above every registry, so a collision cannot happen. If one
+# ever did, npm failing loudly is the right outcome.
+
+PACKAGE="n8n-nodes-unlimited-messaging"
 
 cp LICENSE sdk/n8n/LICENSE
 cd sdk/n8n
 npm install
 npm run build
 
-LOCAL=$(node -e "console.log(require('./package.json').version)")
-REMOTE=$(npm view n8n-nodes-unlimited-messaging version 2>/dev/null || echo "0.0.0")
+VERSION=$(node -pe "require('./package.json').version")
 
-if [ "$OPENAPI_CHANGED" = "true" ]; then
-  # Bump to max(local_patch, remote_patch) + 1 to handle concurrent CI runs
-  LOCAL=$(node -e "
-    const fs = require('fs');
-    const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-    const [M, m, p] = pkg.version.split('.').map(Number);
-    const [rM, rm, rp] = '$REMOTE'.split('.').map(Number);
-    const basePatch = (M === rM && m === rm) ? Math.max(p, rp) : p;
-    pkg.version = M + '.' + m + '.' + (basePatch + 1);
-    fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
-    process.stdout.write(pkg.version);
-  ")
-  echo "Publishing n8n-nodes-unlimited-messaging@$LOCAL..."
-  npm publish --access public --provenance
-  echo "published=true" >> $GITHUB_OUTPUT
-  echo "version=$LOCAL" >> $GITHUB_OUTPUT
+echo "Publishing $PACKAGE@$VERSION..."
+npm publish --access public --provenance
 
-elif [ "$LOCAL" != "$REMOTE" ]; then
-  echo "Publishing n8n-nodes-unlimited-messaging@$LOCAL..."
-  npm publish --access public --provenance
-  echo "published=true" >> $GITHUB_OUTPUT
-  echo "version=$LOCAL" >> $GITHUB_OUTPUT
-
-else
-  echo "n8n-nodes-unlimited-messaging up to date (v$LOCAL), skipping"
-fi
+echo "published=true" >> "$GITHUB_OUTPUT"
+echo "version=$VERSION" >> "$GITHUB_OUTPUT"
