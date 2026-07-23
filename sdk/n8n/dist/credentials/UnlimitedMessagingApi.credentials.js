@@ -6,7 +6,7 @@ class UnlimitedMessagingApi {
         this.name = 'unlimitedMessagingApi';
         this.displayName = 'Unlimited Messaging API';
         this.documentationUrl = 'https://docs.unlimitedmessaging.app';
-        this.icon = 'file:unlimitedmessaging.svg';
+        this.icon = { light: 'file:unlimitedmessaging.svg', dark: 'file:unlimitedmessaging.dark.svg' };
         this.properties = [
             {
                 displayName: 'API Token',

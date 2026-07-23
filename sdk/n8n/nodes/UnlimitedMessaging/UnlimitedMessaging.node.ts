@@ -40,7 +40,7 @@ export class UnlimitedMessaging implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Unlimited Messaging',
 		name: 'unlimitedMessaging',
-		icon: 'file:unlimitedmessaging.svg',
+		icon: { light: 'file:unlimitedmessaging.svg', dark: 'file:unlimitedmessaging.dark.svg' },
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + " " + $parameter["resource"]}}',
@@ -111,7 +111,7 @@ export class UnlimitedMessaging implements INodeType {
 						name: 'List',
 						value: 'list',
 						description: 'List all linked SIM cards (WhatsApp accounts)',
-						action: 'List SIMs',
+						action: 'List sims',
 					},
 				],
 				default: 'list',
@@ -165,17 +165,16 @@ export class UnlimitedMessaging implements INodeType {
 				name: 'returnAll',
 				type: 'boolean',
 				default: false,
-				description:
-					'Whether to return all results by paginating automatically, or only the first page',
+				description: 'Whether to return all results or only up to a given limit',
 				displayOptions: { show: { resource: ['message'], operation: ['list'] } },
 			},
 			{
 				displayName: 'Limit',
 				name: 'limit',
 				type: 'number',
-				default: 20,
+				default: 50,
 				typeOptions: { minValue: 1, maxValue: 100 },
-				description: 'Max number of messages to return',
+				description: 'Max number of results to return',
 				displayOptions: {
 					show: { resource: ['message'], operation: ['list'], returnAll: [false] },
 				},

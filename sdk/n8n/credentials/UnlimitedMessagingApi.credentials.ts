@@ -10,7 +10,7 @@ export class UnlimitedMessagingApi implements ICredentialType {
 	name = 'unlimitedMessagingApi';
 	displayName = 'Unlimited Messaging API';
 	documentationUrl = 'https://docs.unlimitedmessaging.app';
-	icon: Icon = 'file:unlimitedmessaging.svg';
+	icon: Icon = { light: 'file:unlimitedmessaging.svg', dark: 'file:unlimitedmessaging.dark.svg' };
 
 	properties: INodeProperties[] = [
 		{
