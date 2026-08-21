@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9] - 2026-08-21
+
+-   **Changed parameters**
+    -   The `recipient` parameter now requires a mandatory `+` prefix and must contain between 7 and 15 digits (e.g., `+1234567890`). Previously, the `+` prefix was optional and the digit length was between 6 and 15.
+
 ## [0.1.8] - 2026-07-23
 
 SDK update.
