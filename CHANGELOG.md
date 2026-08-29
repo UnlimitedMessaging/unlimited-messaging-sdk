@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.10] - 2026-08-29
+
+SDK update.
+
 ## [0.1.9] - 2026-08-21
 
 -   **Changed parameters**
