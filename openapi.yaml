@@ -117,6 +117,8 @@ paths:
                             - WHATSAPP
                             - SMS
                             - EMAIL
+                        watermarked:
+                          type: boolean
                         createdAt:
                           type: string
                           format: date-time
@@ -136,6 +138,7 @@ paths:
                         - simId
                         - status
                         - channel
+                        - watermarked
                         - createdAt
                         - updatedAt
                       additionalProperties: false
@@ -252,6 +255,8 @@ paths:
                       - WHATSAPP
                       - SMS
                       - EMAIL
+                  watermarked:
+                    type: boolean
                   createdAt:
                     type: string
                     format: date-time
@@ -271,6 +276,7 @@ paths:
                   - simId
                   - status
                   - channel
+                  - watermarked
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -351,6 +357,8 @@ paths:
                       - WHATSAPP
                       - SMS
                       - EMAIL
+                  watermarked:
+                    type: boolean
                   createdAt:
                     type: string
                     format: date-time
@@ -370,6 +378,7 @@ paths:
                   - simId
                   - status
                   - channel
+                  - watermarked
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -383,6 +392,93 @@ paths:
       security:
         - bearer: []
       summary: Get a message by ID.
+      tags:
+        - Messages
+  /message/{id}/status-history:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        Returns every recorded status event per channel for a message owned by the authenticated user, flagging which ones advanced the denormalized current status (out-of-order acks stay non-effective). Returns 404 if the message is not found or does not belong to the authenticated user.
+      operationId: Message_get_status_history
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messageId:
+                    type: string
+                  channels:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        messageChannelId:
+                          type: string
+                        channel:
+                          type: string
+                          enum:
+                            - WHATSAPP
+                            - SMS
+                            - EMAIL
+                        error:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        events:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              status:
+                                type: string
+                                enum:
+                                  - PENDING
+                                  - SENDING
+                                  - SENT
+                                  - DELIVERED
+                                  - READ
+                                  - FAILED
+                                  - UNDELIVERABLE
+                              createdAt:
+                                type: string
+                                format: date-time
+                                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                            required:
+                              - id
+                              - status
+                              - createdAt
+                            additionalProperties: false
+                      required:
+                        - messageChannelId
+                        - channel
+                        - error
+                        - events
+                      additionalProperties: false
+                required:
+                  - messageId
+                  - channels
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Status timeline for a message.
       tags:
         - Messages
   /sim:
