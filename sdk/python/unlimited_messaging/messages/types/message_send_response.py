@@ -21,6 +21,7 @@ class MessageSendResponse(UniversalBaseModel):
     sim_id: str = pydantic.Field(alias="simId")
     status: MessageSendResponseStatus
     channel: MessageSendResponseChannel
+    watermarked: bool
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
 

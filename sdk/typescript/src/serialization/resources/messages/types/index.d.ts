@@ -14,3 +14,8 @@ export * from "./MessageFindOneResponseDirection";
 export * from "./MessageFindOneResponseStatus";
 export * from "./MessageFindOneResponseChannel";
 export * from "./MessageFindOneResponse";
+export * from "./MessageGetStatusHistoryResponseChannelsItemChannel";
+export * from "./MessageGetStatusHistoryResponseChannelsItemEventsItemStatus";
+export * from "./MessageGetStatusHistoryResponseChannelsItemEventsItem";
+export * from "./MessageGetStatusHistoryResponseChannelsItem";
+export * from "./MessageGetStatusHistoryResponse";

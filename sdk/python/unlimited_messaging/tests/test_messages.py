@@ -22,6 +22,7 @@ async def test_message_find_all(
                 "simId": "simId",
                 "status": "PENDING",
                 "channel": "WHATSAPP",
+                "watermarked": True,
                 "createdAt": "2024-01-15T09:30:00Z",
                 "updatedAt": "2024-01-15T09:30:00Z",
             }
@@ -46,6 +47,7 @@ async def test_message_find_all(
                     "simId": None,
                     "status": None,
                     "channel": None,
+                    "watermarked": None,
                     "createdAt": "datetime",
                     "updatedAt": "datetime",
                 }
@@ -77,6 +79,7 @@ async def test_message_send(
         "simId": "simId",
         "status": "PENDING",
         "channel": "WHATSAPP",
+        "watermarked": True,
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -91,6 +94,7 @@ async def test_message_send(
         "simId": None,
         "status": None,
         "channel": None,
+        "watermarked": None,
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
@@ -117,6 +121,7 @@ async def test_message_find_one(
         "simId": "simId",
         "status": "PENDING",
         "channel": "WHATSAPP",
+        "watermarked": True,
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -131,6 +136,7 @@ async def test_message_find_one(
         "simId": None,
         "status": None,
         "channel": None,
+        "watermarked": None,
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
@@ -138,4 +144,48 @@ async def test_message_find_one(
     validate_response(response, expected_response, expected_types)
 
     async_response = await async_client.messages.message_find_one(id="id")
+    validate_response(async_response, expected_response, expected_types)
+
+
+async def test_message_get_status_history(
+    client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
+) -> None:
+    expected_response: typing.Any = {
+        "messageId": "messageId",
+        "channels": [
+            {
+                "messageChannelId": "messageChannelId",
+                "channel": "WHATSAPP",
+                "error": "error",
+                "events": [
+                    {
+                        "id": "id",
+                        "status": "PENDING",
+                        "createdAt": "2024-01-15T09:30:00Z",
+                    }
+                ],
+            }
+        ],
+    }
+    expected_types: typing.Any = {
+        "messageId": None,
+        "channels": (
+            "list",
+            {
+                0: {
+                    "messageChannelId": None,
+                    "channel": None,
+                    "error": None,
+                    "events": (
+                        "list",
+                        {0: {"id": None, "status": None, "createdAt": "datetime"}},
+                    ),
+                }
+            },
+        ),
+    }
+    response = client.messages.message_get_status_history(id="id")
+    validate_response(response, expected_response, expected_types)
+
+    async_response = await async_client.messages.message_get_status_history(id="id")
     validate_response(async_response, expected_response, expected_types)

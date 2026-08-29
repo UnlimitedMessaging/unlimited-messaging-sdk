@@ -20,6 +20,7 @@ export declare namespace MessageSendResponse {
         simId: string;
         status: MessageSendResponseStatus.Raw;
         channel: MessageSendResponseChannel.Raw;
+        watermarked: boolean;
         createdAt: string;
         updatedAt: string;
     }

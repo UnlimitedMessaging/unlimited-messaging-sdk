@@ -36,23 +36,6 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MessageSendResponse = void 0;
+exports.MessageGetStatusHistoryResponseChannelsItemChannel = void 0;
 const core = __importStar(require("../../../../core"));
-const MessageSendResponseDirection_1 = require("./MessageSendResponseDirection");
-const MessageSendResponseStatus_1 = require("./MessageSendResponseStatus");
-const MessageSendResponseChannel_1 = require("./MessageSendResponseChannel");
-exports.MessageSendResponse = core.serialization.object({
-    id: core.serialization.string(),
-    content: core.serialization.string(),
-    direction: MessageSendResponseDirection_1.MessageSendResponseDirection,
-    externalId: core.serialization.string().nullable(),
-    error: core.serialization.string().nullable(),
-    interlocutor: core.serialization.string(),
-    retryCount: core.serialization.number(),
-    simId: core.serialization.string(),
-    status: MessageSendResponseStatus_1.MessageSendResponseStatus,
-    channel: MessageSendResponseChannel_1.MessageSendResponseChannel,
-    watermarked: core.serialization.boolean(),
-    createdAt: core.serialization.date(),
-    updatedAt: core.serialization.date(),
-});
+exports.MessageGetStatusHistoryResponseChannelsItemChannel = core.serialization.enum_(["WHATSAPP", "SMS", "EMAIL"]);

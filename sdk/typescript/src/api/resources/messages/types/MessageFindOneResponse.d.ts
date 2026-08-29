@@ -13,6 +13,7 @@ export interface MessageFindOneResponse {
     simId: string;
     status: UnlimitedMessagingApi.MessageFindOneResponseStatus;
     channel: UnlimitedMessagingApi.MessageFindOneResponseChannel;
+    watermarked: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

@@ -20,6 +20,7 @@ export declare namespace MessageFindAllResponseDataItem {
         simId: string;
         status: MessageFindAllResponseDataItemStatus.Raw;
         channel: MessageFindAllResponseDataItemChannel.Raw;
+        watermarked: boolean;
         createdAt: string;
         updatedAt: string;
     }

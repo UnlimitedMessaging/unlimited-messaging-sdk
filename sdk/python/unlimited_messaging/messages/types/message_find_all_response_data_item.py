@@ -27,6 +27,7 @@ class MessageFindAllResponseDataItem(UniversalBaseModel):
     sim_id: str = pydantic.Field(alias="simId")
     status: MessageFindAllResponseDataItemStatus
     channel: MessageFindAllResponseDataItemChannel
+    watermarked: bool
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
 

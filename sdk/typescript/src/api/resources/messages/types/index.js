@@ -30,3 +30,8 @@ __exportStar(require("./MessageFindOneResponseDirection"), exports);
 __exportStar(require("./MessageFindOneResponseStatus"), exports);
 __exportStar(require("./MessageFindOneResponseChannel"), exports);
 __exportStar(require("./MessageFindOneResponse"), exports);
+__exportStar(require("./MessageGetStatusHistoryResponseChannelsItemChannel"), exports);
+__exportStar(require("./MessageGetStatusHistoryResponseChannelsItemEventsItemStatus"), exports);
+__exportStar(require("./MessageGetStatusHistoryResponseChannelsItemEventsItem"), exports);
+__exportStar(require("./MessageGetStatusHistoryResponseChannelsItem"), exports);
+__exportStar(require("./MessageGetStatusHistoryResponse"), exports);

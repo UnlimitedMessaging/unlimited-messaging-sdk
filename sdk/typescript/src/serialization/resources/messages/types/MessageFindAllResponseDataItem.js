@@ -52,6 +52,7 @@ exports.MessageFindAllResponseDataItem = core.serialization.object({
     simId: core.serialization.string(),
     status: MessageFindAllResponseDataItemStatus_1.MessageFindAllResponseDataItemStatus,
     channel: MessageFindAllResponseDataItemChannel_1.MessageFindAllResponseDataItemChannel,
+    watermarked: core.serialization.boolean(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

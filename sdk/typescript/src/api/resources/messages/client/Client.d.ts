@@ -88,5 +88,23 @@ export declare class Messages {
      */
     messageFindOne(id: string, request?: UnlimitedMessagingApi.MessageFindOneRequest, requestOptions?: Messages.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageFindOneResponse>;
     private __messageFindOne;
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+     *
+     * Returns every recorded status event per channel for a message owned by the authenticated user, flagging which ones advanced the denormalized current status (out-of-order acks stay non-effective). Returns 404 if the message is not found or does not belong to the authenticated user.
+     *
+     * @param {string} id
+     * @param {UnlimitedMessagingApi.MessageGetStatusHistoryRequest} request
+     * @param {Messages.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.NotFoundError}
+     *
+     * @example
+     *     await client.messages.messageGetStatusHistory("id")
+     */
+    messageGetStatusHistory(id: string, request?: UnlimitedMessagingApi.MessageGetStatusHistoryRequest, requestOptions?: Messages.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageGetStatusHistoryResponse>;
+    private __messageGetStatusHistory;
     protected _getAuthorizationHeader(): Promise<string>;
 }

@@ -18,6 +18,7 @@ from ..errors.not_found_error import NotFoundError
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from .types.message_find_one_response import MessageFindOneResponse
 from ..core.jsonable_encoder import jsonable_encoder
+from .types.message_get_status_history_response import MessageGetStatusHistoryResponse
 from ..core.client_wrapper import AsyncClientWrapper
 
 # this is used as the default value for optional parameters
@@ -297,6 +298,86 @@ class MessagesClient:
                     MessageFindOneResponse,
                     parse_obj_as(
                         type_=MessageFindOneResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def message_get_status_history(
+        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> MessageGetStatusHistoryResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        Returns every recorded status event per channel for a message owned by the authenticated user, flagging which ones advanced the denormalized current status (out-of-order acks stay non-effective). Returns 404 if the message is not found or does not belong to the authenticated user.
+
+        Parameters
+        ----------
+        id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        MessageGetStatusHistoryResponse
+
+
+        Examples
+        --------
+        from unlimited_messaging import UnlimitedMessagingApi
+
+        client = UnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+        client.messages.message_get_status_history(
+            id="id",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"message/{jsonable_encoder(id)}/status-history",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    MessageGetStatusHistoryResponse,
+                    parse_obj_as(
+                        type_=MessageGetStatusHistoryResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -633,6 +714,94 @@ class AsyncMessagesClient:
                     MessageFindOneResponse,
                     parse_obj_as(
                         type_=MessageFindOneResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def message_get_status_history(
+        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> MessageGetStatusHistoryResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        Returns every recorded status event per channel for a message owned by the authenticated user, flagging which ones advanced the denormalized current status (out-of-order acks stay non-effective). Returns 404 if the message is not found or does not belong to the authenticated user.
+
+        Parameters
+        ----------
+        id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        MessageGetStatusHistoryResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from unlimited_messaging import AsyncUnlimitedMessagingApi
+
+        client = AsyncUnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.messages.message_get_status_history(
+                id="id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"message/{jsonable_encoder(id)}/status-history",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    MessageGetStatusHistoryResponse,
+                    parse_obj_as(
+                        type_=MessageGetStatusHistoryResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

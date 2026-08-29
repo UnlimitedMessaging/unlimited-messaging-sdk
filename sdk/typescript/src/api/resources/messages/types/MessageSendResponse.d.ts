@@ -13,6 +13,7 @@ export interface MessageSendResponse {
     simId: string;
     status: UnlimitedMessagingApi.MessageSendResponseStatus;
     channel: UnlimitedMessagingApi.MessageSendResponseChannel;
+    watermarked: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

@@ -18,6 +18,19 @@ from .message_find_one_response import MessageFindOneResponse
 from .message_find_one_response_channel import MessageFindOneResponseChannel
 from .message_find_one_response_direction import MessageFindOneResponseDirection
 from .message_find_one_response_status import MessageFindOneResponseStatus
+from .message_get_status_history_response import MessageGetStatusHistoryResponse
+from .message_get_status_history_response_channels_item import (
+    MessageGetStatusHistoryResponseChannelsItem,
+)
+from .message_get_status_history_response_channels_item_channel import (
+    MessageGetStatusHistoryResponseChannelsItemChannel,
+)
+from .message_get_status_history_response_channels_item_events_item import (
+    MessageGetStatusHistoryResponseChannelsItemEventsItem,
+)
+from .message_get_status_history_response_channels_item_events_item_status import (
+    MessageGetStatusHistoryResponseChannelsItemEventsItemStatus,
+)
 from .message_send_response import MessageSendResponse
 from .message_send_response_channel import MessageSendResponseChannel
 from .message_send_response_direction import MessageSendResponseDirection
@@ -36,6 +49,11 @@ __all__ = [
     "MessageFindOneResponseChannel",
     "MessageFindOneResponseDirection",
     "MessageFindOneResponseStatus",
+    "MessageGetStatusHistoryResponse",
+    "MessageGetStatusHistoryResponseChannelsItem",
+    "MessageGetStatusHistoryResponseChannelsItemChannel",
+    "MessageGetStatusHistoryResponseChannelsItemEventsItem",
+    "MessageGetStatusHistoryResponseChannelsItemEventsItemStatus",
     "MessageSendResponse",
     "MessageSendResponseChannel",
     "MessageSendResponseDirection",

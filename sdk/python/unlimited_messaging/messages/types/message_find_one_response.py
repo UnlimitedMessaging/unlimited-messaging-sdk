@@ -21,6 +21,7 @@ class MessageFindOneResponse(UniversalBaseModel):
     sim_id: str = pydantic.Field(alias="simId")
     status: MessageFindOneResponseStatus
     channel: MessageFindOneResponseChannel
+    watermarked: bool
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
 

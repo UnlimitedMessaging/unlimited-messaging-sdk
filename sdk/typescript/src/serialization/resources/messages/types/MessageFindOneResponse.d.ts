@@ -20,6 +20,7 @@ export declare namespace MessageFindOneResponse {
         simId: string;
         status: MessageFindOneResponseStatus.Raw;
         channel: MessageFindOneResponseChannel.Raw;
+        watermarked: boolean;
         createdAt: string;
         updatedAt: string;
     }

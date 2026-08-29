@@ -52,6 +52,7 @@ exports.MessageFindOneResponse = core.serialization.object({
     simId: core.serialization.string(),
     status: MessageFindOneResponseStatus_1.MessageFindOneResponseStatus,
     channel: MessageFindOneResponseChannel_1.MessageFindOneResponseChannel,
+    watermarked: core.serialization.boolean(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

@@ -13,6 +13,7 @@ export interface MessageFindAllResponseDataItem {
     simId: string;
     status: UnlimitedMessagingApi.MessageFindAllResponseDataItemStatus;
     channel: UnlimitedMessagingApi.MessageFindAllResponseDataItemChannel;
+    watermarked: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
