@@ -58,10 +58,10 @@ async def test_message_find_all(
         "limit": "integer",
         "totalPages": "integer",
     }
-    response = client.messages.message_find_all(page=1, limit=1)
+    response = client.messages.message_find_all()
     validate_response(response, expected_response, expected_types)
 
-    async_response = await async_client.messages.message_find_all(page=1, limit=1)
+    async_response = await async_client.messages.message_find_all()
     validate_response(async_response, expected_response, expected_types)
 
 

@@ -32,8 +32,8 @@ class MessagesClient:
     def message_find_all(
         self,
         *,
-        page: int,
-        limit: int,
+        page: typing.Optional[int] = None,
+        limit: typing.Optional[int] = None,
         channel: typing.Optional[MessageFindAllRequestChannel] = None,
         status: typing.Optional[MessageFindAllRequestStatus] = None,
         direction: typing.Optional[MessageFindAllRequestDirection] = None,
@@ -48,9 +48,9 @@ class MessagesClient:
 
         Parameters
         ----------
-        page : int
+        page : typing.Optional[int]
 
-        limit : int
+        limit : typing.Optional[int]
 
         channel : typing.Optional[MessageFindAllRequestChannel]
 
@@ -77,10 +77,7 @@ class MessagesClient:
         client = UnlimitedMessagingApi(
             token="YOUR_TOKEN",
         )
-        client.messages.message_find_all(
-            page=1,
-            limit=1,
-        )
+        client.messages.message_find_all()
         """
         _response = self._client_wrapper.httpx_client.request(
             "message",
@@ -424,8 +421,8 @@ class AsyncMessagesClient:
     async def message_find_all(
         self,
         *,
-        page: int,
-        limit: int,
+        page: typing.Optional[int] = None,
+        limit: typing.Optional[int] = None,
         channel: typing.Optional[MessageFindAllRequestChannel] = None,
         status: typing.Optional[MessageFindAllRequestStatus] = None,
         direction: typing.Optional[MessageFindAllRequestDirection] = None,
@@ -440,9 +437,9 @@ class AsyncMessagesClient:
 
         Parameters
         ----------
-        page : int
+        page : typing.Optional[int]
 
-        limit : int
+        limit : typing.Optional[int]
 
         channel : typing.Optional[MessageFindAllRequestChannel]
 
@@ -474,10 +471,7 @@ class AsyncMessagesClient:
 
 
         async def main() -> None:
-            await client.messages.message_find_all(
-                page=1,
-                limit=1,
-            )
+            await client.messages.message_find_all()
 
 
         asyncio.run(main())

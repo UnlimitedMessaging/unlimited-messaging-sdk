@@ -75,21 +75,22 @@ class Messages {
      * @throws {@link UnlimitedMessagingApi.ForbiddenError}
      *
      * @example
-     *     await client.messages.messageFindAll({
-     *         page: 1,
-     *         limit: 1
-     *     })
+     *     await client.messages.messageFindAll()
      */
-    messageFindAll(request, requestOptions) {
+    messageFindAll(request = {}, requestOptions) {
         return core.HttpResponsePromise.fromPromise(this.__messageFindAll(request, requestOptions));
     }
-    __messageFindAll(request, requestOptions) {
-        return __awaiter(this, void 0, void 0, function* () {
+    __messageFindAll() {
+        return __awaiter(this, arguments, void 0, function* (request = {}, requestOptions) {
             var _a, _b;
             const { page, limit, channel, status, direction, simId, search } = request;
             const _queryParams = {};
-            _queryParams["page"] = page.toString();
-            _queryParams["limit"] = limit.toString();
+            if (page != null) {
+                _queryParams["page"] = page.toString();
+            }
+            if (limit != null) {
+                _queryParams["limit"] = limit.toString();
+            }
             if (channel != null) {
                 _queryParams["channel"] = serializers.MessageFindAllRequestChannel.jsonOrThrow(channel, {
                     unrecognizedObjectKeys: "strip",

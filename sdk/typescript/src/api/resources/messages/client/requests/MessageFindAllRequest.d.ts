@@ -4,14 +4,11 @@
 import * as UnlimitedMessagingApi from "../../../../index";
 /**
  * @example
- *     {
- *         page: 1,
- *         limit: 1
- *     }
+ *     {}
  */
 export interface MessageFindAllRequest {
-    page: number;
-    limit: number;
+    page?: number;
+    limit?: number;
     channel?: UnlimitedMessagingApi.MessageFindAllRequestChannel;
     status?: UnlimitedMessagingApi.MessageFindAllRequestStatus;
     direction?: UnlimitedMessagingApi.MessageFindAllRequestDirection;

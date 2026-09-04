@@ -41,12 +41,9 @@ export declare class Messages {
      * @throws {@link UnlimitedMessagingApi.ForbiddenError}
      *
      * @example
-     *     await client.messages.messageFindAll({
-     *         page: 1,
-     *         limit: 1
-     *     })
+     *     await client.messages.messageFindAll()
      */
-    messageFindAll(request: UnlimitedMessagingApi.MessageFindAllRequest, requestOptions?: Messages.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageFindAllResponse>;
+    messageFindAll(request?: UnlimitedMessagingApi.MessageFindAllRequest, requestOptions?: Messages.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageFindAllResponse>;
     private __messageFindAll;
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
