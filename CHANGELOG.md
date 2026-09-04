@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.11] - 2026-09-04
+
+*   **GET /messages**
+    *   The `page` query parameter is now optional.
+    *   The `limit` query parameter is now optional.
+*   **POST /messages**
+    *   The `recipient` field in the request body no longer enforces a specific phone number pattern (`^\+\d{7,15}$`), allowing for more flexible recipient formats.
+    *   The request body no longer restricts additional properties, allowing for more flexible message payloads.
+*   **POST /media**
+    *   The request body no longer restricts additional properties, allowing for more flexible media upload payloads.
+*   **POST /templates**
+    *   The request body no longer restricts additional properties, allowing for more flexible template creation payloads.
+
 ## [0.1.10] - 2026-08-29
 
 SDK update.
