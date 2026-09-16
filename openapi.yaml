@@ -5,7 +5,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `simId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
+        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
       operationId: Message_find_all
       parameters:
         - name: page
@@ -54,7 +54,7 @@ paths:
             enum:
               - IN
               - OUT
-        - name: simId
+        - name: messagingAccountId
           required: false
           in: query
           schema:
@@ -99,7 +99,7 @@ paths:
                           type: integer
                           minimum: 0
                           maximum: 9007199254740991
-                        simId:
+                        messagingAccountId:
                           type: string
                         status:
                           type: string
@@ -117,6 +117,13 @@ paths:
                             - WHATSAPP
                             - SMS
                             - EMAIL
+                        accountChannel:
+                          type: string
+                          enum:
+                            - WHATSAPP_BAILYES
+                            - EMAIL
+                            - SMS
+                            - WHATSAPP_WHATSMEOW
                         watermarked:
                           type: boolean
                         createdAt:
@@ -135,9 +142,10 @@ paths:
                         - error
                         - interlocutor
                         - retryCount
-                        - simId
+                        - messagingAccountId
                         - status
                         - channel
+                        - accountChannel
                         - watermarked
                         - createdAt
                         - updatedAt
@@ -181,7 +189,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `simId` is omitted, the platform resolves a SIM automatically using this priority order: (1) if the caller has exactly one active SIM, it is used; (2) if the caller has no SIM, the shared system SIM is used as fallback; (3) if the caller has multiple active SIMs, a `400` is returned asking to specify `simId`. Returns `404` if no SIM is available at all. Message text is limited to 1 600 characters.
+        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters.
       operationId: Message_send
       parameters: []
       requestBody:
@@ -198,7 +206,7 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 1600
-                simId:
+                accountId:
                   anyOf:
                     - type: string
                     - type: "null"
@@ -235,7 +243,7 @@ paths:
                     type: integer
                     minimum: 0
                     maximum: 9007199254740991
-                  simId:
+                  messagingAccountId:
                     type: string
                   status:
                     type: string
@@ -253,6 +261,13 @@ paths:
                       - WHATSAPP
                       - SMS
                       - EMAIL
+                  accountChannel:
+                    type: string
+                    enum:
+                      - WHATSAPP_BAILYES
+                      - EMAIL
+                      - SMS
+                      - WHATSAPP_WHATSMEOW
                   watermarked:
                     type: boolean
                   createdAt:
@@ -271,9 +286,10 @@ paths:
                   - error
                   - interlocutor
                   - retryCount
-                  - simId
+                  - messagingAccountId
                   - status
                   - channel
+                  - accountChannel
                   - watermarked
                   - createdAt
                   - updatedAt
@@ -337,7 +353,7 @@ paths:
                     type: integer
                     minimum: 0
                     maximum: 9007199254740991
-                  simId:
+                  messagingAccountId:
                     type: string
                   status:
                     type: string
@@ -355,6 +371,13 @@ paths:
                       - WHATSAPP
                       - SMS
                       - EMAIL
+                  accountChannel:
+                    type: string
+                    enum:
+                      - WHATSAPP_BAILYES
+                      - EMAIL
+                      - SMS
+                      - WHATSAPP_WHATSMEOW
                   watermarked:
                     type: boolean
                   createdAt:
@@ -373,9 +396,10 @@ paths:
                   - error
                   - interlocutor
                   - retryCount
-                  - simId
+                  - messagingAccountId
                   - status
                   - channel
+                  - accountChannel
                   - watermarked
                   - createdAt
                   - updatedAt
@@ -479,13 +503,473 @@ paths:
       summary: Status timeline for a message.
       tags:
         - Messages
-  /sim:
+  /account:
     get:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
+        Returns all active messaging accounts linked to the authenticated user's account. Deactivated accounts are excluded from the response.
+      operationId: Account_list_accounts
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    channel:
+                      type: string
+                      enum:
+                        - WHATSAPP_BAILYES
+                        - EMAIL
+                        - SMS
+                        - WHATSAPP_WHATSMEOW
+                    isSystem:
+                      type: boolean
+                    status:
+                      type: string
+                      enum:
+                        - PENDING
+                        - ACTIVE
+                        - INACTIVE
+                        - LINKING
+                        - BLOCKED
+                        - DUPLICATE
+                    phone:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    name:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    blockedUntil:
+                      anyOf:
+                        - type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                        - type: "null"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  required:
+                    - id
+                    - channel
+                    - isSystem
+                    - status
+                    - phone
+                    - name
+                    - blockedUntil
+                    - createdAt
+                    - updatedAt
+                  additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+      security:
+        - bearer: []
+      summary: List active accounts.
+      tags:
+        - Accounts
+  /account/link:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better.
+      operationId: Account_link_account
+      parameters:
+        - name: mode
+          required: false
+          in: query
+          schema:
+            default: stable
+            type: string
+            enum:
+              - stable
+              - beta
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accountId:
+                    type: string
+                required:
+                  - accountId
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "503":
+          description: The service needed to satisfy this request is not available right now.
+      security:
+        - bearer: []
+      summary: Start a WhatsApp linking session.
+      tags:
+        - Accounts
+  /account/{accountId}/challenge:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Returns whatever the account still needs to finish connecting - a QR code, a short code, a redirect, or nothing for a channel that connects from credentials alone. Poll every second while the account is in Linking status. Returns null once there is nothing left to do.
+      operationId: Account_get_challenge
+      parameters:
+        - name: accountId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  challenge:
+                    anyOf:
+                      - oneOf:
+                          - type: object
+                            properties:
+                              kind:
+                                type: string
+                                const: qr
+                              data:
+                                type: string
+                              expiresAt:
+                                type: string
+                                format: date-time
+                                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                            required:
+                              - kind
+                              - data
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              kind:
+                                type: string
+                                const: code
+                              data:
+                                type: string
+                            required:
+                              - kind
+                              - data
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              kind:
+                                type: string
+                                const: redirect
+                              url:
+                                type: string
+                            required:
+                              - kind
+                              - url
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              kind:
+                                type: string
+                                const: none
+                            required:
+                              - kind
+                            additionalProperties: false
+                      - type: "null"
+                required:
+                  - challenge
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Get the pending connection challenge for an account, if any.
+      tags:
+        - Accounts
+  /account/{accountId}/qrcode:
+    get:
+      deprecated: true
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Deprecated: use GET /account/:accountId/challenge instead, which returns a channel-agnostic `challenge` object rather than a WhatsApp-specific `qrCode` string. This route is removed on 2026-12-16.
+
+        Returns the latest QR code for an account in Linking status. Poll every second until a QR code is available, then display it. Returns null if the QR is not yet ready.
+      operationId: Account_get_qr_code
+      parameters:
+        - name: accountId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  qrCode:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                required:
+                  - qrCode
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Get the current QR code for an account.
+      tags:
+        - Accounts
+  /account/{accountId}:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Returns the current state of an account including its status. Use this to poll during the linking flow (LINKING -> ACTIVE).
+      operationId: Account_get_account
+      parameters:
+        - name: accountId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  channel:
+                    type: string
+                    enum:
+                      - WHATSAPP_BAILYES
+                      - EMAIL
+                      - SMS
+                      - WHATSAPP_WHATSMEOW
+                  isSystem:
+                    type: boolean
+                  status:
+                    type: string
+                    enum:
+                      - PENDING
+                      - ACTIVE
+                      - INACTIVE
+                      - LINKING
+                      - BLOCKED
+                      - DUPLICATE
+                  phone:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  name:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  blockedUntil:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                required:
+                  - id
+                  - channel
+                  - isSystem
+                  - status
+                  - phone
+                  - name
+                  - blockedUntil
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Get an account by ID.
+      tags:
+        - Accounts
+    patch:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Updates the custom display name of a linked messaging account.
+      operationId: Account_update_account
+      parameters:
+        - name: accountId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+              required:
+                - name
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  channel:
+                    type: string
+                    enum:
+                      - WHATSAPP_BAILYES
+                      - EMAIL
+                      - SMS
+                      - WHATSAPP_WHATSMEOW
+                  isSystem:
+                    type: boolean
+                  status:
+                    type: string
+                    enum:
+                      - PENDING
+                      - ACTIVE
+                      - INACTIVE
+                      - LINKING
+                      - BLOCKED
+                      - DUPLICATE
+                  phone:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  name:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  blockedUntil:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                required:
+                  - id
+                  - channel
+                  - isSystem
+                  - status
+                  - phone
+                  - name
+                  - blockedUntil
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+          description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Rename an account.
+      tags:
+        - Accounts
+    delete:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Disconnects and permanently deactivates a linked account. The associated WhatsApp session is terminated.
+      operationId: Account_unlink_account
+      parameters:
+        - name: accountId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Deactivate an account.
+      tags:
+        - Accounts
+  /sim:
+    get:
+      deprecated: true
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Deprecated: use GET /account instead, which returns `channel` + `isSystem` in place of `type`. This route is removed on 2026-12-16.
+
         Returns all active SIM cards linked to the authenticated user's account. Deactivated SIMs are excluded from the response.
-      operationId: Sim_get_linked_sims
+      operationId: SimLegacy_get_linked_sims
       parameters: []
       responses:
         "200":
@@ -503,14 +987,24 @@ paths:
                       enum:
                         - SYSTEM
                         - USER
+                    channel:
+                      type: string
+                      enum:
+                        - WHATSAPP_BAILYES
+                        - EMAIL
+                        - SMS
+                        - WHATSAPP_WHATSMEOW
+                    isSystem:
+                      type: boolean
                     status:
                       type: string
                       enum:
+                        - PENDING
                         - ACTIVE
                         - INACTIVE
                         - LINKING
-                        - DUPLICATE_PHONE
                         - BLOCKED
+                        - DUPLICATE
                     phone:
                       anyOf:
                         - type: string
@@ -536,6 +1030,8 @@ paths:
                   required:
                     - id
                     - type
+                    - channel
+                    - isSystem
                     - status
                     - phone
                     - name
@@ -550,16 +1046,19 @@ paths:
           description: Insufficient permissions to access this resource.
       security:
         - bearer: []
-      summary: List active SIMs.
+      summary: List active SIMs. (deprecated)
       tags:
-        - SIMs
+        - SIMs (deprecated)
   /sim/link:
     get:
+      deprecated: true
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Creates a new SIM in Linking status and starts the Baileys session. Poll GET /sim/:simId/qrcode every second to get the QR code to scan.
-      operationId: Sim_link_sim
+        Deprecated: use GET /account/link instead, which also lets you pick the `beta` connection method. This route is removed on 2026-12-16 and always links on `stable`.
+
+        Creates a new SIM in Linking status and starts the WhatsApp session. Poll GET /sim/:simId/qrcode every second to get the QR code to scan.
+      operationId: SimLegacy_link_sim
       parameters: []
       responses:
         "200":
@@ -578,18 +1077,23 @@ paths:
           description: Missing or invalid authentication credentials.
         "403":
           description: Insufficient permissions to access this resource.
+        "503":
+          description: The service needed to satisfy this request is not available right now.
       security:
         - bearer: []
-      summary: Start a WhatsApp linking session.
+      summary: Start a WhatsApp linking session. (deprecated)
       tags:
-        - SIMs
+        - SIMs (deprecated)
   /sim/{simId}/qrcode:
     get:
+      deprecated: true
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
+        Deprecated: use GET /account/:accountId/challenge instead, which returns a channel-agnostic `challenge` object rather than a WhatsApp-specific `qrCode` string. This route is removed on 2026-12-16.
+
         Returns the latest QR code for a SIM in Linking status. Poll every second until a QR code is available, then display it. Returns null if the QR is not yet ready.
-      operationId: Sim_get_sim_qr_code
+      operationId: SimLegacy_get_sim_qr_code
       parameters:
         - name: simId
           required: true
@@ -619,16 +1123,19 @@ paths:
           description: The requested resource was not found.
       security:
         - bearer: []
-      summary: Get the current QR code for a SIM.
+      summary: Get the current QR code for a SIM. (deprecated)
       tags:
-        - SIMs
+        - SIMs (deprecated)
   /sim/{simId}:
     get:
+      deprecated: true
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Returns the current state of a SIM including its status. Use this to poll during the linking flow (LINKING → ACTIVE).
-      operationId: Sim_get_sim
+        Deprecated: use GET /account/:accountId instead, which returns `channel` + `isSystem` in place of `type`. This route is removed on 2026-12-16.
+
+        Returns the current state of a SIM including its status. Use this to poll during the linking flow (LINKING -> ACTIVE).
+      operationId: SimLegacy_get_sim
       parameters:
         - name: simId
           required: true
@@ -649,14 +1156,24 @@ paths:
                     enum:
                       - SYSTEM
                       - USER
+                  channel:
+                    type: string
+                    enum:
+                      - WHATSAPP_BAILYES
+                      - EMAIL
+                      - SMS
+                      - WHATSAPP_WHATSMEOW
+                  isSystem:
+                    type: boolean
                   status:
                     type: string
                     enum:
+                      - PENDING
                       - ACTIVE
                       - INACTIVE
                       - LINKING
-                      - DUPLICATE_PHONE
                       - BLOCKED
+                      - DUPLICATE
                   phone:
                     anyOf:
                       - type: string
@@ -682,6 +1199,8 @@ paths:
                 required:
                   - id
                   - type
+                  - channel
+                  - isSystem
                   - status
                   - phone
                   - name
@@ -698,15 +1217,18 @@ paths:
           description: The requested resource was not found.
       security:
         - bearer: []
-      summary: Get a SIM by ID.
+      summary: Get a SIM by ID. (deprecated)
       tags:
-        - SIMs
+        - SIMs (deprecated)
     patch:
+      deprecated: true
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
+        Deprecated: use PATCH /account/:accountId instead. This route is removed on 2026-12-16.
+
         Updates the custom display name of a linked SIM card.
-      operationId: Sim_update_sim
+      operationId: SimLegacy_update_sim
       parameters:
         - name: simId
           required: true
@@ -740,14 +1262,24 @@ paths:
                     enum:
                       - SYSTEM
                       - USER
+                  channel:
+                    type: string
+                    enum:
+                      - WHATSAPP_BAILYES
+                      - EMAIL
+                      - SMS
+                      - WHATSAPP_WHATSMEOW
+                  isSystem:
+                    type: boolean
                   status:
                     type: string
                     enum:
+                      - PENDING
                       - ACTIVE
                       - INACTIVE
                       - LINKING
-                      - DUPLICATE_PHONE
                       - BLOCKED
+                      - DUPLICATE
                   phone:
                     anyOf:
                       - type: string
@@ -773,6 +1305,8 @@ paths:
                 required:
                   - id
                   - type
+                  - channel
+                  - isSystem
                   - status
                   - phone
                   - name
@@ -791,15 +1325,18 @@ paths:
           description: The requested resource was not found.
       security:
         - bearer: []
-      summary: Rename a SIM.
+      summary: Rename a SIM. (deprecated)
       tags:
-        - SIMs
+        - SIMs (deprecated)
     delete:
+      deprecated: true
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
+        Deprecated: use DELETE /account/:accountId instead. This route is removed on 2026-12-16.
+
         Disconnects and permanently deactivates a linked SIM. The associated WhatsApp session is terminated.
-      operationId: Sim_unlink_sim
+      operationId: SimLegacy_unlink_sim
       parameters:
         - name: simId
           required: true
@@ -817,9 +1354,356 @@ paths:
           description: The requested resource was not found.
       security:
         - bearer: []
-      summary: Deactivate a SIM.
+      summary: Deactivate a SIM. (deprecated)
       tags:
-        - SIMs
+        - SIMs (deprecated)
+  /webhooks:
+    post:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
+
+        Registers a URL to receive signed HTTP POST requests for the given event types. The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
+      operationId: WebhookEndpoint_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                description:
+                  type: string
+                  maxLength: 500
+                eventTypes:
+                  minItems: 1
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - message.received
+              required:
+                - url
+                - eventTypes
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  url:
+                    type: string
+                  description:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  secretPrefix:
+                    type: string
+                  enabled:
+                    type: boolean
+                  eventTypes:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - message.received
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  secret:
+                    type: string
+                required:
+                  - id
+                  - url
+                  - description
+                  - secretPrefix
+                  - enabled
+                  - eventTypes
+                  - createdAt
+                  - updatedAt
+                  - secret
+                additionalProperties: false
+          description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: |-
+            Insufficient permissions to access this resource.
+
+            Insufficient permissions to access this resource.
+      security:
+        - bearer: []
+      summary: Register a webhook endpoint
+      tags:
+        - Webhooks
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to. Never includes the secret.
+      operationId: WebhookEndpoint_list
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        url:
+                          type: string
+                        description:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        secretPrefix:
+                          type: string
+                        enabled:
+                          type: boolean
+                        eventTypes:
+                          type: array
+                          items:
+                            type: string
+                            enum:
+                              - message.received
+                        createdAt:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      required:
+                        - id
+                        - url
+                        - description
+                        - secretPrefix
+                        - enabled
+                        - eventTypes
+                        - createdAt
+                        - updatedAt
+                      additionalProperties: false
+                required:
+                  - data
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+      security:
+        - bearer: []
+      summary: List webhook endpoints
+      tags:
+        - Webhooks
+  /webhooks/{id}:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        No description provided
+      operationId: WebhookEndpoint_find_one
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  url:
+                    type: string
+                  description:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  secretPrefix:
+                    type: string
+                  enabled:
+                    type: boolean
+                  eventTypes:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - message.received
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                required:
+                  - id
+                  - url
+                  - description
+                  - secretPrefix
+                  - enabled
+                  - eventTypes
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Get a webhook endpoint by ID
+      tags:
+        - Webhooks
+    patch:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
+
+        Updates the URL, description, enabled state, and/or subscribed event types. Omit a field to leave it unchanged.
+      operationId: WebhookEndpoint_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                description:
+                  anyOf:
+                    - type: string
+                      maxLength: 500
+                    - type: "null"
+                enabled:
+                  type: boolean
+                eventTypes:
+                  minItems: 1
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - message.received
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  url:
+                    type: string
+                  description:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  secretPrefix:
+                    type: string
+                  enabled:
+                    type: boolean
+                  eventTypes:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - message.received
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                required:
+                  - id
+                  - url
+                  - description
+                  - secretPrefix
+                  - enabled
+                  - eventTypes
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+          description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Update a webhook endpoint
+      tags:
+        - Webhooks
+    delete:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
+
+        Permanently deletes the endpoint and its delivery history.
+      operationId: WebhookEndpoint_delete
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+      security:
+        - bearer: []
+      summary: Delete a webhook endpoint
+      tags:
+        - Webhooks
   /api-keys:
     post:
       description: |-
@@ -1027,7 +1911,7 @@ tags:
 servers:
   - url: https://api.unlimitedmessaging.app
     description: production
-  - url: http://localhost:3000
+  - url: http://localhost:19300
     description: development
 components:
   securitySchemes:
