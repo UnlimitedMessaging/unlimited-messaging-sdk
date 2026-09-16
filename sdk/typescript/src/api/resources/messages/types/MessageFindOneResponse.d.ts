@@ -10,9 +10,10 @@ export interface MessageFindOneResponse {
     error: string | null;
     interlocutor: string;
     retryCount: number;
-    simId: string;
+    messagingAccountId: string;
     status: UnlimitedMessagingApi.MessageFindOneResponseStatus;
     channel: UnlimitedMessagingApi.MessageFindOneResponseChannel;
+    accountChannel: UnlimitedMessagingApi.MessageFindOneResponseAccountChannel;
     watermarked: boolean;
     createdAt: Date;
     updatedAt: Date;

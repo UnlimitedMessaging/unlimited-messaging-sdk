@@ -37,14 +37,14 @@ class MessagesClient:
         channel: typing.Optional[MessageFindAllRequestChannel] = None,
         status: typing.Optional[MessageFindAllRequestStatus] = None,
         direction: typing.Optional[MessageFindAllRequestDirection] = None,
-        sim_id: typing.Optional[str] = None,
+        messaging_account_id: typing.Optional[str] = None,
         search: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MessageFindAllResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `simId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
+        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
 
         Parameters
         ----------
@@ -58,7 +58,7 @@ class MessagesClient:
 
         direction : typing.Optional[MessageFindAllRequestDirection]
 
-        sim_id : typing.Optional[str]
+        messaging_account_id : typing.Optional[str]
 
         search : typing.Optional[str]
 
@@ -88,7 +88,7 @@ class MessagesClient:
                 "channel": channel,
                 "status": status,
                 "direction": direction,
-                "simId": sim_id,
+                "messagingAccountId": messaging_account_id,
                 "search": search,
             },
             request_options=request_options,
@@ -142,13 +142,13 @@ class MessagesClient:
         *,
         recipient: str,
         text: str,
-        sim_id: typing.Optional[str] = OMIT,
+        account_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MessageSendResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `simId` is omitted, the platform resolves a SIM automatically using this priority order: (1) if the caller has exactly one active SIM, it is used; (2) if the caller has no SIM, the shared system SIM is used as fallback; (3) if the caller has multiple active SIMs, a `400` is returned asking to specify `simId`. Returns `404` if no SIM is available at all. Message text is limited to 1 600 characters.
+        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters.
 
         Parameters
         ----------
@@ -156,7 +156,7 @@ class MessagesClient:
 
         text : str
 
-        sim_id : typing.Optional[str]
+        account_id : typing.Optional[str]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -184,7 +184,7 @@ class MessagesClient:
             json={
                 "recipient": recipient,
                 "text": text,
-                "simId": sim_id,
+                "accountId": account_id,
             },
             request_options=request_options,
             omit=OMIT,
@@ -426,14 +426,14 @@ class AsyncMessagesClient:
         channel: typing.Optional[MessageFindAllRequestChannel] = None,
         status: typing.Optional[MessageFindAllRequestStatus] = None,
         direction: typing.Optional[MessageFindAllRequestDirection] = None,
-        sim_id: typing.Optional[str] = None,
+        messaging_account_id: typing.Optional[str] = None,
         search: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MessageFindAllResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `simId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
+        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
 
         Parameters
         ----------
@@ -447,7 +447,7 @@ class AsyncMessagesClient:
 
         direction : typing.Optional[MessageFindAllRequestDirection]
 
-        sim_id : typing.Optional[str]
+        messaging_account_id : typing.Optional[str]
 
         search : typing.Optional[str]
 
@@ -485,7 +485,7 @@ class AsyncMessagesClient:
                 "channel": channel,
                 "status": status,
                 "direction": direction,
-                "simId": sim_id,
+                "messagingAccountId": messaging_account_id,
                 "search": search,
             },
             request_options=request_options,
@@ -539,13 +539,13 @@ class AsyncMessagesClient:
         *,
         recipient: str,
         text: str,
-        sim_id: typing.Optional[str] = OMIT,
+        account_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MessageSendResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `simId` is omitted, the platform resolves a SIM automatically using this priority order: (1) if the caller has exactly one active SIM, it is used; (2) if the caller has no SIM, the shared system SIM is used as fallback; (3) if the caller has multiple active SIMs, a `400` is returned asking to specify `simId`. Returns `404` if no SIM is available at all. Message text is limited to 1 600 characters.
+        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters.
 
         Parameters
         ----------
@@ -553,7 +553,7 @@ class AsyncMessagesClient:
 
         text : str
 
-        sim_id : typing.Optional[str]
+        account_id : typing.Optional[str]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -589,7 +589,7 @@ class AsyncMessagesClient:
             json={
                 "recipient": recipient,
                 "text": text,
-                "simId": sim_id,
+                "accountId": account_id,
             },
             request_options=request_options,
             omit=OMIT,

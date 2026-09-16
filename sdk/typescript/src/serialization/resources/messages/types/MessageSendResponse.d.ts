@@ -7,6 +7,7 @@ import * as core from "../../../../core";
 import { MessageSendResponseDirection } from "./MessageSendResponseDirection";
 import { MessageSendResponseStatus } from "./MessageSendResponseStatus";
 import { MessageSendResponseChannel } from "./MessageSendResponseChannel";
+import { MessageSendResponseAccountChannel } from "./MessageSendResponseAccountChannel";
 export declare const MessageSendResponse: core.serialization.ObjectSchema<serializers.MessageSendResponse.Raw, UnlimitedMessagingApi.MessageSendResponse>;
 export declare namespace MessageSendResponse {
     interface Raw {
@@ -17,9 +18,10 @@ export declare namespace MessageSendResponse {
         error: string | null;
         interlocutor: string;
         retryCount: number;
-        simId: string;
+        messagingAccountId: string;
         status: MessageSendResponseStatus.Raw;
         channel: MessageSendResponseChannel.Raw;
+        accountChannel: MessageSendResponseAccountChannel.Raw;
         watermarked: boolean;
         createdAt: string;
         updatedAt: string;

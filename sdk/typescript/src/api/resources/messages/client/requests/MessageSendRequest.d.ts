@@ -11,5 +11,5 @@
 export interface MessageSendRequest {
     recipient: string;
     text: string;
-    simId?: string | null;
+    accountId?: string | null;
 }

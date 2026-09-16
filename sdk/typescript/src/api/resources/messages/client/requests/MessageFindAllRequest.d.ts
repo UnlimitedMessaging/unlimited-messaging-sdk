@@ -12,6 +12,6 @@ export interface MessageFindAllRequest {
     channel?: UnlimitedMessagingApi.MessageFindAllRequestChannel;
     status?: UnlimitedMessagingApi.MessageFindAllRequestStatus;
     direction?: UnlimitedMessagingApi.MessageFindAllRequestDirection;
-    simId?: string;
+    messagingAccountId?: string;
     search?: string;
 }

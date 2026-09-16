@@ -41,5 +41,5 @@ const core = __importStar(require("../../../../../core"));
 exports.MessageSendRequest = core.serialization.object({
     recipient: core.serialization.string(),
     text: core.serialization.string(),
-    simId: core.serialization.string().optionalNullable(),
+    accountId: core.serialization.string().optionalNullable(),
 });

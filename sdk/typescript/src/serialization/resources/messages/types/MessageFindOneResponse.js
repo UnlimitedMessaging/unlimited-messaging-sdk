@@ -41,6 +41,7 @@ const core = __importStar(require("../../../../core"));
 const MessageFindOneResponseDirection_1 = require("./MessageFindOneResponseDirection");
 const MessageFindOneResponseStatus_1 = require("./MessageFindOneResponseStatus");
 const MessageFindOneResponseChannel_1 = require("./MessageFindOneResponseChannel");
+const MessageFindOneResponseAccountChannel_1 = require("./MessageFindOneResponseAccountChannel");
 exports.MessageFindOneResponse = core.serialization.object({
     id: core.serialization.string(),
     content: core.serialization.string(),
@@ -49,9 +50,10 @@ exports.MessageFindOneResponse = core.serialization.object({
     error: core.serialization.string().nullable(),
     interlocutor: core.serialization.string(),
     retryCount: core.serialization.number(),
-    simId: core.serialization.string(),
+    messagingAccountId: core.serialization.string(),
     status: MessageFindOneResponseStatus_1.MessageFindOneResponseStatus,
     channel: MessageFindOneResponseChannel_1.MessageFindOneResponseChannel,
+    accountChannel: MessageFindOneResponseAccountChannel_1.MessageFindOneResponseAccountChannel,
     watermarked: core.serialization.boolean(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),

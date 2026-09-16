@@ -3,6 +3,7 @@
 from .bad_request_error import BadRequestError
 from .forbidden_error import ForbiddenError
 from .not_found_error import NotFoundError
+from .service_unavailable_error import ServiceUnavailableError
 from .unauthorized_error import UnauthorizedError
 from .unprocessable_entity_error import UnprocessableEntityError
 
@@ -10,6 +11,7 @@ __all__ = [
     "BadRequestError",
     "ForbiddenError",
     "NotFoundError",
+    "ServiceUnavailableError",
     "UnauthorizedError",
     "UnprocessableEntityError",
 ]

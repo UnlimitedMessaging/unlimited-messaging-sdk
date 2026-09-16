@@ -10,9 +10,10 @@ export interface MessageSendResponse {
     error: string | null;
     interlocutor: string;
     retryCount: number;
-    simId: string;
+    messagingAccountId: string;
     status: UnlimitedMessagingApi.MessageSendResponseStatus;
     channel: UnlimitedMessagingApi.MessageSendResponseChannel;
+    accountChannel: UnlimitedMessagingApi.MessageSendResponseAccountChannel;
     watermarked: boolean;
     createdAt: Date;
     updatedAt: Date;

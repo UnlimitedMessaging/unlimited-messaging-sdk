@@ -7,6 +7,7 @@ import * as core from "../../../../core";
 import { MessageFindOneResponseDirection } from "./MessageFindOneResponseDirection";
 import { MessageFindOneResponseStatus } from "./MessageFindOneResponseStatus";
 import { MessageFindOneResponseChannel } from "./MessageFindOneResponseChannel";
+import { MessageFindOneResponseAccountChannel } from "./MessageFindOneResponseAccountChannel";
 export declare const MessageFindOneResponse: core.serialization.ObjectSchema<serializers.MessageFindOneResponse.Raw, UnlimitedMessagingApi.MessageFindOneResponse>;
 export declare namespace MessageFindOneResponse {
     interface Raw {
@@ -17,9 +18,10 @@ export declare namespace MessageFindOneResponse {
         error: string | null;
         interlocutor: string;
         retryCount: number;
-        simId: string;
+        messagingAccountId: string;
         status: MessageFindOneResponseStatus.Raw;
         channel: MessageFindOneResponseChannel.Raw;
+        accountChannel: MessageFindOneResponseAccountChannel.Raw;
         watermarked: boolean;
         createdAt: string;
         updatedAt: string;

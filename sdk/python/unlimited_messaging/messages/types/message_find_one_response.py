@@ -6,6 +6,9 @@ import typing
 import pydantic
 from .message_find_one_response_status import MessageFindOneResponseStatus
 from .message_find_one_response_channel import MessageFindOneResponseChannel
+from .message_find_one_response_account_channel import (
+    MessageFindOneResponseAccountChannel,
+)
 import datetime as dt
 from ...core.pydantic_utilities import IS_PYDANTIC_V2
 
@@ -18,9 +21,12 @@ class MessageFindOneResponse(UniversalBaseModel):
     error: typing.Optional[str] = None
     interlocutor: str
     retry_count: int = pydantic.Field(alias="retryCount")
-    sim_id: str = pydantic.Field(alias="simId")
+    messaging_account_id: str = pydantic.Field(alias="messagingAccountId")
     status: MessageFindOneResponseStatus
     channel: MessageFindOneResponseChannel
+    account_channel: MessageFindOneResponseAccountChannel = pydantic.Field(
+        alias="accountChannel"
+    )
     watermarked: bool
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")

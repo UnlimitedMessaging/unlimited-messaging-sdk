@@ -7,6 +7,7 @@ import * as core from "../../../../core";
 import { MessageFindAllResponseDataItemDirection } from "./MessageFindAllResponseDataItemDirection";
 import { MessageFindAllResponseDataItemStatus } from "./MessageFindAllResponseDataItemStatus";
 import { MessageFindAllResponseDataItemChannel } from "./MessageFindAllResponseDataItemChannel";
+import { MessageFindAllResponseDataItemAccountChannel } from "./MessageFindAllResponseDataItemAccountChannel";
 export declare const MessageFindAllResponseDataItem: core.serialization.ObjectSchema<serializers.MessageFindAllResponseDataItem.Raw, UnlimitedMessagingApi.MessageFindAllResponseDataItem>;
 export declare namespace MessageFindAllResponseDataItem {
     interface Raw {
@@ -17,9 +18,10 @@ export declare namespace MessageFindAllResponseDataItem {
         error: string | null;
         interlocutor: string;
         retryCount: number;
-        simId: string;
+        messagingAccountId: string;
         status: MessageFindAllResponseDataItemStatus.Raw;
         channel: MessageFindAllResponseDataItemChannel.Raw;
+        accountChannel: MessageFindAllResponseDataItemAccountChannel.Raw;
         watermarked: boolean;
         createdAt: string;
         updatedAt: string;

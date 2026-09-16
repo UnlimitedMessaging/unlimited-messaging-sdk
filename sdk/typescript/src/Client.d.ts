@@ -4,7 +4,9 @@
 import * as environments from "./environments";
 import * as core from "./core";
 import { Messages } from "./api/resources/messages/client/Client";
-import { SiMs } from "./api/resources/siMs/client/Client";
+import { Accounts } from "./api/resources/accounts/client/Client";
+import { SiMsDeprecated } from "./api/resources/siMsDeprecated/client/Client";
+import { Webhooks } from "./api/resources/webhooks/client/Client";
 import { ApiKeys } from "./api/resources/apiKeys/client/Client";
 export declare namespace UnlimitedMessagingApiClient {
     interface Options {
@@ -27,10 +29,14 @@ export declare namespace UnlimitedMessagingApiClient {
 export declare class UnlimitedMessagingApiClient {
     protected readonly _options: UnlimitedMessagingApiClient.Options;
     protected _messages: Messages | undefined;
-    protected _siMs: SiMs | undefined;
+    protected _accounts: Accounts | undefined;
+    protected _siMsDeprecated: SiMsDeprecated | undefined;
+    protected _webhooks: Webhooks | undefined;
     protected _apiKeys: ApiKeys | undefined;
     constructor(_options: UnlimitedMessagingApiClient.Options);
     get messages(): Messages;
-    get siMs(): SiMs;
+    get accounts(): Accounts;
+    get siMsDeprecated(): SiMsDeprecated;
+    get webhooks(): Webhooks;
     get apiKeys(): ApiKeys;
 }

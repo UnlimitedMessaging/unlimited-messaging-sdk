@@ -12,6 +12,9 @@ from .message_find_all_response_data_item_status import (
 from .message_find_all_response_data_item_channel import (
     MessageFindAllResponseDataItemChannel,
 )
+from .message_find_all_response_data_item_account_channel import (
+    MessageFindAllResponseDataItemAccountChannel,
+)
 import datetime as dt
 from ...core.pydantic_utilities import IS_PYDANTIC_V2
 
@@ -24,9 +27,12 @@ class MessageFindAllResponseDataItem(UniversalBaseModel):
     error: typing.Optional[str] = None
     interlocutor: str
     retry_count: int = pydantic.Field(alias="retryCount")
-    sim_id: str = pydantic.Field(alias="simId")
+    messaging_account_id: str = pydantic.Field(alias="messagingAccountId")
     status: MessageFindAllResponseDataItemStatus
     channel: MessageFindAllResponseDataItemChannel
+    account_channel: MessageFindAllResponseDataItemAccountChannel = pydantic.Field(
+        alias="accountChannel"
+    )
     watermarked: bool
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")

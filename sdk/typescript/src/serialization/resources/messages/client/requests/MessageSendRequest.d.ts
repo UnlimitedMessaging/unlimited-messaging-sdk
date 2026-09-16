@@ -9,6 +9,6 @@ export declare namespace MessageSendRequest {
     interface Raw {
         recipient: string;
         text: string;
-        simId?: (string | null) | null;
+        accountId?: (string | null) | null;
     }
 }

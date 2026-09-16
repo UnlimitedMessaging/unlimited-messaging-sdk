@@ -41,6 +41,7 @@ const core = __importStar(require("../../../../core"));
 const MessageFindAllResponseDataItemDirection_1 = require("./MessageFindAllResponseDataItemDirection");
 const MessageFindAllResponseDataItemStatus_1 = require("./MessageFindAllResponseDataItemStatus");
 const MessageFindAllResponseDataItemChannel_1 = require("./MessageFindAllResponseDataItemChannel");
+const MessageFindAllResponseDataItemAccountChannel_1 = require("./MessageFindAllResponseDataItemAccountChannel");
 exports.MessageFindAllResponseDataItem = core.serialization.object({
     id: core.serialization.string(),
     content: core.serialization.string(),
@@ -49,9 +50,10 @@ exports.MessageFindAllResponseDataItem = core.serialization.object({
     error: core.serialization.string().nullable(),
     interlocutor: core.serialization.string(),
     retryCount: core.serialization.number(),
-    simId: core.serialization.string(),
+    messagingAccountId: core.serialization.string(),
     status: MessageFindAllResponseDataItemStatus_1.MessageFindAllResponseDataItemStatus,
     channel: MessageFindAllResponseDataItemChannel_1.MessageFindAllResponseDataItemChannel,
+    accountChannel: MessageFindAllResponseDataItemAccountChannel_1.MessageFindAllResponseDataItemAccountChannel,
     watermarked: core.serialization.boolean(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),

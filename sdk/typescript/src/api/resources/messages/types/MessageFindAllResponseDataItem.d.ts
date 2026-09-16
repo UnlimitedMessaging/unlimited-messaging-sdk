@@ -10,9 +10,10 @@ export interface MessageFindAllResponseDataItem {
     error: string | null;
     interlocutor: string;
     retryCount: number;
-    simId: string;
+    messagingAccountId: string;
     status: UnlimitedMessagingApi.MessageFindAllResponseDataItemStatus;
     channel: UnlimitedMessagingApi.MessageFindAllResponseDataItemChannel;
+    accountChannel: UnlimitedMessagingApi.MessageFindAllResponseDataItemAccountChannel;
     watermarked: boolean;
     createdAt: Date;
     updatedAt: Date;

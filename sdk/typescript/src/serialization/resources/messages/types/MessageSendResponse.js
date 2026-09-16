@@ -41,6 +41,7 @@ const core = __importStar(require("../../../../core"));
 const MessageSendResponseDirection_1 = require("./MessageSendResponseDirection");
 const MessageSendResponseStatus_1 = require("./MessageSendResponseStatus");
 const MessageSendResponseChannel_1 = require("./MessageSendResponseChannel");
+const MessageSendResponseAccountChannel_1 = require("./MessageSendResponseAccountChannel");
 exports.MessageSendResponse = core.serialization.object({
     id: core.serialization.string(),
     content: core.serialization.string(),
@@ -49,9 +50,10 @@ exports.MessageSendResponse = core.serialization.object({
     error: core.serialization.string().nullable(),
     interlocutor: core.serialization.string(),
     retryCount: core.serialization.number(),
-    simId: core.serialization.string(),
+    messagingAccountId: core.serialization.string(),
     status: MessageSendResponseStatus_1.MessageSendResponseStatus,
     channel: MessageSendResponseChannel_1.MessageSendResponseChannel,
+    accountChannel: MessageSendResponseAccountChannel_1.MessageSendResponseAccountChannel,
     watermarked: core.serialization.boolean(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),

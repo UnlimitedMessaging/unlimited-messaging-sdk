@@ -5,11 +5,15 @@ from .environment import UnlimitedMessagingApiEnvironment
 import httpx
 from .core.client_wrapper import SyncClientWrapper
 from .messages.client import MessagesClient
-from .si_ms.client import SiMsClient
+from .accounts.client import AccountsClient
+from .si_ms_deprecated.client import SiMsDeprecatedClient
+from .webhooks.client import WebhooksClient
 from .api_keys.client import ApiKeysClient
 from .core.client_wrapper import AsyncClientWrapper
 from .messages.client import AsyncMessagesClient
-from .si_ms.client import AsyncSiMsClient
+from .accounts.client import AsyncAccountsClient
+from .si_ms_deprecated.client import AsyncSiMsDeprecatedClient
+from .webhooks.client import AsyncWebhooksClient
 from .api_keys.client import AsyncApiKeysClient
 
 
@@ -76,7 +80,11 @@ class UnlimitedMessagingApi:
             timeout=_defaulted_timeout,
         )
         self.messages = MessagesClient(client_wrapper=self._client_wrapper)
-        self.si_ms = SiMsClient(client_wrapper=self._client_wrapper)
+        self.accounts = AccountsClient(client_wrapper=self._client_wrapper)
+        self.si_ms_deprecated = SiMsDeprecatedClient(
+            client_wrapper=self._client_wrapper
+        )
+        self.webhooks = WebhooksClient(client_wrapper=self._client_wrapper)
         self.api_keys = ApiKeysClient(client_wrapper=self._client_wrapper)
 
 
@@ -143,7 +151,11 @@ class AsyncUnlimitedMessagingApi:
             timeout=_defaulted_timeout,
         )
         self.messages = AsyncMessagesClient(client_wrapper=self._client_wrapper)
-        self.si_ms = AsyncSiMsClient(client_wrapper=self._client_wrapper)
+        self.accounts = AsyncAccountsClient(client_wrapper=self._client_wrapper)
+        self.si_ms_deprecated = AsyncSiMsDeprecatedClient(
+            client_wrapper=self._client_wrapper
+        )
+        self.webhooks = AsyncWebhooksClient(client_wrapper=self._client_wrapper)
         self.api_keys = AsyncApiKeysClient(client_wrapper=self._client_wrapper)
 
 

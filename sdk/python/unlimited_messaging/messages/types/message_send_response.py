@@ -6,6 +6,7 @@ import typing
 import pydantic
 from .message_send_response_status import MessageSendResponseStatus
 from .message_send_response_channel import MessageSendResponseChannel
+from .message_send_response_account_channel import MessageSendResponseAccountChannel
 import datetime as dt
 from ...core.pydantic_utilities import IS_PYDANTIC_V2
 
@@ -18,9 +19,12 @@ class MessageSendResponse(UniversalBaseModel):
     error: typing.Optional[str] = None
     interlocutor: str
     retry_count: int = pydantic.Field(alias="retryCount")
-    sim_id: str = pydantic.Field(alias="simId")
+    messaging_account_id: str = pydantic.Field(alias="messagingAccountId")
     status: MessageSendResponseStatus
     channel: MessageSendResponseChannel
+    account_channel: MessageSendResponseAccountChannel = pydantic.Field(
+        alias="accountChannel"
+    )
     watermarked: bool
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
