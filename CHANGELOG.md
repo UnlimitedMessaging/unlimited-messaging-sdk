@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.12] - 2026-09-16
+
+SDK update.
+
 ## [0.1.11] - 2026-09-04
 
 *   **GET /messages**
