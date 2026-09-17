@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.14] - 2026-09-17
+
+*   **Changed Parameters**
+    *   The `recipient` parameter for the `Message_send` operation now accepts WhatsApp group IDs (numeric, with or without `@g.us` suffix) in addition to E.164 phone numbers for direct group messaging.
+
 ## [0.1.13] - 2026-09-17
 
 *   **Changed Parameters**
