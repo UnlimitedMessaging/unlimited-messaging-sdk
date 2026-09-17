@@ -6,11 +6,18 @@ export interface MessageFindAllResponseDataItem {
     id: string;
     content: string;
     direction: UnlimitedMessagingApi.MessageFindAllResponseDataItemDirection;
+    /** True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe. */
+    fromMe: boolean;
     externalId: string | null;
     error: string | null;
+    /** Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead. */
     interlocutor: string;
     conversationId: string | null;
     isGroup: boolean;
+    /** The externalId of the message this one quotes as a reply, or null if it isn't a reply. */
+    replyToExternalId: string | null;
+    /** For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case. */
+    replyToParticipant: string | null;
     retryCount: number;
     messagingAccountId: string;
     status: UnlimitedMessagingApi.MessageFindAllResponseDataItemStatus;

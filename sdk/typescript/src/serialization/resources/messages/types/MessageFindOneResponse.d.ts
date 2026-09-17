@@ -14,11 +14,14 @@ export declare namespace MessageFindOneResponse {
         id: string;
         content: string;
         direction: MessageFindOneResponseDirection.Raw;
+        fromMe: boolean;
         externalId: string | null;
         error: string | null;
         interlocutor: string;
         conversationId: string | null;
         isGroup: boolean;
+        replyToExternalId: string | null;
+        replyToParticipant: string | null;
         retryCount: number;
         messagingAccountId: string;
         status: MessageFindOneResponseStatus.Raw;

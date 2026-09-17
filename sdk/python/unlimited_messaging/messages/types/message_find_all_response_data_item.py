@@ -4,8 +4,8 @@ from ...core.pydantic_utilities import UniversalBaseModel
 from .message_find_all_response_data_item_direction import (
     MessageFindAllResponseDataItemDirection,
 )
-import typing
 import pydantic
+import typing
 from .message_find_all_response_data_item_status import (
     MessageFindAllResponseDataItemStatus,
 )
@@ -23,13 +23,36 @@ class MessageFindAllResponseDataItem(UniversalBaseModel):
     id: str
     content: str
     direction: MessageFindAllResponseDataItemDirection
+    from_me: bool = pydantic.Field(alias="fromMe")
+    """
+    True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe.
+    """
+
     external_id: typing.Optional[str] = pydantic.Field(alias="externalId", default=None)
     error: typing.Optional[str] = None
-    interlocutor: str
+    interlocutor: str = pydantic.Field()
+    """
+    Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead.
+    """
+
     conversation_id: typing.Optional[str] = pydantic.Field(
         alias="conversationId", default=None
     )
     is_group: bool = pydantic.Field(alias="isGroup")
+    reply_to_external_id: typing.Optional[str] = pydantic.Field(
+        alias="replyToExternalId", default=None
+    )
+    """
+    The externalId of the message this one quotes as a reply, or null if it isn't a reply.
+    """
+
+    reply_to_participant: typing.Optional[str] = pydantic.Field(
+        alias="replyToParticipant", default=None
+    )
+    """
+    For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case.
+    """
+
     retry_count: int = pydantic.Field(alias="retryCount")
     messaging_account_id: str = pydantic.Field(alias="messagingAccountId")
     status: MessageFindAllResponseDataItemStatus
