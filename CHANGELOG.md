@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.13] - 2026-09-17
+
+*   **Changed Parameters**
+    *   `GET /messages`:
+        *   New query parameter `simId` (string, optional).
+    *   `POST /messages`:
+        *   Request body parameter `recipient` is now optional.
+        *   New request body parameter `simId` (string or null).
+        *   New request body parameter `replyToMessageId` (string).
+
+*   **New Response Fields**
+    *   `GET /messages`:
+        *   The `Message` object in the 200 response now includes `conversationId` (string or null) and `isGroup` (boolean).
+    *   `POST /messages`:
+        *   The `Message` object in the 201 response now includes `conversationId` (string or null) and `isGroup` (boolean).
+    *   `GET /messages/{id}`:
+        *   The `Message` object in the 200 response now includes `conversationId` (string or null) and `isGroup` (boolean).
+
+*   **New Response Status Codes**
+    *   `POST /messages`:
+        *   A new `409 Conflict` response code has been added, indicating "A resource with the same identifier already exists."
+
 ## [0.1.12] - 2026-09-16
 
 SDK update.
