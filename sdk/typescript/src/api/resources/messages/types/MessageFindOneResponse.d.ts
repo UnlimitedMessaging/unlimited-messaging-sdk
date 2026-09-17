@@ -9,6 +9,8 @@ export interface MessageFindOneResponse {
     externalId: string | null;
     error: string | null;
     interlocutor: string;
+    conversationId: string | null;
+    isGroup: boolean;
     retryCount: number;
     messagingAccountId: string;
     status: UnlimitedMessagingApi.MessageFindOneResponseStatus;

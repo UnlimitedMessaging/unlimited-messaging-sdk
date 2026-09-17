@@ -4,12 +4,13 @@
 /**
  * @example
  *     {
- *         recipient: "recipient",
  *         text: "text"
  *     }
  */
 export interface MessageSendRequest {
-    recipient: string;
+    recipient?: string;
     text: string;
     accountId?: string | null;
+    simId?: string | null;
+    replyToMessageId?: string;
 }

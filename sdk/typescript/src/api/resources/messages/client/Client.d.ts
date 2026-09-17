@@ -31,7 +31,7 @@ export declare class Messages {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
      *
-     * Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
+     * Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
      *
      * @param {UnlimitedMessagingApi.MessageFindAllRequest} request
      * @param {Messages.RequestOptions} requestOptions - Request-specific configuration.
@@ -48,7 +48,7 @@ export declare class Messages {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
      *
-     * Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters.
+     * Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
      *
      * @param {UnlimitedMessagingApi.MessageSendRequest} request
      * @param {Messages.RequestOptions} requestOptions - Request-specific configuration.
@@ -57,11 +57,11 @@ export declare class Messages {
      * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
      * @throws {@link UnlimitedMessagingApi.ForbiddenError}
      * @throws {@link UnlimitedMessagingApi.NotFoundError}
+     * @throws {@link UnlimitedMessagingApi.ConflictError}
      * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
      *
      * @example
      *     await client.messages.messageSend({
-     *         recipient: "recipient",
      *         text: "text"
      *     })
      */

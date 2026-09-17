@@ -7,8 +7,10 @@ import * as core from "../../../../../core";
 export declare const MessageSendRequest: core.serialization.Schema<serializers.MessageSendRequest.Raw, UnlimitedMessagingApi.MessageSendRequest>;
 export declare namespace MessageSendRequest {
     interface Raw {
-        recipient: string;
+        recipient?: string | null;
         text: string;
         accountId?: (string | null) | null;
+        simId?: (string | null) | null;
+        replyToMessageId?: string | null;
     }
 }

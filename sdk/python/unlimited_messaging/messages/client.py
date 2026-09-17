@@ -15,6 +15,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from .types.message_send_response import MessageSendResponse
 from ..errors.not_found_error import NotFoundError
+from ..errors.conflict_error import ConflictError
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from .types.message_find_one_response import MessageFindOneResponse
 from ..core.jsonable_encoder import jsonable_encoder
@@ -38,13 +39,14 @@ class MessagesClient:
         status: typing.Optional[MessageFindAllRequestStatus] = None,
         direction: typing.Optional[MessageFindAllRequestDirection] = None,
         messaging_account_id: typing.Optional[str] = None,
+        sim_id: typing.Optional[str] = None,
         search: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MessageFindAllResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
+        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
 
         Parameters
         ----------
@@ -59,6 +61,8 @@ class MessagesClient:
         direction : typing.Optional[MessageFindAllRequestDirection]
 
         messaging_account_id : typing.Optional[str]
+
+        sim_id : typing.Optional[str]
 
         search : typing.Optional[str]
 
@@ -89,6 +93,7 @@ class MessagesClient:
                 "status": status,
                 "direction": direction,
                 "messagingAccountId": messaging_account_id,
+                "simId": sim_id,
                 "search": search,
             },
             request_options=request_options,
@@ -140,23 +145,29 @@ class MessagesClient:
     def message_send(
         self,
         *,
-        recipient: str,
         text: str,
+        recipient: typing.Optional[str] = OMIT,
         account_id: typing.Optional[str] = OMIT,
+        sim_id: typing.Optional[str] = OMIT,
+        reply_to_message_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MessageSendResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters.
+        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
 
         Parameters
         ----------
-        recipient : str
-
         text : str
 
+        recipient : typing.Optional[str]
+
         account_id : typing.Optional[str]
+
+        sim_id : typing.Optional[str]
+
+        reply_to_message_id : typing.Optional[str]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -174,7 +185,6 @@ class MessagesClient:
             token="YOUR_TOKEN",
         )
         client.messages.message_send(
-            recipient="recipient",
             text="text",
         )
         """
@@ -185,6 +195,8 @@ class MessagesClient:
                 "recipient": recipient,
                 "text": text,
                 "accountId": account_id,
+                "simId": sim_id,
+                "replyToMessageId": reply_to_message_id,
             },
             request_options=request_options,
             omit=OMIT,
@@ -230,6 +242,16 @@ class MessagesClient:
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -427,13 +449,14 @@ class AsyncMessagesClient:
         status: typing.Optional[MessageFindAllRequestStatus] = None,
         direction: typing.Optional[MessageFindAllRequestDirection] = None,
         messaging_account_id: typing.Optional[str] = None,
+        sim_id: typing.Optional[str] = None,
         search: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MessageFindAllResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
+        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
 
         Parameters
         ----------
@@ -448,6 +471,8 @@ class AsyncMessagesClient:
         direction : typing.Optional[MessageFindAllRequestDirection]
 
         messaging_account_id : typing.Optional[str]
+
+        sim_id : typing.Optional[str]
 
         search : typing.Optional[str]
 
@@ -486,6 +511,7 @@ class AsyncMessagesClient:
                 "status": status,
                 "direction": direction,
                 "messagingAccountId": messaging_account_id,
+                "simId": sim_id,
                 "search": search,
             },
             request_options=request_options,
@@ -537,23 +563,29 @@ class AsyncMessagesClient:
     async def message_send(
         self,
         *,
-        recipient: str,
         text: str,
+        recipient: typing.Optional[str] = OMIT,
         account_id: typing.Optional[str] = OMIT,
+        sim_id: typing.Optional[str] = OMIT,
+        reply_to_message_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MessageSendResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters.
+        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
 
         Parameters
         ----------
-        recipient : str
-
         text : str
 
+        recipient : typing.Optional[str]
+
         account_id : typing.Optional[str]
+
+        sim_id : typing.Optional[str]
+
+        reply_to_message_id : typing.Optional[str]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -576,7 +608,6 @@ class AsyncMessagesClient:
 
         async def main() -> None:
             await client.messages.message_send(
-                recipient="recipient",
                 text="text",
             )
 
@@ -590,6 +621,8 @@ class AsyncMessagesClient:
                 "recipient": recipient,
                 "text": text,
                 "accountId": account_id,
+                "simId": sim_id,
+                "replyToMessageId": reply_to_message_id,
             },
             request_options=request_options,
             omit=OMIT,
@@ -635,6 +668,16 @@ class AsyncMessagesClient:
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(

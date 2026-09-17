@@ -2,6 +2,7 @@
 
 from .errors import (
     BadRequestError,
+    ConflictError,
     ForbiddenError,
     NotFoundError,
     ServiceUnavailableError,
@@ -119,6 +120,7 @@ __all__ = [
     "ApiKeyListResponseItem",
     "AsyncUnlimitedMessagingApi",
     "BadRequestError",
+    "ConflictError",
     "ForbiddenError",
     "MessageFindAllRequestChannel",
     "MessageFindAllRequestDirection",

@@ -49,6 +49,8 @@ exports.MessageSendResponse = core.serialization.object({
     externalId: core.serialization.string().nullable(),
     error: core.serialization.string().nullable(),
     interlocutor: core.serialization.string(),
+    conversationId: core.serialization.string().nullable(),
+    isGroup: core.serialization.boolean(),
     retryCount: core.serialization.number(),
     messagingAccountId: core.serialization.string(),
     status: MessageSendResponseStatus_1.MessageSendResponseStatus,

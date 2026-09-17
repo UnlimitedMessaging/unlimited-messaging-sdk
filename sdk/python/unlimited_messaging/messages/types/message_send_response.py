@@ -18,6 +18,10 @@ class MessageSendResponse(UniversalBaseModel):
     external_id: typing.Optional[str] = pydantic.Field(alias="externalId", default=None)
     error: typing.Optional[str] = None
     interlocutor: str
+    conversation_id: typing.Optional[str] = pydantic.Field(
+        alias="conversationId", default=None
+    )
+    is_group: bool = pydantic.Field(alias="isGroup")
     retry_count: int = pydantic.Field(alias="retryCount")
     messaging_account_id: str = pydantic.Field(alias="messagingAccountId")
     status: MessageSendResponseStatus

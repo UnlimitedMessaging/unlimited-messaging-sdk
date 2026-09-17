@@ -39,7 +39,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageSendRequest = void 0;
 const core = __importStar(require("../../../../../core"));
 exports.MessageSendRequest = core.serialization.object({
-    recipient: core.serialization.string(),
+    recipient: core.serialization.string().optional(),
     text: core.serialization.string(),
     accountId: core.serialization.string().optionalNullable(),
+    simId: core.serialization.string().optionalNullable(),
+    replyToMessageId: core.serialization.string().optional(),
 });

@@ -18,6 +18,8 @@ async def test_message_find_all(
                 "externalId": "externalId",
                 "error": "error",
                 "interlocutor": "interlocutor",
+                "conversationId": "conversationId",
+                "isGroup": True,
                 "retryCount": 1,
                 "messagingAccountId": "messagingAccountId",
                 "status": "PENDING",
@@ -44,6 +46,8 @@ async def test_message_find_all(
                     "externalId": None,
                     "error": None,
                     "interlocutor": None,
+                    "conversationId": None,
+                    "isGroup": None,
                     "retryCount": "integer",
                     "messagingAccountId": None,
                     "status": None,
@@ -77,6 +81,8 @@ async def test_message_send(
         "externalId": "externalId",
         "error": "error",
         "interlocutor": "interlocutor",
+        "conversationId": "conversationId",
+        "isGroup": True,
         "retryCount": 1,
         "messagingAccountId": "messagingAccountId",
         "status": "PENDING",
@@ -93,6 +99,8 @@ async def test_message_send(
         "externalId": None,
         "error": None,
         "interlocutor": None,
+        "conversationId": None,
+        "isGroup": None,
         "retryCount": "integer",
         "messagingAccountId": None,
         "status": None,
@@ -102,12 +110,10 @@ async def test_message_send(
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
-    response = client.messages.message_send(recipient="recipient", text="text")
+    response = client.messages.message_send(text="text")
     validate_response(response, expected_response, expected_types)
 
-    async_response = await async_client.messages.message_send(
-        recipient="recipient", text="text"
-    )
+    async_response = await async_client.messages.message_send(text="text")
     validate_response(async_response, expected_response, expected_types)
 
 
@@ -121,6 +127,8 @@ async def test_message_find_one(
         "externalId": "externalId",
         "error": "error",
         "interlocutor": "interlocutor",
+        "conversationId": "conversationId",
+        "isGroup": True,
         "retryCount": 1,
         "messagingAccountId": "messagingAccountId",
         "status": "PENDING",
@@ -137,6 +145,8 @@ async def test_message_find_one(
         "externalId": None,
         "error": None,
         "interlocutor": None,
+        "conversationId": None,
+        "isGroup": None,
         "retryCount": "integer",
         "messagingAccountId": None,
         "status": None,

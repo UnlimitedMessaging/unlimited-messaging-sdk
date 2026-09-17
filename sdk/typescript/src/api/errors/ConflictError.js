@@ -36,27 +36,17 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MessageFindOneResponse = void 0;
-const core = __importStar(require("../../../../core"));
-const MessageFindOneResponseDirection_1 = require("./MessageFindOneResponseDirection");
-const MessageFindOneResponseStatus_1 = require("./MessageFindOneResponseStatus");
-const MessageFindOneResponseChannel_1 = require("./MessageFindOneResponseChannel");
-const MessageFindOneResponseAccountChannel_1 = require("./MessageFindOneResponseAccountChannel");
-exports.MessageFindOneResponse = core.serialization.object({
-    id: core.serialization.string(),
-    content: core.serialization.string(),
-    direction: MessageFindOneResponseDirection_1.MessageFindOneResponseDirection,
-    externalId: core.serialization.string().nullable(),
-    error: core.serialization.string().nullable(),
-    interlocutor: core.serialization.string(),
-    conversationId: core.serialization.string().nullable(),
-    isGroup: core.serialization.boolean(),
-    retryCount: core.serialization.number(),
-    messagingAccountId: core.serialization.string(),
-    status: MessageFindOneResponseStatus_1.MessageFindOneResponseStatus,
-    channel: MessageFindOneResponseChannel_1.MessageFindOneResponseChannel,
-    accountChannel: MessageFindOneResponseAccountChannel_1.MessageFindOneResponseAccountChannel,
-    watermarked: core.serialization.boolean(),
-    createdAt: core.serialization.date(),
-    updatedAt: core.serialization.date(),
-});
+exports.ConflictError = void 0;
+const errors = __importStar(require("../../errors/index"));
+class ConflictError extends errors.UnlimitedMessagingApiError {
+    constructor(body, rawResponse) {
+        super({
+            message: "ConflictError",
+            statusCode: 409,
+            body: body,
+            rawResponse: rawResponse,
+        });
+        Object.setPrototypeOf(this, ConflictError.prototype);
+    }
+}
+exports.ConflictError = ConflictError;

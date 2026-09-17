@@ -18,5 +18,6 @@ __exportStar(require("./BadRequestError"), exports);
 __exportStar(require("./UnauthorizedError"), exports);
 __exportStar(require("./ForbiddenError"), exports);
 __exportStar(require("./NotFoundError"), exports);
+__exportStar(require("./ConflictError"), exports);
 __exportStar(require("./UnprocessableEntityError"), exports);
 __exportStar(require("./ServiceUnavailableError"), exports);

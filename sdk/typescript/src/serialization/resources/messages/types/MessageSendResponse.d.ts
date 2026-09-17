@@ -17,6 +17,8 @@ export declare namespace MessageSendResponse {
         externalId: string | null;
         error: string | null;
         interlocutor: string;
+        conversationId: string | null;
+        isGroup: boolean;
         retryCount: number;
         messagingAccountId: string;
         status: MessageSendResponseStatus.Raw;
