@@ -5,7 +5,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1–100, default 20) to paginate.
+        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
       operationId: Message_find_all
       parameters:
         - name: page
@@ -59,6 +59,11 @@ paths:
           in: query
           schema:
             type: string
+        - name: simId
+          required: false
+          in: query
+          schema:
+            type: string
         - name: search
           required: false
           in: query
@@ -95,6 +100,12 @@ paths:
                             - type: "null"
                         interlocutor:
                           type: string
+                        conversationId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        isGroup:
+                          type: boolean
                         retryCount:
                           type: integer
                           minimum: 0
@@ -141,6 +152,8 @@ paths:
                         - externalId
                         - error
                         - interlocutor
+                        - conversationId
+                        - isGroup
                         - retryCount
                         - messagingAccountId
                         - status
@@ -189,7 +202,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters.
+        Queues a WhatsApp message for delivery to the specified `recipient` phone number (E.164 format). If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
       operationId: Message_send
       parameters: []
       requestBody:
@@ -210,8 +223,13 @@ paths:
                   anyOf:
                     - type: string
                     - type: "null"
+                simId:
+                  anyOf:
+                    - type: string
+                    - type: "null"
+                replyToMessageId:
+                  type: string
               required:
-                - recipient
                 - text
       responses:
         "201":
@@ -239,6 +257,12 @@ paths:
                       - type: "null"
                   interlocutor:
                     type: string
+                  conversationId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  isGroup:
+                    type: boolean
                   retryCount:
                     type: integer
                     minimum: 0
@@ -285,6 +309,8 @@ paths:
                   - externalId
                   - error
                   - interlocutor
+                  - conversationId
+                  - isGroup
                   - retryCount
                   - messagingAccountId
                   - status
@@ -303,6 +329,8 @@ paths:
           description: Insufficient permissions to access this resource.
         "404":
           description: The requested resource was not found.
+        "409":
+          description: A resource with the same identifier already exists.
         "422":
           description: The request could not be processed.
       security:
@@ -349,6 +377,12 @@ paths:
                       - type: "null"
                   interlocutor:
                     type: string
+                  conversationId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  isGroup:
+                    type: boolean
                   retryCount:
                     type: integer
                     minimum: 0
@@ -395,6 +429,8 @@ paths:
                   - externalId
                   - error
                   - interlocutor
+                  - conversationId
+                  - isGroup
                   - retryCount
                   - messagingAccountId
                   - status
