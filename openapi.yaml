@@ -90,6 +90,9 @@ paths:
                           enum:
                             - IN
                             - OUT
+                        fromMe:
+                          type: boolean
+                          description: True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe.
                         externalId:
                           anyOf:
                             - type: string
@@ -100,12 +103,23 @@ paths:
                             - type: "null"
                         interlocutor:
                           type: string
+                          description: "Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead."
                         conversationId:
                           anyOf:
                             - type: string
                             - type: "null"
                         isGroup:
                           type: boolean
+                        replyToExternalId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: The externalId of the message this one quotes as a reply, or null if it isn't a reply.
+                        replyToParticipant:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case.
                         retryCount:
                           type: integer
                           minimum: 0
@@ -149,11 +163,14 @@ paths:
                         - id
                         - content
                         - direction
+                        - fromMe
                         - externalId
                         - error
                         - interlocutor
                         - conversationId
                         - isGroup
+                        - replyToExternalId
+                        - replyToParticipant
                         - retryCount
                         - messagingAccountId
                         - status
@@ -247,6 +264,9 @@ paths:
                     enum:
                       - IN
                       - OUT
+                  fromMe:
+                    type: boolean
+                    description: True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe.
                   externalId:
                     anyOf:
                       - type: string
@@ -257,12 +277,23 @@ paths:
                       - type: "null"
                   interlocutor:
                     type: string
+                    description: "Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead."
                   conversationId:
                     anyOf:
                       - type: string
                       - type: "null"
                   isGroup:
                     type: boolean
+                  replyToExternalId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: The externalId of the message this one quotes as a reply, or null if it isn't a reply.
+                  replyToParticipant:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case.
                   retryCount:
                     type: integer
                     minimum: 0
@@ -306,11 +337,14 @@ paths:
                   - id
                   - content
                   - direction
+                  - fromMe
                   - externalId
                   - error
                   - interlocutor
                   - conversationId
                   - isGroup
+                  - replyToExternalId
+                  - replyToParticipant
                   - retryCount
                   - messagingAccountId
                   - status
@@ -367,6 +401,9 @@ paths:
                     enum:
                       - IN
                       - OUT
+                  fromMe:
+                    type: boolean
+                    description: True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe.
                   externalId:
                     anyOf:
                       - type: string
@@ -377,12 +414,23 @@ paths:
                       - type: "null"
                   interlocutor:
                     type: string
+                    description: "Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead."
                   conversationId:
                     anyOf:
                       - type: string
                       - type: "null"
                   isGroup:
                     type: boolean
+                  replyToExternalId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: The externalId of the message this one quotes as a reply, or null if it isn't a reply.
+                  replyToParticipant:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case.
                   retryCount:
                     type: integer
                     minimum: 0
@@ -426,11 +474,14 @@ paths:
                   - id
                   - content
                   - direction
+                  - fromMe
                   - externalId
                   - error
                   - interlocutor
                   - conversationId
                   - isGroup
+                  - replyToExternalId
+                  - replyToParticipant
                   - retryCount
                   - messagingAccountId
                   - status
