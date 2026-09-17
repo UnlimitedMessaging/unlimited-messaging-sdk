@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.15] - 2026-09-17
+
+*   **New response fields:**
+    *   `fromMe`: A boolean indicating `true` when the account holder sent this message (direction OUT), `false` when they received it (direction IN). Redundant with `direction`, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own `fromMe`.
+    *   `replyToExternalId`: The `externalId` of the message this one quotes as a reply, or `null` if it isn't a reply.
+    *   `replyToParticipant`: For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as `interlocutor`. `null` outside that case.
+*   **Changed fields:**
+    *   `interlocutor`: The description for this field has been updated to clarify its meaning. It now specifies that its value depends on `direction` and `isGroup`. For 1:1 chats, it's the other party's phone number (both directions). For group chats with `direction IN`, it's the participant who posted the message. For group chats with `direction OUT`, it's the group's own bare ID. It also notes that `replyToParticipant` should be used for who a reply specifically targets.
+
 ## [0.1.14] - 2026-09-17
 
 *   **Changed Parameters**
