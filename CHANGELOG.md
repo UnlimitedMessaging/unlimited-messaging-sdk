@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.16] - 2026-09-18
+
+null
+
 ## [0.1.15] - 2026-09-17
 
 *   **New response fields:**
