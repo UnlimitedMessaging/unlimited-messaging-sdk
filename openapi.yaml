@@ -1998,7 +1998,7 @@ tags:
 servers:
   - url: https://api.unlimitedmessaging.app
     description: production
-  - url: http://localhost:19300
+  - url: http://localhost:3000
     description: development
 components:
   securitySchemes:
