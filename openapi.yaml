@@ -1,5 +1,55 @@
 openapi: 3.0.0
 paths:
+  /media:
+    post:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
+
+        Uploads a media file and returns a temporary URL valid for 10 minutes. Pass that URL as `mediaUrl` in `POST /message` to send it as a WhatsApp message. Accepted types: images (`image/jpeg`, `image/png`, `image/webp`, `image/gif`), documents (`application/pdf`), and audio (`audio/webm`, `audio/ogg`, `audio/mpeg`, `audio/mp4`, `audio/aac`). Maximum file size: 16 MB. Audio files from browsers (WebM/Opus recorded via the MediaRecorder API) are automatically transcoded to OGG/Opus and delivered as WhatsApp voice notes (PTT) when sent via `POST /message`.
+      operationId: Media_upload
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "Media file to upload. Accepted: image/jpeg, image/png, image/webp, image/gif, application/pdf, audio/ogg, audio/webm, audio/mpeg, audio/mp4, audio/aac. Max 16 MB."
+              required:
+                - file
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  mimeType:
+                    type: string
+                  filename:
+                    type: string
+                required:
+                  - url
+                  - mimeType
+                additionalProperties: false
+          description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+      security:
+        - bearer: []
+      summary: Upload a media file.
+      tags:
+        - Media
   /message:
     get:
       description: |-
@@ -84,7 +134,9 @@ paths:
                         id:
                           type: string
                         content:
-                          type: string
+                          anyOf:
+                            - type: string
+                            - type: "null"
                         direction:
                           type: string
                           enum:
@@ -151,6 +203,29 @@ paths:
                             - WHATSAPP_WHATSMEOW
                         watermarked:
                           type: boolean
+                        mediaUrl:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        mediaType:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        mimeType:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        mediaFilename:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        productData:
+                          anyOf:
+                            - type: object
+                              propertyNames:
+                                type: string
+                              additionalProperties: {}
+                            - type: "null"
                         createdAt:
                           type: string
                           format: date-time
@@ -177,6 +252,11 @@ paths:
                         - channel
                         - accountChannel
                         - watermarked
+                        - mediaUrl
+                        - mediaType
+                        - mimeType
+                        - mediaFilename
+                        - productData
                         - createdAt
                         - updatedAt
                       additionalProperties: false
@@ -219,7 +299,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
+        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16. To send a media file, upload it first with `POST /media` to get a temp URL, then pass that URL as `mediaUrl` with the matching `mediaType` (`image`, `document`, or `audio`) in this body.
       operationId: Message_send
       parameters: []
       requestBody:
@@ -236,6 +316,65 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 1600
+                mediaUrl:
+                  type: string
+                  format: uri
+                mediaType:
+                  type: string
+                  enum:
+                    - image
+                    - document
+                    - audio
+                mimeType:
+                  type: string
+                filename:
+                  type: string
+                productData:
+                  type: object
+                  properties:
+                    productId:
+                      type: string
+                      minLength: 1
+                    title:
+                      type: string
+                      minLength: 1
+                      maxLength: 200
+                    description:
+                      type: string
+                      maxLength: 500
+                    currencyCode:
+                      type: string
+                      minLength: 3
+                      maxLength: 3
+                    priceAmount1000:
+                      type: integer
+                      minimum: 0
+                      maximum: 9007199254740991
+                    salePriceAmount1000:
+                      type: integer
+                      minimum: 0
+                      maximum: 9007199254740991
+                    retailerId:
+                      type: string
+                    url:
+                      type: string
+                    imageUrl:
+                      type: string
+                    businessOwnerJid:
+                      type: string
+                      minLength: 1
+                    body:
+                      type: string
+                      maxLength: 1600
+                    footer:
+                      type: string
+                      maxLength: 60
+                  required:
+                    - productId
+                    - title
+                    - currencyCode
+                    - priceAmount1000
+                    - businessOwnerJid
                 accountId:
                   anyOf:
                     - type: string
@@ -246,8 +385,6 @@ paths:
                     - type: "null"
                 replyToMessageId:
                   type: string
-              required:
-                - text
       responses:
         "201":
           content:
@@ -258,7 +395,9 @@ paths:
                   id:
                     type: string
                   content:
-                    type: string
+                    anyOf:
+                      - type: string
+                      - type: "null"
                   direction:
                     type: string
                     enum:
@@ -325,6 +464,29 @@ paths:
                       - WHATSAPP_WHATSMEOW
                   watermarked:
                     type: boolean
+                  mediaUrl:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  mediaType:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  mimeType:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  mediaFilename:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  productData:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties: {}
+                      - type: "null"
                   createdAt:
                     type: string
                     format: date-time
@@ -351,6 +513,11 @@ paths:
                   - channel
                   - accountChannel
                   - watermarked
+                  - mediaUrl
+                  - mediaType
+                  - mimeType
+                  - mediaFilename
+                  - productData
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -395,7 +562,9 @@ paths:
                   id:
                     type: string
                   content:
-                    type: string
+                    anyOf:
+                      - type: string
+                      - type: "null"
                   direction:
                     type: string
                     enum:
@@ -462,6 +631,29 @@ paths:
                       - WHATSAPP_WHATSMEOW
                   watermarked:
                     type: boolean
+                  mediaUrl:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  mediaType:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  mimeType:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  mediaFilename:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  productData:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties: {}
+                      - type: "null"
                   createdAt:
                     type: string
                     format: date-time
@@ -488,6 +680,11 @@ paths:
                   - channel
                   - accountChannel
                   - watermarked
+                  - mediaUrl
+                  - mediaType
+                  - mimeType
+                  - mediaFilename
+                  - productData
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -1998,7 +2195,7 @@ tags:
 servers:
   - url: https://api.unlimitedmessaging.app
     description: production
-  - url: http://localhost:3000
+  - url: http://localhost:19300
     description: development
 components:
   securitySchemes:
