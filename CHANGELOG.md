@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.18] - 2026-09-25
+
+*   **New Endpoints**
+    *   `POST /media`: Uploads a media file and returns a temporary URL.
+*   **Changed Parameters**
+    *   `POST /message`
+        *   Request body field `text` is no longer required.
+        *   New request body fields:
+            *   `mediaUrl`: A temporary URL for a previously uploaded media file.
+            *   `mediaType`: The type of media (`image`, `document`, or `audio`).
+            *   `mimeType`: The MIME type of the media file.
+            *   `filename`: The original filename of the media file.
+            *   `productData`: An object for sending product messages, including fields like `productId`, `title`, `currencyCode`, `priceAmount1000`, `businessOwnerJid`, `description`, `retailerId`, `url`, `imageUrl`, `body`, and `footer`.
+*   **New or Removed Response Fields**
+    *   `GET /message`, `POST /message`, `GET /message/{id}`
+        *   The `content` field can now be `null` in addition to being a string.
+        *   New response fields:
+            *   `mediaUrl`: The URL of the media file if the message contains one.
+            *   `mediaType`: The type of media (`image`, `document`, or `audio`).
+            *   `mimeType`: The MIME type of the media file.
+            *   `mediaFilename`: The filename of the media file.
+            *   `productData`: An object containing product information if the message is a product message.
+
 ## [0.1.16] - 2026-09-18
 
 null
