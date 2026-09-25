@@ -29,6 +29,11 @@ async def test_message_find_all(
                 "channel": "WHATSAPP",
                 "accountChannel": "WHATSAPP_BAILYES",
                 "watermarked": True,
+                "mediaUrl": "mediaUrl",
+                "mediaType": "mediaType",
+                "mimeType": "mimeType",
+                "mediaFilename": "mediaFilename",
+                "productData": {"key": "value"},
                 "createdAt": "2024-01-15T09:30:00Z",
                 "updatedAt": "2024-01-15T09:30:00Z",
             }
@@ -60,6 +65,11 @@ async def test_message_find_all(
                     "channel": None,
                     "accountChannel": None,
                     "watermarked": None,
+                    "mediaUrl": None,
+                    "mediaType": None,
+                    "mimeType": None,
+                    "mediaFilename": None,
+                    "productData": ("dict", {0: (None, None)}),
                     "createdAt": "datetime",
                     "updatedAt": "datetime",
                 }
@@ -98,6 +108,11 @@ async def test_message_send(
         "channel": "WHATSAPP",
         "accountChannel": "WHATSAPP_BAILYES",
         "watermarked": True,
+        "mediaUrl": "mediaUrl",
+        "mediaType": "mediaType",
+        "mimeType": "mimeType",
+        "mediaFilename": "mediaFilename",
+        "productData": {"key": "value"},
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -119,13 +134,18 @@ async def test_message_send(
         "channel": None,
         "accountChannel": None,
         "watermarked": None,
+        "mediaUrl": None,
+        "mediaType": None,
+        "mimeType": None,
+        "mediaFilename": None,
+        "productData": ("dict", {0: (None, None)}),
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
-    response = client.messages.message_send(text="text")
+    response = client.messages.message_send()
     validate_response(response, expected_response, expected_types)
 
-    async_response = await async_client.messages.message_send(text="text")
+    async_response = await async_client.messages.message_send()
     validate_response(async_response, expected_response, expected_types)
 
 
@@ -150,6 +170,11 @@ async def test_message_find_one(
         "channel": "WHATSAPP",
         "accountChannel": "WHATSAPP_BAILYES",
         "watermarked": True,
+        "mediaUrl": "mediaUrl",
+        "mediaType": "mediaType",
+        "mimeType": "mimeType",
+        "mediaFilename": "mediaFilename",
+        "productData": {"key": "value"},
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -171,6 +196,11 @@ async def test_message_find_one(
         "channel": None,
         "accountChannel": None,
         "watermarked": None,
+        "mediaUrl": None,
+        "mediaType": None,
+        "mimeType": None,
+        "mediaFilename": None,
+        "productData": ("dict", {0: (None, None)}),
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }

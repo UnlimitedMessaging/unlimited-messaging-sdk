@@ -1,3 +1,5 @@
+export * as media from "./media";
+export * from "./media/types";
 export * as messages from "./messages";
 export * from "./messages/types";
 export * as accounts from "./accounts";

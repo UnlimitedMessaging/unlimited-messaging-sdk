@@ -4,11 +4,18 @@
 import * as serializers from "../../../../index";
 import * as UnlimitedMessagingApi from "../../../../../api/index";
 import * as core from "../../../../../core";
+import { MessageSendRequestMediaType } from "../../types/MessageSendRequestMediaType";
+import { MessageSendRequestProductData } from "../../types/MessageSendRequestProductData";
 export declare const MessageSendRequest: core.serialization.Schema<serializers.MessageSendRequest.Raw, UnlimitedMessagingApi.MessageSendRequest>;
 export declare namespace MessageSendRequest {
     interface Raw {
         recipient?: string | null;
-        text: string;
+        text?: string | null;
+        mediaUrl?: string | null;
+        mediaType?: MessageSendRequestMediaType.Raw | null;
+        mimeType?: string | null;
+        filename?: string | null;
+        productData?: MessageSendRequestProductData.Raw | null;
         accountId?: (string | null) | null;
         simId?: (string | null) | null;
         replyToMessageId?: string | null;

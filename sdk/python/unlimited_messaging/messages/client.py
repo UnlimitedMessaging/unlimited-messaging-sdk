@@ -13,6 +13,8 @@ from ..errors.unauthorized_error import UnauthorizedError
 from ..errors.forbidden_error import ForbiddenError
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
+from .types.message_send_request_media_type import MessageSendRequestMediaType
+from .types.message_send_request_product_data import MessageSendRequestProductData
 from .types.message_send_response import MessageSendResponse
 from ..errors.not_found_error import NotFoundError
 from ..errors.conflict_error import ConflictError
@@ -145,8 +147,13 @@ class MessagesClient:
     def message_send(
         self,
         *,
-        text: str,
         recipient: typing.Optional[str] = OMIT,
+        text: typing.Optional[str] = OMIT,
+        media_url: typing.Optional[str] = OMIT,
+        media_type: typing.Optional[MessageSendRequestMediaType] = OMIT,
+        mime_type: typing.Optional[str] = OMIT,
+        filename: typing.Optional[str] = OMIT,
+        product_data: typing.Optional[MessageSendRequestProductData] = OMIT,
         account_id: typing.Optional[str] = OMIT,
         sim_id: typing.Optional[str] = OMIT,
         reply_to_message_id: typing.Optional[str] = OMIT,
@@ -155,13 +162,23 @@ class MessagesClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
+        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16. To send a media file, upload it first with `POST /media` to get a temp URL, then pass that URL as `mediaUrl` with the matching `mediaType` (`image`, `document`, or `audio`) in this body.
 
         Parameters
         ----------
-        text : str
-
         recipient : typing.Optional[str]
+
+        text : typing.Optional[str]
+
+        media_url : typing.Optional[str]
+
+        media_type : typing.Optional[MessageSendRequestMediaType]
+
+        mime_type : typing.Optional[str]
+
+        filename : typing.Optional[str]
+
+        product_data : typing.Optional[MessageSendRequestProductData]
 
         account_id : typing.Optional[str]
 
@@ -184,9 +201,7 @@ class MessagesClient:
         client = UnlimitedMessagingApi(
             token="YOUR_TOKEN",
         )
-        client.messages.message_send(
-            text="text",
-        )
+        client.messages.message_send()
         """
         _response = self._client_wrapper.httpx_client.request(
             "message",
@@ -194,6 +209,11 @@ class MessagesClient:
             json={
                 "recipient": recipient,
                 "text": text,
+                "mediaUrl": media_url,
+                "mediaType": media_type,
+                "mimeType": mime_type,
+                "filename": filename,
+                "productData": product_data,
                 "accountId": account_id,
                 "simId": sim_id,
                 "replyToMessageId": reply_to_message_id,
@@ -563,8 +583,13 @@ class AsyncMessagesClient:
     async def message_send(
         self,
         *,
-        text: str,
         recipient: typing.Optional[str] = OMIT,
+        text: typing.Optional[str] = OMIT,
+        media_url: typing.Optional[str] = OMIT,
+        media_type: typing.Optional[MessageSendRequestMediaType] = OMIT,
+        mime_type: typing.Optional[str] = OMIT,
+        filename: typing.Optional[str] = OMIT,
+        product_data: typing.Optional[MessageSendRequestProductData] = OMIT,
         account_id: typing.Optional[str] = OMIT,
         sim_id: typing.Optional[str] = OMIT,
         reply_to_message_id: typing.Optional[str] = OMIT,
@@ -573,13 +598,23 @@ class AsyncMessagesClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
+        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16. To send a media file, upload it first with `POST /media` to get a temp URL, then pass that URL as `mediaUrl` with the matching `mediaType` (`image`, `document`, or `audio`) in this body.
 
         Parameters
         ----------
-        text : str
-
         recipient : typing.Optional[str]
+
+        text : typing.Optional[str]
+
+        media_url : typing.Optional[str]
+
+        media_type : typing.Optional[MessageSendRequestMediaType]
+
+        mime_type : typing.Optional[str]
+
+        filename : typing.Optional[str]
+
+        product_data : typing.Optional[MessageSendRequestProductData]
 
         account_id : typing.Optional[str]
 
@@ -607,9 +642,7 @@ class AsyncMessagesClient:
 
 
         async def main() -> None:
-            await client.messages.message_send(
-                text="text",
-            )
+            await client.messages.message_send()
 
 
         asyncio.run(main())
@@ -620,6 +653,11 @@ class AsyncMessagesClient:
             json={
                 "recipient": recipient,
                 "text": text,
+                "mediaUrl": media_url,
+                "mediaType": media_type,
+                "mimeType": mime_type,
+                "filename": filename,
+                "productData": product_data,
                 "accountId": account_id,
                 "simId": sim_id,
                 "replyToMessageId": reply_to_message_id,

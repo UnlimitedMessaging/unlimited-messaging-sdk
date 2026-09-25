@@ -1,3 +1,5 @@
+export * as media from "./media";
+export * from "./media/types";
 export * as messages from "./messages";
 export * from "./messages/types";
 export * as accounts from "./accounts";
@@ -8,6 +10,7 @@ export * as webhooks from "./webhooks";
 export * from "./webhooks/types";
 export * as apiKeys from "./apiKeys";
 export * from "./apiKeys/types";
+export * from "./media/client/requests";
 export * from "./messages/client/requests";
 export * from "./accounts/client/requests";
 export * from "./siMsDeprecated/client/requests";

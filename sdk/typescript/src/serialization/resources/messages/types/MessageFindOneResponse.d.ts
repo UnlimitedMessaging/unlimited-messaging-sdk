@@ -12,7 +12,7 @@ export declare const MessageFindOneResponse: core.serialization.ObjectSchema<ser
 export declare namespace MessageFindOneResponse {
     interface Raw {
         id: string;
-        content: string;
+        content: string | null;
         direction: MessageFindOneResponseDirection.Raw;
         fromMe: boolean;
         externalId: string | null;
@@ -28,6 +28,11 @@ export declare namespace MessageFindOneResponse {
         channel: MessageFindOneResponseChannel.Raw;
         accountChannel: MessageFindOneResponseAccountChannel.Raw;
         watermarked: boolean;
+        mediaUrl: string | null;
+        mediaType: string | null;
+        mimeType: string | null;
+        mediaFilename: string | null;
+        productData: Record<string, unknown> | null;
         createdAt: string;
         updatedAt: string;
     }

@@ -12,7 +12,7 @@ export declare const MessageFindAllResponseDataItem: core.serialization.ObjectSc
 export declare namespace MessageFindAllResponseDataItem {
     interface Raw {
         id: string;
-        content: string;
+        content: string | null;
         direction: MessageFindAllResponseDataItemDirection.Raw;
         fromMe: boolean;
         externalId: string | null;
@@ -28,6 +28,11 @@ export declare namespace MessageFindAllResponseDataItem {
         channel: MessageFindAllResponseDataItemChannel.Raw;
         accountChannel: MessageFindAllResponseDataItemAccountChannel.Raw;
         watermarked: boolean;
+        mediaUrl: string | null;
+        mediaType: string | null;
+        mimeType: string | null;
+        mediaFilename: string | null;
+        productData: Record<string, unknown> | null;
         createdAt: string;
         updatedAt: string;
     }

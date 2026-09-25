@@ -3,6 +3,7 @@
  */
 import * as environments from "./environments";
 import * as core from "./core";
+import { Media } from "./api/resources/media/client/Client";
 import { Messages } from "./api/resources/messages/client/Client";
 import { Accounts } from "./api/resources/accounts/client/Client";
 import { SiMsDeprecated } from "./api/resources/siMsDeprecated/client/Client";
@@ -28,12 +29,14 @@ export declare namespace UnlimitedMessagingApiClient {
 }
 export declare class UnlimitedMessagingApiClient {
     protected readonly _options: UnlimitedMessagingApiClient.Options;
+    protected _media: Media | undefined;
     protected _messages: Messages | undefined;
     protected _accounts: Accounts | undefined;
     protected _siMsDeprecated: SiMsDeprecated | undefined;
     protected _webhooks: Webhooks | undefined;
     protected _apiKeys: ApiKeys | undefined;
     constructor(_options: UnlimitedMessagingApiClient.Options);
+    get media(): Media;
     get messages(): Messages;
     get accounts(): Accounts;
     get siMsDeprecated(): SiMsDeprecated;

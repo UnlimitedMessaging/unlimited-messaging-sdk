@@ -48,7 +48,7 @@ export declare class Messages {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
      *
-     * Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
+     * Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16. To send a media file, upload it first with `POST /media` to get a temp URL, then pass that URL as `mediaUrl` with the matching `mediaType` (`image`, `document`, or `audio`) in this body.
      *
      * @param {UnlimitedMessagingApi.MessageSendRequest} request
      * @param {Messages.RequestOptions} requestOptions - Request-specific configuration.
@@ -61,11 +61,9 @@ export declare class Messages {
      * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
      *
      * @example
-     *     await client.messages.messageSend({
-     *         text: "text"
-     *     })
+     *     await client.messages.messageSend()
      */
-    messageSend(request: UnlimitedMessagingApi.MessageSendRequest, requestOptions?: Messages.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageSendResponse>;
+    messageSend(request?: UnlimitedMessagingApi.MessageSendRequest, requestOptions?: Messages.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageSendResponse>;
     private __messageSend;
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ

@@ -4,34 +4,39 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UnlimitedMessagingApiClient = void 0;
-const Client_1 = require("./api/resources/messages/client/Client");
-const Client_2 = require("./api/resources/accounts/client/Client");
-const Client_3 = require("./api/resources/siMsDeprecated/client/Client");
-const Client_4 = require("./api/resources/webhooks/client/Client");
-const Client_5 = require("./api/resources/apiKeys/client/Client");
+const Client_1 = require("./api/resources/media/client/Client");
+const Client_2 = require("./api/resources/messages/client/Client");
+const Client_3 = require("./api/resources/accounts/client/Client");
+const Client_4 = require("./api/resources/siMsDeprecated/client/Client");
+const Client_5 = require("./api/resources/webhooks/client/Client");
+const Client_6 = require("./api/resources/apiKeys/client/Client");
 class UnlimitedMessagingApiClient {
     constructor(_options) {
         this._options = _options;
     }
+    get media() {
+        var _a;
+        return ((_a = this._media) !== null && _a !== void 0 ? _a : (this._media = new Client_1.Media(this._options)));
+    }
     get messages() {
         var _a;
-        return ((_a = this._messages) !== null && _a !== void 0 ? _a : (this._messages = new Client_1.Messages(this._options)));
+        return ((_a = this._messages) !== null && _a !== void 0 ? _a : (this._messages = new Client_2.Messages(this._options)));
     }
     get accounts() {
         var _a;
-        return ((_a = this._accounts) !== null && _a !== void 0 ? _a : (this._accounts = new Client_2.Accounts(this._options)));
+        return ((_a = this._accounts) !== null && _a !== void 0 ? _a : (this._accounts = new Client_3.Accounts(this._options)));
     }
     get siMsDeprecated() {
         var _a;
-        return ((_a = this._siMsDeprecated) !== null && _a !== void 0 ? _a : (this._siMsDeprecated = new Client_3.SiMsDeprecated(this._options)));
+        return ((_a = this._siMsDeprecated) !== null && _a !== void 0 ? _a : (this._siMsDeprecated = new Client_4.SiMsDeprecated(this._options)));
     }
     get webhooks() {
         var _a;
-        return ((_a = this._webhooks) !== null && _a !== void 0 ? _a : (this._webhooks = new Client_4.Webhooks(this._options)));
+        return ((_a = this._webhooks) !== null && _a !== void 0 ? _a : (this._webhooks = new Client_5.Webhooks(this._options)));
     }
     get apiKeys() {
         var _a;
-        return ((_a = this._apiKeys) !== null && _a !== void 0 ? _a : (this._apiKeys = new Client_5.ApiKeys(this._options)));
+        return ((_a = this._apiKeys) !== null && _a !== void 0 ? _a : (this._apiKeys = new Client_6.ApiKeys(this._options)));
     }
 }
 exports.UnlimitedMessagingApiClient = UnlimitedMessagingApiClient;

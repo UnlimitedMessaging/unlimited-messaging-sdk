@@ -7,6 +7,8 @@ export * from "./MessageFindAllResponseDataItemChannel";
 export * from "./MessageFindAllResponseDataItemAccountChannel";
 export * from "./MessageFindAllResponseDataItem";
 export * from "./MessageFindAllResponse";
+export * from "./MessageSendRequestMediaType";
+export * from "./MessageSendRequestProductData";
 export * from "./MessageSendResponseDirection";
 export * from "./MessageSendResponseStatus";
 export * from "./MessageSendResponseChannel";

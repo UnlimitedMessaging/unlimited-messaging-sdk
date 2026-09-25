@@ -23,6 +23,8 @@ __exportStar(require("./MessageFindAllResponseDataItemChannel"), exports);
 __exportStar(require("./MessageFindAllResponseDataItemAccountChannel"), exports);
 __exportStar(require("./MessageFindAllResponseDataItem"), exports);
 __exportStar(require("./MessageFindAllResponse"), exports);
+__exportStar(require("./MessageSendRequestMediaType"), exports);
+__exportStar(require("./MessageSendRequestProductData"), exports);
 __exportStar(require("./MessageSendResponseDirection"), exports);
 __exportStar(require("./MessageSendResponseStatus"), exports);
 __exportStar(require("./MessageSendResponseChannel"), exports);

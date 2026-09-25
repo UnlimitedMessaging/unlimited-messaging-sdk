@@ -4,12 +4,14 @@ import typing
 from .environment import UnlimitedMessagingApiEnvironment
 import httpx
 from .core.client_wrapper import SyncClientWrapper
+from .media.client import MediaClient
 from .messages.client import MessagesClient
 from .accounts.client import AccountsClient
 from .si_ms_deprecated.client import SiMsDeprecatedClient
 from .webhooks.client import WebhooksClient
 from .api_keys.client import ApiKeysClient
 from .core.client_wrapper import AsyncClientWrapper
+from .media.client import AsyncMediaClient
 from .messages.client import AsyncMessagesClient
 from .accounts.client import AsyncAccountsClient
 from .si_ms_deprecated.client import AsyncSiMsDeprecatedClient
@@ -79,6 +81,7 @@ class UnlimitedMessagingApi:
             else httpx.Client(timeout=_defaulted_timeout),
             timeout=_defaulted_timeout,
         )
+        self.media = MediaClient(client_wrapper=self._client_wrapper)
         self.messages = MessagesClient(client_wrapper=self._client_wrapper)
         self.accounts = AccountsClient(client_wrapper=self._client_wrapper)
         self.si_ms_deprecated = SiMsDeprecatedClient(
@@ -150,6 +153,7 @@ class AsyncUnlimitedMessagingApi:
             else httpx.AsyncClient(timeout=_defaulted_timeout),
             timeout=_defaulted_timeout,
         )
+        self.media = AsyncMediaClient(client_wrapper=self._client_wrapper)
         self.messages = AsyncMessagesClient(client_wrapper=self._client_wrapper)
         self.accounts = AsyncAccountsClient(client_wrapper=self._client_wrapper)
         self.si_ms_deprecated = AsyncSiMsDeprecatedClient(

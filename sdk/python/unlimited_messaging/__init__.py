@@ -9,7 +9,7 @@ from .errors import (
     UnauthorizedError,
     UnprocessableEntityError,
 )
-from . import accounts, api_keys, messages, si_ms_deprecated, webhooks
+from . import accounts, api_keys, media, messages, si_ms_deprecated, webhooks
 from .accounts import (
     AccountGetAccountResponse,
     AccountGetAccountResponseChannel,
@@ -37,6 +37,7 @@ from .accounts import (
 from .api_keys import ApiKeyCreateResponse, ApiKeyListResponseItem
 from .client import AsyncUnlimitedMessagingApi, UnlimitedMessagingApi
 from .environment import UnlimitedMessagingApiEnvironment
+from .media import MediaUploadResponse
 from .messages import (
     MessageFindAllRequestChannel,
     MessageFindAllRequestDirection,
@@ -57,6 +58,8 @@ from .messages import (
     MessageGetStatusHistoryResponseChannelsItemChannel,
     MessageGetStatusHistoryResponseChannelsItemEventsItem,
     MessageGetStatusHistoryResponseChannelsItemEventsItemStatus,
+    MessageSendRequestMediaType,
+    MessageSendRequestProductData,
     MessageSendResponse,
     MessageSendResponseAccountChannel,
     MessageSendResponseChannel,
@@ -122,6 +125,7 @@ __all__ = [
     "BadRequestError",
     "ConflictError",
     "ForbiddenError",
+    "MediaUploadResponse",
     "MessageFindAllRequestChannel",
     "MessageFindAllRequestDirection",
     "MessageFindAllRequestStatus",
@@ -141,6 +145,8 @@ __all__ = [
     "MessageGetStatusHistoryResponseChannelsItemChannel",
     "MessageGetStatusHistoryResponseChannelsItemEventsItem",
     "MessageGetStatusHistoryResponseChannelsItemEventsItemStatus",
+    "MessageSendRequestMediaType",
+    "MessageSendRequestProductData",
     "MessageSendResponse",
     "MessageSendResponseAccountChannel",
     "MessageSendResponseChannel",
@@ -179,6 +185,7 @@ __all__ = [
     "WebhookEndpointUpdateResponseEventTypesItem",
     "accounts",
     "api_keys",
+    "media",
     "messages",
     "si_ms_deprecated",
     "webhooks",

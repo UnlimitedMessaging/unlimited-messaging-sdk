@@ -44,7 +44,7 @@ const MessageFindOneResponseChannel_1 = require("./MessageFindOneResponseChannel
 const MessageFindOneResponseAccountChannel_1 = require("./MessageFindOneResponseAccountChannel");
 exports.MessageFindOneResponse = core.serialization.object({
     id: core.serialization.string(),
-    content: core.serialization.string(),
+    content: core.serialization.string().nullable(),
     direction: MessageFindOneResponseDirection_1.MessageFindOneResponseDirection,
     fromMe: core.serialization.boolean(),
     externalId: core.serialization.string().nullable(),
@@ -60,6 +60,11 @@ exports.MessageFindOneResponse = core.serialization.object({
     channel: MessageFindOneResponseChannel_1.MessageFindOneResponseChannel,
     accountChannel: MessageFindOneResponseAccountChannel_1.MessageFindOneResponseAccountChannel,
     watermarked: core.serialization.boolean(),
+    mediaUrl: core.serialization.string().nullable(),
+    mediaType: core.serialization.string().nullable(),
+    mimeType: core.serialization.string().nullable(),
+    mediaFilename: core.serialization.string().nullable(),
+    productData: core.serialization.record(core.serialization.string(), core.serialization.unknown()).nullable(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

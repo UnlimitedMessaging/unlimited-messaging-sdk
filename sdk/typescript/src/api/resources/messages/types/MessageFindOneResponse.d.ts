@@ -4,7 +4,7 @@
 import * as UnlimitedMessagingApi from "../../../index";
 export interface MessageFindOneResponse {
     id: string;
-    content: string;
+    content: string | null;
     direction: UnlimitedMessagingApi.MessageFindOneResponseDirection;
     /** True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe. */
     fromMe: boolean;
@@ -24,6 +24,11 @@ export interface MessageFindOneResponse {
     channel: UnlimitedMessagingApi.MessageFindOneResponseChannel;
     accountChannel: UnlimitedMessagingApi.MessageFindOneResponseAccountChannel;
     watermarked: boolean;
+    mediaUrl: string | null;
+    mediaType: string | null;
+    mimeType: string | null;
+    mediaFilename: string | null;
+    productData: Record<string, unknown> | null;
     createdAt: Date;
     updatedAt: Date;
 }

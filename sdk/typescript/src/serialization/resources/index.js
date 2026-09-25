@@ -36,7 +36,9 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.apiKeys = exports.webhooks = exports.siMsDeprecated = exports.accounts = exports.messages = void 0;
+exports.apiKeys = exports.webhooks = exports.siMsDeprecated = exports.accounts = exports.messages = exports.media = void 0;
+exports.media = __importStar(require("./media"));
+__exportStar(require("./media/types"), exports);
 exports.messages = __importStar(require("./messages"));
 __exportStar(require("./messages/types"), exports);
 exports.accounts = __importStar(require("./accounts"));
