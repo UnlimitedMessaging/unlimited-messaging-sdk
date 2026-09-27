@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.20] - 2026-09-27
+
+*   **Changed Parameters**
+    *   The `kind` field in `MessageEditedEvent` is now nullable.
+*   **New Response Fields**
+    *   Added a new `error` field to `MessageEditedEvent`. This field is nullable and indicates decryption failures for edited messages.
+        *   When an edit cannot be opened, `error` will be `original_secret_missing` (for a message the account received before it was linked) or `decryption_failed` (otherwise), and `newContent` and `kind` will be null.
+
 ## [0.1.19] - 2026-09-27
 
 *   **New Endpoints**
