@@ -203,6 +203,7 @@ paths:
                             - WHATSAPP_WHATSMEOW
                         watermarked:
                           type: boolean
+                          description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only.
                         mediaUrl:
                           anyOf:
                             - type: string
@@ -219,6 +220,11 @@ paths:
                           anyOf:
                             - type: string
                             - type: "null"
+                        transcript:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: "Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now."
                         productData:
                           anyOf:
                             - type: object
@@ -226,6 +232,20 @@ paths:
                                 type: string
                               additionalProperties: {}
                             - type: "null"
+                        sentAt:
+                          anyOf:
+                            - type: string
+                              format: date-time
+                              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                            - type: "null"
+                          description: "When the message was sent, per the channel: WhatsApp's own timestamp for a received message or one typed on the phone, the moment it went out for one sent through the API. Order conversations on this rather than createdAt. Null until an API send goes out."
+                        deletedAt:
+                          anyOf:
+                            - type: string
+                              format: date-time
+                              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                            - type: "null"
+                          description: When the message was deleted for everyone, null if it was not.
                         createdAt:
                           type: string
                           format: date-time
@@ -256,7 +276,10 @@ paths:
                         - mediaType
                         - mimeType
                         - mediaFilename
+                        - transcript
                         - productData
+                        - sentAt
+                        - deletedAt
                         - createdAt
                         - updatedAt
                       additionalProperties: false
@@ -299,7 +322,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16. To send a media file, upload it first with `POST /media` to get a temp URL, then pass that URL as `mediaUrl` with the matching `mediaType` (`image`, `document`, or `audio`) in this body.
+        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16. To send a media file, upload it first with `POST /media` to get a temp URL, then pass that URL as `mediaUrl` with the matching `mediaType` (`image`, `document`, or `audio`) in this body. Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
       operationId: Message_send
       parameters: []
       requestBody:
@@ -329,6 +352,15 @@ paths:
                   type: string
                 filename:
                   type: string
+                priority:
+                  description: "`transactional` (an invoice, a reminder) is sent before any `normal` message already waiting in the queue, so a bulk send does not delay it. The pause between two sends of an account still applies. Defaults to `normal`."
+                  type: string
+                  enum:
+                    - normal
+                    - transactional
+                compress:
+                  description: Images are always delivered to WhatsApp as uploaded. The copy UnlimitedMessaging keeps (what `mediaUrl` serves back) is resized and converted to WebP by default; set `false` to keep it byte-for-byte, e.g. for images with fine text. PNGs under 1 MB are always kept as is.
+                  type: boolean
                 productData:
                   type: object
                   properties:
@@ -464,6 +496,7 @@ paths:
                       - WHATSAPP_WHATSMEOW
                   watermarked:
                     type: boolean
+                    description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only.
                   mediaUrl:
                     anyOf:
                       - type: string
@@ -480,6 +513,11 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  transcript:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: "Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now."
                   productData:
                     anyOf:
                       - type: object
@@ -487,6 +525,20 @@ paths:
                           type: string
                         additionalProperties: {}
                       - type: "null"
+                  sentAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                    description: "When the message was sent, per the channel: WhatsApp's own timestamp for a received message or one typed on the phone, the moment it went out for one sent through the API. Order conversations on this rather than createdAt. Null until an API send goes out."
+                  deletedAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                    description: When the message was deleted for everyone, null if it was not.
                   createdAt:
                     type: string
                     format: date-time
@@ -517,7 +569,10 @@ paths:
                   - mediaType
                   - mimeType
                   - mediaFilename
+                  - transcript
                   - productData
+                  - sentAt
+                  - deletedAt
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -631,6 +686,7 @@ paths:
                       - WHATSAPP_WHATSMEOW
                   watermarked:
                     type: boolean
+                    description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only.
                   mediaUrl:
                     anyOf:
                       - type: string
@@ -647,6 +703,11 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  transcript:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: "Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now."
                   productData:
                     anyOf:
                       - type: object
@@ -654,6 +715,20 @@ paths:
                           type: string
                         additionalProperties: {}
                       - type: "null"
+                  sentAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                    description: "When the message was sent, per the channel: WhatsApp's own timestamp for a received message or one typed on the phone, the moment it went out for one sent through the API. Order conversations on this rather than createdAt. Null until an API send goes out."
+                  deletedAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                    description: When the message was deleted for everyone, null if it was not.
                   createdAt:
                     type: string
                     format: date-time
@@ -684,7 +759,10 @@ paths:
                   - mediaType
                   - mimeType
                   - mediaFilename
+                  - transcript
                   - productData
+                  - sentAt
+                  - deletedAt
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -832,12 +910,26 @@ paths:
                       anyOf:
                         - type: string
                         - type: "null"
+                    externalRef:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                      description: Your own reference for this account, as set at linking or with PATCH.
                     blockedUntil:
                       anyOf:
                         - type: string
                           format: date-time
                           pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
                         - type: "null"
+                    mediaUrlRequiresAuth:
+                      type: boolean
+                      description: Whether fetching a stored media also requires authenticating as its owner.
+                    syncHistory:
+                      type: boolean
+                      description: Whether the account's message history is stored and announced.
+                    sendIntervalSeconds:
+                      type: number
+                      description: The pause this account keeps between two sends, in seconds.
                     createdAt:
                       type: string
                       format: date-time
@@ -853,7 +945,11 @@ paths:
                     - status
                     - phone
                     - name
+                    - externalRef
                     - blockedUntil
+                    - mediaUrlRequiresAuth
+                    - syncHistory
+                    - sendIntervalSeconds
                     - createdAt
                     - updatedAt
                   additionalProperties: false
@@ -872,7 +968,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better.
+        Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
       operationId: Account_link_account
       parameters:
         - name: mode
@@ -884,6 +980,26 @@ paths:
             enum:
               - stable
               - beta
+        - name: new
+          required: false
+          in: query
+          schema:
+            description: Always start a new linking attempt, even if one is already pending. Other pending attempts are left alone.
+            type: boolean
+        - name: syncHistory
+          required: false
+          in: query
+          schema:
+            description: "Receive the account's message history: its past conversations are stored and announced as `message.history` webhook batches once the number is linked. Beta (whatsmeow) accounts only. Defaults to false."
+            type: boolean
+        - name: externalRef
+          required: false
+          in: query
+          schema:
+            description: Your own reference for this account (e.g. your customer organization id), stored on it. Only a pending attempt made with the same reference is resumed, so two of your customers linking at the same time each get their own account.
+            type: string
+            minLength: 1
+            maxLength: 200
       responses:
         "200":
           content:
@@ -1034,6 +1150,221 @@ paths:
       summary: Get the current QR code for an account.
       tags:
         - Accounts
+  /account/{accountId}/history:
+    post:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Asks the phone for the messages that precede `externalId` in its conversation. The answer is not in this response: the messages arrive a few seconds later as a `message.history` webhook batch (`syncType: "on_demand"`), stored like any other. Pass the oldest message you hold and repeat to go further back. Requires `syncHistory` on the account (`409` otherwise), a connected account (`409`), and a beta (whatsmeow) WhatsApp account (`422`).
+      operationId: Account_request_history
+      parameters:
+        - name: accountId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                externalId:
+                  type: string
+                  minLength: 1
+                  description: "The `externalId` of the oldest message you hold in the conversation: the messages before it are requested."
+                count:
+                  default: 50
+                  description: How many earlier messages to ask for, 1 to 50.
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+              required:
+                - externalId
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requested:
+                    type: boolean
+                    const: true
+                required:
+                  - requested
+                additionalProperties: false
+          description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+        "409":
+          description: A resource with the same identifier already exists.
+        "422":
+          description: The request could not be processed.
+      security:
+        - bearer: []
+      summary: Fetch older messages of a conversation.
+      tags:
+        - Accounts
+  /account/{accountId}/groups:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Returns every WhatsApp group the account is a member of, with its id, name and member count. Beta (whatsmeow) WhatsApp accounts only for now: other accounts get a `422`. Returns `409` when the account is not connected, since the list is read live from WhatsApp.
+      operationId: Account_list_groups
+      parameters:
+        - name: accountId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: The group id on the channel (a WhatsApp group JID, `...@g.us`). Pass it as `recipient` to POST /message to write to the group.
+                        name:
+                          type: string
+                        memberCount:
+                          type: integer
+                          minimum: -9007199254740991
+                          maximum: 9007199254740991
+                      required:
+                        - id
+                        - name
+                        - memberCount
+                      additionalProperties: false
+                required:
+                  - data
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+        "409":
+          description: A resource with the same identifier already exists.
+        "422":
+          description: The request could not be processed.
+      security:
+        - bearer: []
+      summary: List the groups an account belongs to.
+      tags:
+        - Accounts
+  /account/{accountId}/groups/{groupId}:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Returns one group the account belongs to with its members: their phone number (E.164) when WhatsApp discloses it, and whether they are an admin. `groupId` is the id from the group list, with or without its `@g.us` suffix. Returns `404` when the group does not exist or the account is not in it, `409` when the account is not connected. Beta (whatsmeow) WhatsApp accounts only for now.
+      operationId: Account_get_group
+      parameters:
+        - name: accountId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: groupId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The group id on the channel (a WhatsApp group JID, `...@g.us`). Pass it as `recipient` to POST /message to write to the group.
+                  name:
+                    type: string
+                  memberCount:
+                    type: integer
+                    minimum: -9007199254740991
+                    maximum: 9007199254740991
+                  topic:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  members:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: "The member's id on the channel: a phone-number JID when known, a LID when WhatsApp hides the number."
+                        address:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: The member phone number in E.164 format, null when WhatsApp hides it (then `id` is the only identifier).
+                        lid:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        displayName:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        isAdmin:
+                          type: boolean
+                        isSuperAdmin:
+                          type: boolean
+                      required:
+                        - id
+                        - address
+                        - lid
+                        - displayName
+                        - isAdmin
+                        - isSuperAdmin
+                      additionalProperties: false
+                required:
+                  - id
+                  - name
+                  - memberCount
+                  - topic
+                  - members
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+        "409":
+          description: A resource with the same identifier already exists.
+        "422":
+          description: The request could not be processed.
+      security:
+        - bearer: []
+      summary: Get a group with its members.
+      tags:
+        - Accounts
   /account/{accountId}:
     get:
       description: |-
@@ -1082,12 +1413,26 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  externalRef:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: Your own reference for this account, as set at linking or with PATCH.
                   blockedUntil:
                     anyOf:
                       - type: string
                         format: date-time
                         pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
                       - type: "null"
+                  mediaUrlRequiresAuth:
+                    type: boolean
+                    description: Whether fetching a stored media also requires authenticating as its owner.
+                  syncHistory:
+                    type: boolean
+                    description: Whether the account's message history is stored and announced.
+                  sendIntervalSeconds:
+                    type: number
+                    description: The pause this account keeps between two sends, in seconds.
                   createdAt:
                     type: string
                     format: date-time
@@ -1103,7 +1448,11 @@ paths:
                   - status
                   - phone
                   - name
+                  - externalRef
                   - blockedUntil
+                  - mediaUrlRequiresAuth
+                  - syncHistory
+                  - sendIntervalSeconds
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -1123,7 +1472,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Updates the custom display name of a linked messaging account.
+        Updates the custom display name of a linked messaging account, `externalRef` (your own reference for it, `null` clears it) and/or `sendIntervalSeconds`, the pause kept between two sends (2 to 120 s, default 5 s, `null` restores it).
       operationId: Account_update_account
       parameters:
         - name: accountId
@@ -1142,8 +1491,26 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 64
-              required:
-                - name
+                externalRef:
+                  description: Your own reference for this account. `null` clears it.
+                  anyOf:
+                    - type: string
+                      minLength: 1
+                      maxLength: 200
+                    - type: "null"
+                syncHistory:
+                  description: "Receive the message history WhatsApp hands over from now on (`message.history`). The phone's full history is only requested when the number is linked: pass `syncHistory` to GET /account/link for that."
+                  type: boolean
+                mediaUrlRequiresAuth:
+                  description: "Require an API key (or a dashboard session) of the owner, on top of the URL, to fetch this account's stored media. Off by default: the unguessable URL alone gives access."
+                  type: boolean
+                sendIntervalSeconds:
+                  description: "Pause between two sends of this account, in seconds (2 to 120). Spacing sends protects the number from being flagged by WhatsApp: lower it with care. `null` restores the default (5 s)."
+                  anyOf:
+                    - type: integer
+                      minimum: 2
+                      maximum: 120
+                    - type: "null"
       responses:
         "200":
           content:
@@ -1179,12 +1546,26 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  externalRef:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: Your own reference for this account, as set at linking or with PATCH.
                   blockedUntil:
                     anyOf:
                       - type: string
                         format: date-time
                         pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
                       - type: "null"
+                  mediaUrlRequiresAuth:
+                    type: boolean
+                    description: Whether fetching a stored media also requires authenticating as its owner.
+                  syncHistory:
+                    type: boolean
+                    description: Whether the account's message history is stored and announced.
+                  sendIntervalSeconds:
+                    type: number
+                    description: The pause this account keeps between two sends, in seconds.
                   createdAt:
                     type: string
                     format: date-time
@@ -1200,7 +1581,11 @@ paths:
                   - status
                   - phone
                   - name
+                  - externalRef
                   - blockedUntil
+                  - mediaUrlRequiresAuth
+                  - syncHistory
+                  - sendIntervalSeconds
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -1215,7 +1600,7 @@ paths:
           description: The requested resource was not found.
       security:
         - bearer: []
-      summary: Rename an account.
+      summary: "Update an account: name, external reference, send pacing."
       tags:
         - Accounts
     delete:
@@ -1646,7 +2031,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Registers a URL to receive signed HTTP POST requests for the given event types. The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
+        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
       operationId: WebhookEndpoint_create
       parameters: []
       requestBody:
@@ -1669,6 +2054,20 @@ paths:
                     type: string
                     enum:
                       - message.received
+                      - message.self_sent
+                      - message.status
+                      - message.reaction
+                      - message.edited
+                      - account.status_changed
+                      - message.history
+                      - group.updated
+                      - message.deleted
+                accountIds:
+                  maxItems: 100
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
               required:
                 - url
                 - eventTypes
@@ -1697,6 +2096,18 @@ paths:
                       type: string
                       enum:
                         - message.received
+                        - message.self_sent
+                        - message.status
+                        - message.reaction
+                        - message.edited
+                        - account.status_changed
+                        - message.history
+                        - group.updated
+                        - message.deleted
+                  accountIds:
+                    type: array
+                    items:
+                      type: string
                   createdAt:
                     type: string
                     format: date-time
@@ -1714,6 +2125,7 @@ paths:
                   - secretPrefix
                   - enabled
                   - eventTypes
+                  - accountIds
                   - createdAt
                   - updatedAt
                   - secret
@@ -1737,7 +2149,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to. Never includes the secret.
+        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to and the accounts it is scoped to (`accountIds`, empty for every account). Never includes the secret.
       operationId: WebhookEndpoint_list
       parameters: []
       responses:
@@ -1770,6 +2182,18 @@ paths:
                             type: string
                             enum:
                               - message.received
+                              - message.self_sent
+                              - message.status
+                              - message.reaction
+                              - message.edited
+                              - account.status_changed
+                              - message.history
+                              - group.updated
+                              - message.deleted
+                        accountIds:
+                          type: array
+                          items:
+                            type: string
                         createdAt:
                           type: string
                           format: date-time
@@ -1785,6 +2209,7 @@ paths:
                         - secretPrefix
                         - enabled
                         - eventTypes
+                        - accountIds
                         - createdAt
                         - updatedAt
                       additionalProperties: false
@@ -1839,6 +2264,18 @@ paths:
                       type: string
                       enum:
                         - message.received
+                        - message.self_sent
+                        - message.status
+                        - message.reaction
+                        - message.edited
+                        - account.status_changed
+                        - message.history
+                        - group.updated
+                        - message.deleted
+                  accountIds:
+                    type: array
+                    items:
+                      type: string
                   createdAt:
                     type: string
                     format: date-time
@@ -1854,6 +2291,7 @@ paths:
                   - secretPrefix
                   - enabled
                   - eventTypes
+                  - accountIds
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -1873,7 +2311,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Updates the URL, description, enabled state, and/or subscribed event types. Omit a field to leave it unchanged.
+        Updates the URL, description, enabled state, subscribed event types and/or account scope. Omit a field to leave it unchanged. `accountIds` replaces the scope; `null` or `[]` clears it so every account is delivered again.
       operationId: WebhookEndpoint_update
       parameters:
         - name: id
@@ -1905,6 +2343,22 @@ paths:
                     type: string
                     enum:
                       - message.received
+                      - message.self_sent
+                      - message.status
+                      - message.reaction
+                      - message.edited
+                      - account.status_changed
+                      - message.history
+                      - group.updated
+                      - message.deleted
+                accountIds:
+                  anyOf:
+                    - maxItems: 100
+                      type: array
+                      items:
+                        type: string
+                        minLength: 1
+                    - type: "null"
       responses:
         "200":
           content:
@@ -1930,6 +2384,18 @@ paths:
                       type: string
                       enum:
                         - message.received
+                        - message.self_sent
+                        - message.status
+                        - message.reaction
+                        - message.edited
+                        - account.status_changed
+                        - message.history
+                        - group.updated
+                        - message.deleted
+                  accountIds:
+                    type: array
+                    items:
+                      type: string
                   createdAt:
                     type: string
                     format: date-time
@@ -1945,6 +2411,7 @@ paths:
                   - secretPrefix
                   - enabled
                   - eventTypes
+                  - accountIds
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -2192,6 +2659,134 @@ tags:
     description: Send and retrieve WhatsApp messages.
   - name: SIMs
     description: Manage WhatsApp SIM cards linked to your account.
+  - name: Webhooks
+    description: |-
+      Receive events as they happen instead of polling. Register an endpoint with `POST /webhooks`,
+      choosing its `eventTypes` and, optionally, the `accountIds` it covers (by default every account
+      you have, including ones linked later). Requires a Medium or Max plan.
+
+      ### Delivery
+
+      Each event is an HTTP `POST` with a JSON body:
+
+      ```json
+      { "type": "message.received", "eventId": "whd_...", "occurredAt": "2026-09-27T10:00:01.000Z", "data": { } }
+      ```
+
+      Answer with any `2xx` within 10 seconds, and do the work afterwards.
+
+      ### Verifying the signature
+
+      Deliveries are signed per [Standard Webhooks](https://www.standardwebhooks.com), so its libraries
+      verify them as they are. Three headers come with every request:
+
+      | Header | Content |
+      | ------ | ------- |
+      | `webhook-id` | The delivery id, equal to the body's `eventId`. Stable across retries. |
+      | `webhook-timestamp` | Unix seconds when this attempt was sent. |
+      | `webhook-signature` | `v1,` followed by the base64 HMAC-SHA256 of `{webhook-id}.{webhook-timestamp}.{raw body}`. Several space-separated entries may appear during a secret rotation: accept the request if one matches. |
+
+      The HMAC key is your secret (returned once, by `POST /webhooks`) with its `whsec_` prefix removed,
+      base64-decoded. Compute it over the raw body exactly as received, compare in constant time, and
+      reject a timestamp more than 5 minutes away from your clock.
+
+      ```js
+      const key = Buffer.from(secret.replace(/^whsec_/, ''), 'base64');
+      const expected = crypto.createHmac('sha256', key).update(`${id}.${timestamp}.${rawBody}`).digest('base64');
+      const valid = signatureHeader.split(' ').some((s) => s === `v1,${expected}`);
+      ```
+
+      ### Retries
+
+      A `2xx` marks the delivery done. A `429`, a `5xx`, a timeout or a network error is retried
+      after 30 s, 2 min, 10 min, 1 h, 6 h, 1 day, 2 days: 8 attempts in all, over a little more than 3 days. Any other
+      `4xx` is final and never retried. Delivery attempts are kept for 30 days.
+
+      ### Ordering and duplicates
+
+      Delivery is at least once: the same event can arrive twice, so deduplicate on `eventId` (a message
+      is also never announced twice: `message.externalId` is unique per account).
+
+      **Events are not delivered in the order things happened.** Retries reorder them, and a message with
+      media is only announced once its media is stored, a few seconds after it arrived: a text sent right
+      after a photo usually reaches you first. Never order on arrival. Every event carries the channel's
+      own timestamp to order on:
+
+      | Event | Order on |
+      | ----- | -------- |
+      | `message.received`, `message.self_sent` | `data.message.sentAt` (WhatsApp's timestamp) |
+      | `message.status` | `data.message.at`, and `previousStatus` to ignore a stale one |
+      | `message.reaction` | `data.reaction.sentAt` |
+      | `message.edited` | `data.edit.editedAt` |
+      | `message.deleted` | `data.deletion.deletedAt` |
+      | `account.status_changed` | `data.account.at` |
+
+      `GET /message` returns the same `sentAt`.
+
+      ### Events
+
+      | Type | When |
+      | ---- | ---- |
+      | `message.received` | A message arrived. |
+      | `message.self_sent` | The account's own phone sent a message by hand, outside the API. Same shape as `message.received`, with `direction: "OUT"` and `fromMe: true`. |
+      | `message.status` | A message you sent changed status: `SENT`, `DELIVERED`, `READ`, `FAILED` or `UNDELIVERABLE`. Only effective changes fire: a late `DELIVERED` after `READ` does not. |
+      | `message.reaction` | Someone reacted to a message, or took their reaction back (`removed: true`, empty `emoji`). |
+      | `message.edited` | A message was edited. Carries its `externalId`, `newContent`, and `kind`: `text`, or `caption` for the caption of an image, video or document. |
+      | `message.deleted` | A message was deleted for everyone, by its author or a group admin (`deletedBy`). The stored message is kept, with `deletedAt` set. |
+      | `message.history` | Past messages, in batches, for an account linked with `syncHistory` (see below). |
+      | `group.updated` | A group the account is in changed: members `added`, `removed`, `promoted` or `demoted`, a new `name` or `topic`. |
+      | `account.status_changed` | An account's status changed: disconnected, logged out, restricted by WhatsApp (`BLOCKED`, with `blockedUntil`), reconnected... `reason` is a machine-readable code (`device_removed` when the device was removed from the phone, `logged_out` when WhatsApp refused the session), `transportCode` WhatsApp's own numeric code for diagnosis. |
+
+      The schema of each payload is published with this reference, under `WebhookEvent*`.
+
+      **Identifiers.** `message.externalId` is the message's id on WhatsApp: reactions
+      (`reactedToExternalId`), edits and quoted replies (`replyTo.externalId`) refer to it.
+      `sender` is a phone number in E.164 format, or `null` when WhatsApp hides it, in which case
+      `senderId` (always set, a LID then) identifies the person. In a group, `participant` names who
+      posted, `channel.conversation.id` is the group and `channel.conversation.participants` lists its
+      members (+E164, or an id when the number is hidden). That list is kept in a cache refreshed when the
+      group changes, so reading it on every message costs nothing: no need to call
+      `GET /account/{accountId}/groups/{groupId}` per message. History batches do not carry it.
+
+      **Media.** A media message carries `mediaType` (`image`, `video`, `document`, `audio`,
+      `ptt` for a voice note, `sticker`), `mimeType`, `mediaFilename`, `mediaSize`, `durationSec`,
+      and a `mediaUrl` serving the file UnlimitedMessaging stored. If it could not be stored,
+      `mediaError` says why (`too_large` above 64 MB, `download_failed`) and there is no `mediaUrl`.
+      The media is kept as long as its message: there is no automatic expiry. By default the URL alone
+      gives access (its token is unguessable, so keep it private). For sensitive media, turn on
+      `mediaUrlRequiresAuth` with `PATCH /account/{accountId}`: the URL then also requires
+      `Authorization: Bearer ak_...` of a user the message belongs to (or their dashboard session),
+      and answers `401` otherwise.
+      `transcript` will hold the text extracted from the media (OCR, PDF text, voice transcription);
+      it is `null` for now.
+
+      ### History
+
+      Link an account with `syncHistory=true` (`GET /account/link`, beta accounts) to receive its past
+      conversations: the phone uploads its history once linked, and each part of it reaches you as
+      `message.history` batches of up to 100 messages, each shaped like `message.received` (with
+      `direction: "OUT"` for the account's own) plus its own `conversation`. `syncType` says which
+      part it is (`initial_bootstrap` and `recent` first, then `full`), `progress` how far along, and
+      `isLatest` that no more of that part is coming. A large history takes a while: expect batches for
+      minutes after the link.
+
+      Only messages stored for the first time are announced, so linking the same number again, or history
+      overlapping live traffic, never repeats a message. History media is described (`mediaType`,
+      `mimeType`, `mediaFilename`) but not stored: there is no `mediaUrl`. Subscribe to
+      `message.history` only if you want it: endpoints that do not are never sent it.
+
+      To go further back in one conversation, `POST /account/{accountId}/history` with the
+      `externalId` of the oldest message you hold: the earlier messages arrive as a
+      `message.history` batch with `syncType: "on_demand"`. `PATCH /account/{accountId}` turns
+      `syncHistory` on or off for what WhatsApp sends from then on.
+
+      ### Sending pace
+
+      Each account keeps a pause between two sends, 5 seconds by default, which protects the number from
+      being flagged by WhatsApp for bursts. Tune it per account with `PATCH /account/{accountId}`
+      (`sendIntervalSeconds`, 2 to 120). Send invoices and reminders with
+      `priority: "transactional"` on `POST /message`: they are taken before normal messages already
+      waiting. Messages sent on a paid plan never carry a watermark.
 servers:
   - url: https://api.unlimitedmessaging.app
     description: production
@@ -2203,7 +2798,1071 @@ components:
       scheme: bearer
       bearerFormat: JWT
       type: http
-  schemas: {}
+  schemas:
+    WebhookEventMessageReceived:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - message.received
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            message:
+              type: object
+              properties:
+                id:
+                  type: string
+                externalId:
+                  nullable: true
+                  type: string
+                direction:
+                  type: string
+                  enum:
+                    - IN
+                    - OUT
+                fromMe:
+                  type: boolean
+                content:
+                  nullable: true
+                  type: string
+                sentAt:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                receivedAt:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                sender:
+                  nullable: true
+                  type: string
+                senderId:
+                  type: string
+                senderName:
+                  nullable: true
+                  type: string
+                participant:
+                  nullable: true
+                  type: string
+                replyTo:
+                  nullable: true
+                  type: object
+                  properties:
+                    externalId:
+                      type: string
+                    participant:
+                      nullable: true
+                      type: string
+                  required:
+                    - externalId
+                    - participant
+                mediaUrl:
+                  type: string
+                mediaType:
+                  type: string
+                mimeType:
+                  type: string
+                mediaFilename:
+                  type: string
+                mediaSize:
+                  type: integer
+                  minimum: -9007199254740991
+                  maximum: 9007199254740991
+                durationSec:
+                  type: integer
+                  minimum: -9007199254740991
+                  maximum: 9007199254740991
+                mediaError:
+                  type: string
+                transcript:
+                  nullable: true
+                  type: string
+              required:
+                - id
+                - externalId
+                - direction
+                - fromMe
+                - content
+                - sentAt
+                - receivedAt
+                - sender
+                - senderId
+                - senderName
+                - participant
+                - replyTo
+                - transcript
+            channel:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - WHATSAPP
+                    - SMS
+                    - EMAIL
+                account:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      nullable: true
+                      type: string
+                  required:
+                    - id
+                    - name
+                conversation:
+                  type: object
+                  properties:
+                    id:
+                      nullable: true
+                      type: string
+                    isGroup:
+                      type: boolean
+                    address:
+                      nullable: true
+                      type: string
+                    participants:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - id
+                    - isGroup
+                    - address
+              required:
+                - type
+                - account
+                - conversation
+          required:
+            - message
+            - channel
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
+    WebhookEventMessageSelfSent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - message.self_sent
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            message:
+              type: object
+              properties:
+                id:
+                  type: string
+                externalId:
+                  nullable: true
+                  type: string
+                direction:
+                  type: string
+                  enum:
+                    - IN
+                    - OUT
+                fromMe:
+                  type: boolean
+                content:
+                  nullable: true
+                  type: string
+                sentAt:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                receivedAt:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                sender:
+                  nullable: true
+                  type: string
+                senderId:
+                  type: string
+                senderName:
+                  nullable: true
+                  type: string
+                participant:
+                  nullable: true
+                  type: string
+                replyTo:
+                  nullable: true
+                  type: object
+                  properties:
+                    externalId:
+                      type: string
+                    participant:
+                      nullable: true
+                      type: string
+                  required:
+                    - externalId
+                    - participant
+                mediaUrl:
+                  type: string
+                mediaType:
+                  type: string
+                mimeType:
+                  type: string
+                mediaFilename:
+                  type: string
+                mediaSize:
+                  type: integer
+                  minimum: -9007199254740991
+                  maximum: 9007199254740991
+                durationSec:
+                  type: integer
+                  minimum: -9007199254740991
+                  maximum: 9007199254740991
+                mediaError:
+                  type: string
+                transcript:
+                  nullable: true
+                  type: string
+              required:
+                - id
+                - externalId
+                - direction
+                - fromMe
+                - content
+                - sentAt
+                - receivedAt
+                - sender
+                - senderId
+                - senderName
+                - participant
+                - replyTo
+                - transcript
+            channel:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - WHATSAPP
+                    - SMS
+                    - EMAIL
+                account:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      nullable: true
+                      type: string
+                  required:
+                    - id
+                    - name
+                conversation:
+                  type: object
+                  properties:
+                    id:
+                      nullable: true
+                      type: string
+                    isGroup:
+                      type: boolean
+                    address:
+                      nullable: true
+                      type: string
+                    participants:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - id
+                    - isGroup
+                    - address
+              required:
+                - type
+                - account
+                - conversation
+          required:
+            - message
+            - channel
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
+    WebhookEventMessageStatus:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - message.status
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            message:
+              type: object
+              properties:
+                id:
+                  type: string
+                externalId:
+                  nullable: true
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - PENDING
+                    - SENDING
+                    - SENT
+                    - DELIVERED
+                    - READ
+                    - FAILED
+                    - UNDELIVERABLE
+                previousStatus:
+                  type: string
+                  enum:
+                    - PENDING
+                    - SENDING
+                    - SENT
+                    - DELIVERED
+                    - READ
+                    - FAILED
+                    - UNDELIVERABLE
+                error:
+                  nullable: true
+                  type: string
+                at:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                sentAt:
+                  nullable: true
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+              required:
+                - id
+                - externalId
+                - status
+                - previousStatus
+                - error
+                - at
+                - sentAt
+            channel:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - WHATSAPP
+                    - SMS
+                    - EMAIL
+                account:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      nullable: true
+                      type: string
+                  required:
+                    - id
+                    - name
+                conversation:
+                  type: object
+                  properties:
+                    id:
+                      nullable: true
+                      type: string
+                    isGroup:
+                      type: boolean
+                    address:
+                      nullable: true
+                      type: string
+                    participants:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - id
+                    - isGroup
+                    - address
+              required:
+                - type
+                - account
+                - conversation
+          required:
+            - message
+            - channel
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
+    WebhookEventMessageReaction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - message.reaction
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            reaction:
+              type: object
+              properties:
+                emoji:
+                  type: string
+                removed:
+                  type: boolean
+                reactedToExternalId:
+                  type: string
+                reactedToMessageId:
+                  nullable: true
+                  type: string
+                sender:
+                  nullable: true
+                  type: string
+                senderId:
+                  type: string
+                senderName:
+                  nullable: true
+                  type: string
+                participant:
+                  nullable: true
+                  type: string
+                fromMe:
+                  type: boolean
+                sentAt:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+              required:
+                - emoji
+                - removed
+                - reactedToExternalId
+                - reactedToMessageId
+                - sender
+                - senderId
+                - senderName
+                - participant
+                - fromMe
+                - sentAt
+            channel:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - WHATSAPP
+                    - SMS
+                    - EMAIL
+                account:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      nullable: true
+                      type: string
+                  required:
+                    - id
+                    - name
+                conversation:
+                  type: object
+                  properties:
+                    id:
+                      nullable: true
+                      type: string
+                    isGroup:
+                      type: boolean
+                    address:
+                      nullable: true
+                      type: string
+                    participants:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - id
+                    - isGroup
+                    - address
+              required:
+                - type
+                - account
+                - conversation
+          required:
+            - reaction
+            - channel
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
+    WebhookEventMessageEdited:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - message.edited
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            edit:
+              type: object
+              properties:
+                externalId:
+                  type: string
+                messageId:
+                  nullable: true
+                  type: string
+                newContent:
+                  nullable: true
+                  type: string
+                kind:
+                  type: string
+                  enum:
+                    - text
+                    - caption
+                editedAt:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                sender:
+                  nullable: true
+                  type: string
+                senderId:
+                  type: string
+                participant:
+                  nullable: true
+                  type: string
+                fromMe:
+                  type: boolean
+              required:
+                - externalId
+                - messageId
+                - newContent
+                - kind
+                - editedAt
+                - sender
+                - senderId
+                - participant
+                - fromMe
+            channel:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - WHATSAPP
+                    - SMS
+                    - EMAIL
+                account:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      nullable: true
+                      type: string
+                  required:
+                    - id
+                    - name
+                conversation:
+                  type: object
+                  properties:
+                    id:
+                      nullable: true
+                      type: string
+                    isGroup:
+                      type: boolean
+                    address:
+                      nullable: true
+                      type: string
+                    participants:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - id
+                    - isGroup
+                    - address
+              required:
+                - type
+                - account
+                - conversation
+          required:
+            - edit
+            - channel
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
+    WebhookEventMessageDeleted:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - message.deleted
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            deletion:
+              type: object
+              properties:
+                externalId:
+                  type: string
+                messageId:
+                  nullable: true
+                  type: string
+                deletedAt:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                deletedBy:
+                  nullable: true
+                  type: string
+                deletedById:
+                  type: string
+                participant:
+                  nullable: true
+                  type: string
+                fromMe:
+                  type: boolean
+              required:
+                - externalId
+                - messageId
+                - deletedAt
+                - deletedBy
+                - deletedById
+                - participant
+                - fromMe
+            channel:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - WHATSAPP
+                    - SMS
+                    - EMAIL
+                account:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      nullable: true
+                      type: string
+                  required:
+                    - id
+                    - name
+                conversation:
+                  type: object
+                  properties:
+                    id:
+                      nullable: true
+                      type: string
+                    isGroup:
+                      type: boolean
+                    address:
+                      nullable: true
+                      type: string
+                    participants:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - id
+                    - isGroup
+                    - address
+              required:
+                - type
+                - account
+                - conversation
+          required:
+            - deletion
+            - channel
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
+    WebhookEventMessageHistory:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - message.history
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            syncType:
+              type: string
+            chunkOrder:
+              type: integer
+              minimum: -9007199254740991
+              maximum: 9007199254740991
+            progress:
+              type: integer
+              minimum: -9007199254740991
+              maximum: 9007199254740991
+            isLatest:
+              type: boolean
+            channel:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - WHATSAPP
+                    - SMS
+                    - EMAIL
+                account:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      nullable: true
+                      type: string
+                  required:
+                    - id
+                    - name
+              required:
+                - type
+                - account
+            messages:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  externalId:
+                    nullable: true
+                    type: string
+                  direction:
+                    type: string
+                    enum:
+                      - IN
+                      - OUT
+                  fromMe:
+                    type: boolean
+                  content:
+                    nullable: true
+                    type: string
+                  sentAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  receivedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  sender:
+                    nullable: true
+                    type: string
+                  senderId:
+                    type: string
+                  senderName:
+                    nullable: true
+                    type: string
+                  participant:
+                    nullable: true
+                    type: string
+                  replyTo:
+                    nullable: true
+                    type: object
+                    properties:
+                      externalId:
+                        type: string
+                      participant:
+                        nullable: true
+                        type: string
+                    required:
+                      - externalId
+                      - participant
+                  mediaUrl:
+                    type: string
+                  mediaType:
+                    type: string
+                  mimeType:
+                    type: string
+                  mediaFilename:
+                    type: string
+                  mediaSize:
+                    type: integer
+                    minimum: -9007199254740991
+                    maximum: 9007199254740991
+                  durationSec:
+                    type: integer
+                    minimum: -9007199254740991
+                    maximum: 9007199254740991
+                  mediaError:
+                    type: string
+                  transcript:
+                    nullable: true
+                    type: string
+                  conversation:
+                    type: object
+                    properties:
+                      id:
+                        nullable: true
+                        type: string
+                      isGroup:
+                        type: boolean
+                      address:
+                        nullable: true
+                        type: string
+                      participants:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                      - id
+                      - isGroup
+                      - address
+                required:
+                  - id
+                  - externalId
+                  - direction
+                  - fromMe
+                  - content
+                  - sentAt
+                  - receivedAt
+                  - sender
+                  - senderId
+                  - senderName
+                  - participant
+                  - replyTo
+                  - transcript
+                  - conversation
+          required:
+            - syncType
+            - chunkOrder
+            - progress
+            - isLatest
+            - channel
+            - messages
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
+    WebhookEventAccountStatusChanged:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - account.status_changed
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            account:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  nullable: true
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - PENDING
+                    - ACTIVE
+                    - INACTIVE
+                    - LINKING
+                    - BLOCKED
+                    - DUPLICATE
+                previousStatus:
+                  nullable: true
+                  type: string
+                  enum:
+                    - PENDING
+                    - ACTIVE
+                    - INACTIVE
+                    - LINKING
+                    - BLOCKED
+                    - DUPLICATE
+                reason:
+                  nullable: true
+                  type: string
+                transportCode:
+                  nullable: true
+                  type: integer
+                  minimum: -9007199254740991
+                  maximum: 9007199254740991
+                blockedUntil:
+                  nullable: true
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                at:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+              required:
+                - id
+                - name
+                - status
+                - previousStatus
+                - reason
+                - transportCode
+                - blockedUntil
+                - at
+          required:
+            - account
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
+    WebhookEventGroupUpdated:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - group.updated
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            group:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+            by:
+              nullable: true
+              type: string
+            at:
+              type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            name:
+              nullable: true
+              type: string
+            topic:
+              nullable: true
+              type: string
+            added:
+              type: array
+              items:
+                type: string
+            removed:
+              type: array
+              items:
+                type: string
+            promoted:
+              type: array
+              items:
+                type: string
+            demoted:
+              type: array
+              items:
+                type: string
+            channel:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - WHATSAPP
+                    - SMS
+                    - EMAIL
+                account:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      nullable: true
+                      type: string
+                  required:
+                    - id
+                    - name
+              required:
+                - type
+                - account
+          required:
+            - group
+            - by
+            - at
+            - name
+            - topic
+            - added
+            - removed
+            - promoted
+            - demoted
+            - channel
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
 externalDocs:
   description: Documentation
   url: https://docs.unlimitedmessaging.app
