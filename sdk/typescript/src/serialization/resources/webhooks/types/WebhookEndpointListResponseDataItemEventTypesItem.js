@@ -38,4 +38,14 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebhookEndpointListResponseDataItemEventTypesItem = void 0;
 const core = __importStar(require("../../../../core"));
-exports.WebhookEndpointListResponseDataItemEventTypesItem = core.serialization.enum_(["message.received"]);
+exports.WebhookEndpointListResponseDataItemEventTypesItem = core.serialization.enum_([
+    "message.received",
+    "message.self_sent",
+    "message.status",
+    "message.reaction",
+    "message.edited",
+    "account.status_changed",
+    "message.history",
+    "group.updated",
+    "message.deleted",
+]);

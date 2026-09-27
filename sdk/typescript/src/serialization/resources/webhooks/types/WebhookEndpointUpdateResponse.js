@@ -46,6 +46,7 @@ exports.WebhookEndpointUpdateResponse = core.serialization.object({
     secretPrefix: core.serialization.string(),
     enabled: core.serialization.boolean(),
     eventTypes: core.serialization.list(WebhookEndpointUpdateResponseEventTypesItem_1.WebhookEndpointUpdateResponseEventTypesItem),
+    accountIds: core.serialization.list(core.serialization.string()),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

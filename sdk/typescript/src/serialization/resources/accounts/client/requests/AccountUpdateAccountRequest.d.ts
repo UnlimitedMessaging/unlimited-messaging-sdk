@@ -7,6 +7,10 @@ import * as core from "../../../../../core";
 export declare const AccountUpdateAccountRequest: core.serialization.Schema<serializers.AccountUpdateAccountRequest.Raw, UnlimitedMessagingApi.AccountUpdateAccountRequest>;
 export declare namespace AccountUpdateAccountRequest {
     interface Raw {
-        name: string;
+        name?: string | null;
+        externalRef?: (string | null) | null;
+        syncHistory?: boolean | null;
+        mediaUrlRequiresAuth?: boolean | null;
+        sendIntervalSeconds?: (number | null) | null;
     }
 }

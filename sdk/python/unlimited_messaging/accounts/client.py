@@ -16,9 +16,14 @@ from .types.account_get_challenge_response import AccountGetChallengeResponse
 from ..core.jsonable_encoder import jsonable_encoder
 from ..errors.not_found_error import NotFoundError
 from .types.account_get_qr_code_response import AccountGetQrCodeResponse
+from .types.account_request_history_response import AccountRequestHistoryResponse
+from ..errors.bad_request_error import BadRequestError
+from ..errors.conflict_error import ConflictError
+from ..errors.unprocessable_entity_error import UnprocessableEntityError
+from .types.account_list_groups_response import AccountListGroupsResponse
+from .types.account_get_group_response import AccountGetGroupResponse
 from .types.account_get_account_response import AccountGetAccountResponse
 from .types.account_update_account_response import AccountUpdateAccountResponse
-from ..errors.bad_request_error import BadRequestError
 from ..core.client_wrapper import AsyncClientWrapper
 
 # this is used as the default value for optional parameters
@@ -99,16 +104,25 @@ class AccountsClient:
         self,
         *,
         mode: typing.Optional[AccountLinkAccountRequestMode] = None,
+        new: typing.Optional[bool] = None,
+        sync_history: typing.Optional[bool] = None,
+        external_ref: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AccountLinkAccountResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better.
+        Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
 
         Parameters
         ----------
         mode : typing.Optional[AccountLinkAccountRequestMode]
+
+        new : typing.Optional[bool]
+
+        sync_history : typing.Optional[bool]
+
+        external_ref : typing.Optional[str]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -132,6 +146,9 @@ class AccountsClient:
             method="GET",
             params={
                 "mode": mode,
+                "new": new,
+                "syncHistory": sync_history,
+                "externalRef": external_ref,
             },
             request_options=request_options,
         )
@@ -347,6 +364,343 @@ class AccountsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    def account_request_history(
+        self,
+        account_id: str,
+        *,
+        external_id: str,
+        count: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountRequestHistoryResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Asks the phone for the messages that precede `externalId` in its conversation. The answer is not in this response: the messages arrive a few seconds later as a `message.history` webhook batch (`syncType: "on_demand"`), stored like any other. Pass the oldest message you hold and repeat to go further back. Requires `syncHistory` on the account (`409` otherwise), a connected account (`409`), and a beta (whatsmeow) WhatsApp account (`422`).
+
+        Parameters
+        ----------
+        account_id : str
+
+        external_id : str
+            The `externalId` of the oldest message you hold in the conversation: the messages before it are requested.
+
+        count : typing.Optional[int]
+            How many earlier messages to ask for, 1 to 50.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountRequestHistoryResponse
+
+
+        Examples
+        --------
+        from unlimited_messaging import UnlimitedMessagingApi
+
+        client = UnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+        client.accounts.account_request_history(
+            account_id="accountId",
+            external_id="externalId",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"account/{jsonable_encoder(account_id)}/history",
+            method="POST",
+            json={
+                "externalId": external_id,
+                "count": count,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountRequestHistoryResponse,
+                    parse_obj_as(
+                        type_=AccountRequestHistoryResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def account_list_groups(
+        self,
+        account_id: str,
+        *,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountListGroupsResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Returns every WhatsApp group the account is a member of, with its id, name and member count. Beta (whatsmeow) WhatsApp accounts only for now: other accounts get a `422`. Returns `409` when the account is not connected, since the list is read live from WhatsApp.
+
+        Parameters
+        ----------
+        account_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountListGroupsResponse
+
+
+        Examples
+        --------
+        from unlimited_messaging import UnlimitedMessagingApi
+
+        client = UnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+        client.accounts.account_list_groups(
+            account_id="accountId",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"account/{jsonable_encoder(account_id)}/groups",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountListGroupsResponse,
+                    parse_obj_as(
+                        type_=AccountListGroupsResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def account_get_group(
+        self,
+        account_id: str,
+        group_id: str,
+        *,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountGetGroupResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Returns one group the account belongs to with its members: their phone number (E.164) when WhatsApp discloses it, and whether they are an admin. `groupId` is the id from the group list, with or without its `@g.us` suffix. Returns `404` when the group does not exist or the account is not in it, `409` when the account is not connected. Beta (whatsmeow) WhatsApp accounts only for now.
+
+        Parameters
+        ----------
+        account_id : str
+
+        group_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountGetGroupResponse
+
+
+        Examples
+        --------
+        from unlimited_messaging import UnlimitedMessagingApi
+
+        client = UnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+        client.accounts.account_get_group(
+            account_id="accountId",
+            group_id="groupId",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"account/{jsonable_encoder(account_id)}/groups/{jsonable_encoder(group_id)}",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountGetGroupResponse,
+                    parse_obj_as(
+                        type_=AccountGetGroupResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
     def account_get_account(
         self,
         account_id: str,
@@ -510,19 +864,35 @@ class AccountsClient:
         self,
         account_id: str,
         *,
-        name: str,
+        name: typing.Optional[str] = OMIT,
+        external_ref: typing.Optional[str] = OMIT,
+        sync_history: typing.Optional[bool] = OMIT,
+        media_url_requires_auth: typing.Optional[bool] = OMIT,
+        send_interval_seconds: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AccountUpdateAccountResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Updates the custom display name of a linked messaging account.
+        Updates the custom display name of a linked messaging account, `externalRef` (your own reference for it, `null` clears it) and/or `sendIntervalSeconds`, the pause kept between two sends (2 to 120 s, default 5 s, `null` restores it).
 
         Parameters
         ----------
         account_id : str
 
-        name : str
+        name : typing.Optional[str]
+
+        external_ref : typing.Optional[str]
+            Your own reference for this account. `null` clears it.
+
+        sync_history : typing.Optional[bool]
+            Receive the message history WhatsApp hands over from now on (`message.history`). The phone's full history is only requested when the number is linked: pass `syncHistory` to GET /account/link for that.
+
+        media_url_requires_auth : typing.Optional[bool]
+            Require an API key (or a dashboard session) of the owner, on top of the URL, to fetch this account's stored media. Off by default: the unguessable URL alone gives access.
+
+        send_interval_seconds : typing.Optional[int]
+            Pause between two sends of this account, in seconds (2 to 120). Spacing sends protects the number from being flagged by WhatsApp: lower it with care. `null` restores the default (5 s).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -541,7 +911,6 @@ class AccountsClient:
         )
         client.accounts.account_update_account(
             account_id="accountId",
-            name="name",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -549,6 +918,10 @@ class AccountsClient:
             method="PATCH",
             json={
                 "name": name,
+                "externalRef": external_ref,
+                "syncHistory": sync_history,
+                "mediaUrlRequiresAuth": media_url_requires_auth,
+                "sendIntervalSeconds": send_interval_seconds,
             },
             request_options=request_options,
             omit=OMIT,
@@ -690,16 +1063,25 @@ class AsyncAccountsClient:
         self,
         *,
         mode: typing.Optional[AccountLinkAccountRequestMode] = None,
+        new: typing.Optional[bool] = None,
+        sync_history: typing.Optional[bool] = None,
+        external_ref: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AccountLinkAccountResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better.
+        Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
 
         Parameters
         ----------
         mode : typing.Optional[AccountLinkAccountRequestMode]
+
+        new : typing.Optional[bool]
+
+        sync_history : typing.Optional[bool]
+
+        external_ref : typing.Optional[str]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -731,6 +1113,9 @@ class AsyncAccountsClient:
             method="GET",
             params={
                 "mode": mode,
+                "new": new,
+                "syncHistory": sync_history,
+                "externalRef": external_ref,
             },
             request_options=request_options,
         )
@@ -962,6 +1347,367 @@ class AsyncAccountsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    async def account_request_history(
+        self,
+        account_id: str,
+        *,
+        external_id: str,
+        count: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountRequestHistoryResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Asks the phone for the messages that precede `externalId` in its conversation. The answer is not in this response: the messages arrive a few seconds later as a `message.history` webhook batch (`syncType: "on_demand"`), stored like any other. Pass the oldest message you hold and repeat to go further back. Requires `syncHistory` on the account (`409` otherwise), a connected account (`409`), and a beta (whatsmeow) WhatsApp account (`422`).
+
+        Parameters
+        ----------
+        account_id : str
+
+        external_id : str
+            The `externalId` of the oldest message you hold in the conversation: the messages before it are requested.
+
+        count : typing.Optional[int]
+            How many earlier messages to ask for, 1 to 50.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountRequestHistoryResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from unlimited_messaging import AsyncUnlimitedMessagingApi
+
+        client = AsyncUnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.accounts.account_request_history(
+                account_id="accountId",
+                external_id="externalId",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"account/{jsonable_encoder(account_id)}/history",
+            method="POST",
+            json={
+                "externalId": external_id,
+                "count": count,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountRequestHistoryResponse,
+                    parse_obj_as(
+                        type_=AccountRequestHistoryResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def account_list_groups(
+        self,
+        account_id: str,
+        *,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountListGroupsResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Returns every WhatsApp group the account is a member of, with its id, name and member count. Beta (whatsmeow) WhatsApp accounts only for now: other accounts get a `422`. Returns `409` when the account is not connected, since the list is read live from WhatsApp.
+
+        Parameters
+        ----------
+        account_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountListGroupsResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from unlimited_messaging import AsyncUnlimitedMessagingApi
+
+        client = AsyncUnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.accounts.account_list_groups(
+                account_id="accountId",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"account/{jsonable_encoder(account_id)}/groups",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountListGroupsResponse,
+                    parse_obj_as(
+                        type_=AccountListGroupsResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def account_get_group(
+        self,
+        account_id: str,
+        group_id: str,
+        *,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountGetGroupResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Returns one group the account belongs to with its members: their phone number (E.164) when WhatsApp discloses it, and whether they are an admin. `groupId` is the id from the group list, with or without its `@g.us` suffix. Returns `404` when the group does not exist or the account is not in it, `409` when the account is not connected. Beta (whatsmeow) WhatsApp accounts only for now.
+
+        Parameters
+        ----------
+        account_id : str
+
+        group_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountGetGroupResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from unlimited_messaging import AsyncUnlimitedMessagingApi
+
+        client = AsyncUnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.accounts.account_get_group(
+                account_id="accountId",
+                group_id="groupId",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"account/{jsonable_encoder(account_id)}/groups/{jsonable_encoder(group_id)}",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountGetGroupResponse,
+                    parse_obj_as(
+                        type_=AccountGetGroupResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
     async def account_get_account(
         self,
         account_id: str,
@@ -1141,19 +1887,35 @@ class AsyncAccountsClient:
         self,
         account_id: str,
         *,
-        name: str,
+        name: typing.Optional[str] = OMIT,
+        external_ref: typing.Optional[str] = OMIT,
+        sync_history: typing.Optional[bool] = OMIT,
+        media_url_requires_auth: typing.Optional[bool] = OMIT,
+        send_interval_seconds: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AccountUpdateAccountResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Updates the custom display name of a linked messaging account.
+        Updates the custom display name of a linked messaging account, `externalRef` (your own reference for it, `null` clears it) and/or `sendIntervalSeconds`, the pause kept between two sends (2 to 120 s, default 5 s, `null` restores it).
 
         Parameters
         ----------
         account_id : str
 
-        name : str
+        name : typing.Optional[str]
+
+        external_ref : typing.Optional[str]
+            Your own reference for this account. `null` clears it.
+
+        sync_history : typing.Optional[bool]
+            Receive the message history WhatsApp hands over from now on (`message.history`). The phone's full history is only requested when the number is linked: pass `syncHistory` to GET /account/link for that.
+
+        media_url_requires_auth : typing.Optional[bool]
+            Require an API key (or a dashboard session) of the owner, on top of the URL, to fetch this account's stored media. Off by default: the unguessable URL alone gives access.
+
+        send_interval_seconds : typing.Optional[int]
+            Pause between two sends of this account, in seconds (2 to 120). Spacing sends protects the number from being flagged by WhatsApp: lower it with care. `null` restores the default (5 s).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1177,7 +1939,6 @@ class AsyncAccountsClient:
         async def main() -> None:
             await client.accounts.account_update_account(
                 account_id="accountId",
-                name="name",
             )
 
 
@@ -1188,6 +1949,10 @@ class AsyncAccountsClient:
             method="PATCH",
             json={
                 "name": name,
+                "externalRef": external_ref,
+                "syncHistory": sync_history,
+                "mediaUrlRequiresAuth": media_url_requires_auth,
+                "sendIntervalSeconds": send_interval_seconds,
             },
             request_options=request_options,
             omit=OMIT,

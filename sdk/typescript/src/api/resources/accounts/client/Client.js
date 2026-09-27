@@ -134,7 +134,7 @@ class Accounts {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
      *
-     * Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better.
+     * Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
      *
      * @param {UnlimitedMessagingApi.AccountLinkAccountRequest} request
      * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
@@ -152,12 +152,21 @@ class Accounts {
     __accountLinkAccount() {
         return __awaiter(this, arguments, void 0, function* (request = {}, requestOptions) {
             var _a, _b;
-            const { mode } = request;
+            const { mode, new: new_, syncHistory, externalRef } = request;
             const _queryParams = {};
             if (mode != null) {
                 _queryParams["mode"] = serializers.AccountLinkAccountRequestMode.jsonOrThrow(mode, {
                     unrecognizedObjectKeys: "strip",
                 });
+            }
+            if (new_ != null) {
+                _queryParams["new"] = new_.toString();
+            }
+            if (syncHistory != null) {
+                _queryParams["syncHistory"] = syncHistory.toString();
+            }
+            if (externalRef != null) {
+                _queryParams["externalRef"] = externalRef;
             }
             const _response = yield core.fetcher({
                 url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, "account/link"),
@@ -374,6 +383,262 @@ class Accounts {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
      *
+     * Asks the phone for the messages that precede `externalId` in its conversation. The answer is not in this response: the messages arrive a few seconds later as a `message.history` webhook batch (`syncType: "on_demand"`), stored like any other. Pass the oldest message you hold and repeat to go further back. Requires `syncHistory` on the account (`409` otherwise), a connected account (`409`), and a beta (whatsmeow) WhatsApp account (`422`).
+     *
+     * @param {string} accountId
+     * @param {UnlimitedMessagingApi.AccountRequestHistoryRequest} request
+     * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.BadRequestError}
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.NotFoundError}
+     * @throws {@link UnlimitedMessagingApi.ConflictError}
+     * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.accounts.accountRequestHistory("accountId", {
+     *         externalId: "externalId"
+     *     })
+     */
+    accountRequestHistory(accountId, request, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__accountRequestHistory(accountId, request, requestOptions));
+    }
+    __accountRequestHistory(accountId, request, requestOptions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            const _response = yield core.fetcher({
+                url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, `account/${encodeURIComponent(accountId)}/history`),
+                method: "POST",
+                headers: Object.assign({ Authorization: yield this._getAuthorizationHeader(), "X-Fern-Language": "JavaScript", "X-Fern-Runtime": core.RUNTIME.type, "X-Fern-Runtime-Version": core.RUNTIME.version }, requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.headers),
+                contentType: "application/json",
+                requestType: "json",
+                body: serializers.AccountRequestHistoryRequest.jsonOrThrow(request, { unrecognizedObjectKeys: "strip" }),
+                timeoutMs: (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeoutInSeconds) != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+                maxRetries: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.maxRetries,
+                withCredentials: true,
+                abortSignal: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.abortSignal,
+            });
+            if (_response.ok) {
+                return {
+                    data: serializers.AccountRequestHistoryResponse.parseOrThrow(_response.body, {
+                        unrecognizedObjectKeys: "passthrough",
+                        allowUnrecognizedUnionMembers: true,
+                        allowUnrecognizedEnumValues: true,
+                        breadcrumbsPrefix: ["response"],
+                    }),
+                    rawResponse: _response.rawResponse,
+                };
+            }
+            if (_response.error.reason === "status-code") {
+                switch (_response.error.statusCode) {
+                    case 400:
+                        throw new UnlimitedMessagingApi.BadRequestError(_response.error.body, _response.rawResponse);
+                    case 401:
+                        throw new UnlimitedMessagingApi.UnauthorizedError(_response.error.body, _response.rawResponse);
+                    case 403:
+                        throw new UnlimitedMessagingApi.ForbiddenError(_response.error.body, _response.rawResponse);
+                    case 404:
+                        throw new UnlimitedMessagingApi.NotFoundError(_response.error.body, _response.rawResponse);
+                    case 409:
+                        throw new UnlimitedMessagingApi.ConflictError(_response.error.body, _response.rawResponse);
+                    case 422:
+                        throw new UnlimitedMessagingApi.UnprocessableEntityError(_response.error.body, _response.rawResponse);
+                    default:
+                        throw new errors.UnlimitedMessagingApiError({
+                            statusCode: _response.error.statusCode,
+                            body: _response.error.body,
+                            rawResponse: _response.rawResponse,
+                        });
+                }
+            }
+            switch (_response.error.reason) {
+                case "non-json":
+                    throw new errors.UnlimitedMessagingApiError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.rawBody,
+                        rawResponse: _response.rawResponse,
+                    });
+                case "timeout":
+                    throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling POST /account/{accountId}/history.");
+                case "unknown":
+                    throw new errors.UnlimitedMessagingApiError({
+                        message: _response.error.errorMessage,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        });
+    }
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+     *
+     * Returns every WhatsApp group the account is a member of, with its id, name and member count. Beta (whatsmeow) WhatsApp accounts only for now: other accounts get a `422`. Returns `409` when the account is not connected, since the list is read live from WhatsApp.
+     *
+     * @param {string} accountId
+     * @param {UnlimitedMessagingApi.AccountListGroupsRequest} request
+     * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.NotFoundError}
+     * @throws {@link UnlimitedMessagingApi.ConflictError}
+     * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.accounts.accountListGroups("accountId")
+     */
+    accountListGroups(accountId, request = {}, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__accountListGroups(accountId, request, requestOptions));
+    }
+    __accountListGroups(accountId_1) {
+        return __awaiter(this, arguments, void 0, function* (accountId, request = {}, requestOptions) {
+            var _a, _b;
+            const _response = yield core.fetcher({
+                url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, `account/${encodeURIComponent(accountId)}/groups`),
+                method: "GET",
+                headers: Object.assign({ Authorization: yield this._getAuthorizationHeader(), "X-Fern-Language": "JavaScript", "X-Fern-Runtime": core.RUNTIME.type, "X-Fern-Runtime-Version": core.RUNTIME.version }, requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.headers),
+                contentType: "application/json",
+                requestType: "json",
+                timeoutMs: (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeoutInSeconds) != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+                maxRetries: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.maxRetries,
+                withCredentials: true,
+                abortSignal: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.abortSignal,
+            });
+            if (_response.ok) {
+                return {
+                    data: serializers.AccountListGroupsResponse.parseOrThrow(_response.body, {
+                        unrecognizedObjectKeys: "passthrough",
+                        allowUnrecognizedUnionMembers: true,
+                        allowUnrecognizedEnumValues: true,
+                        breadcrumbsPrefix: ["response"],
+                    }),
+                    rawResponse: _response.rawResponse,
+                };
+            }
+            if (_response.error.reason === "status-code") {
+                switch (_response.error.statusCode) {
+                    case 401:
+                        throw new UnlimitedMessagingApi.UnauthorizedError(_response.error.body, _response.rawResponse);
+                    case 403:
+                        throw new UnlimitedMessagingApi.ForbiddenError(_response.error.body, _response.rawResponse);
+                    case 404:
+                        throw new UnlimitedMessagingApi.NotFoundError(_response.error.body, _response.rawResponse);
+                    case 409:
+                        throw new UnlimitedMessagingApi.ConflictError(_response.error.body, _response.rawResponse);
+                    case 422:
+                        throw new UnlimitedMessagingApi.UnprocessableEntityError(_response.error.body, _response.rawResponse);
+                    default:
+                        throw new errors.UnlimitedMessagingApiError({
+                            statusCode: _response.error.statusCode,
+                            body: _response.error.body,
+                            rawResponse: _response.rawResponse,
+                        });
+                }
+            }
+            switch (_response.error.reason) {
+                case "non-json":
+                    throw new errors.UnlimitedMessagingApiError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.rawBody,
+                        rawResponse: _response.rawResponse,
+                    });
+                case "timeout":
+                    throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling GET /account/{accountId}/groups.");
+                case "unknown":
+                    throw new errors.UnlimitedMessagingApiError({
+                        message: _response.error.errorMessage,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        });
+    }
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+     *
+     * Returns one group the account belongs to with its members: their phone number (E.164) when WhatsApp discloses it, and whether they are an admin. `groupId` is the id from the group list, with or without its `@g.us` suffix. Returns `404` when the group does not exist or the account is not in it, `409` when the account is not connected. Beta (whatsmeow) WhatsApp accounts only for now.
+     *
+     * @param {string} accountId
+     * @param {string} groupId
+     * @param {UnlimitedMessagingApi.AccountGetGroupRequest} request
+     * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.NotFoundError}
+     * @throws {@link UnlimitedMessagingApi.ConflictError}
+     * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.accounts.accountGetGroup("accountId", "groupId")
+     */
+    accountGetGroup(accountId, groupId, request = {}, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__accountGetGroup(accountId, groupId, request, requestOptions));
+    }
+    __accountGetGroup(accountId_1, groupId_1) {
+        return __awaiter(this, arguments, void 0, function* (accountId, groupId, request = {}, requestOptions) {
+            var _a, _b;
+            const _response = yield core.fetcher({
+                url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, `account/${encodeURIComponent(accountId)}/groups/${encodeURIComponent(groupId)}`),
+                method: "GET",
+                headers: Object.assign({ Authorization: yield this._getAuthorizationHeader(), "X-Fern-Language": "JavaScript", "X-Fern-Runtime": core.RUNTIME.type, "X-Fern-Runtime-Version": core.RUNTIME.version }, requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.headers),
+                contentType: "application/json",
+                requestType: "json",
+                timeoutMs: (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeoutInSeconds) != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+                maxRetries: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.maxRetries,
+                withCredentials: true,
+                abortSignal: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.abortSignal,
+            });
+            if (_response.ok) {
+                return {
+                    data: serializers.AccountGetGroupResponse.parseOrThrow(_response.body, {
+                        unrecognizedObjectKeys: "passthrough",
+                        allowUnrecognizedUnionMembers: true,
+                        allowUnrecognizedEnumValues: true,
+                        breadcrumbsPrefix: ["response"],
+                    }),
+                    rawResponse: _response.rawResponse,
+                };
+            }
+            if (_response.error.reason === "status-code") {
+                switch (_response.error.statusCode) {
+                    case 401:
+                        throw new UnlimitedMessagingApi.UnauthorizedError(_response.error.body, _response.rawResponse);
+                    case 403:
+                        throw new UnlimitedMessagingApi.ForbiddenError(_response.error.body, _response.rawResponse);
+                    case 404:
+                        throw new UnlimitedMessagingApi.NotFoundError(_response.error.body, _response.rawResponse);
+                    case 409:
+                        throw new UnlimitedMessagingApi.ConflictError(_response.error.body, _response.rawResponse);
+                    case 422:
+                        throw new UnlimitedMessagingApi.UnprocessableEntityError(_response.error.body, _response.rawResponse);
+                    default:
+                        throw new errors.UnlimitedMessagingApiError({
+                            statusCode: _response.error.statusCode,
+                            body: _response.error.body,
+                            rawResponse: _response.rawResponse,
+                        });
+                }
+            }
+            switch (_response.error.reason) {
+                case "non-json":
+                    throw new errors.UnlimitedMessagingApiError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.rawBody,
+                        rawResponse: _response.rawResponse,
+                    });
+                case "timeout":
+                    throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling GET /account/{accountId}/groups/{groupId}.");
+                case "unknown":
+                    throw new errors.UnlimitedMessagingApiError({
+                        message: _response.error.errorMessage,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        });
+    }
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+     *
      * Returns the current state of an account including its status. Use this to poll during the linking flow (LINKING -> ACTIVE).
      *
      * @param {string} accountId
@@ -520,7 +785,7 @@ class Accounts {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
      *
-     * Updates the custom display name of a linked messaging account.
+     * Updates the custom display name of a linked messaging account, `externalRef` (your own reference for it, `null` clears it) and/or `sendIntervalSeconds`, the pause kept between two sends (2 to 120 s, default 5 s, `null` restores it).
      *
      * @param {string} accountId
      * @param {UnlimitedMessagingApi.AccountUpdateAccountRequest} request
@@ -532,15 +797,13 @@ class Accounts {
      * @throws {@link UnlimitedMessagingApi.NotFoundError}
      *
      * @example
-     *     await client.accounts.accountUpdateAccount("accountId", {
-     *         name: "name"
-     *     })
+     *     await client.accounts.accountUpdateAccount("accountId")
      */
-    accountUpdateAccount(accountId, request, requestOptions) {
+    accountUpdateAccount(accountId, request = {}, requestOptions) {
         return core.HttpResponsePromise.fromPromise(this.__accountUpdateAccount(accountId, request, requestOptions));
     }
-    __accountUpdateAccount(accountId, request, requestOptions) {
-        return __awaiter(this, void 0, void 0, function* () {
+    __accountUpdateAccount(accountId_1) {
+        return __awaiter(this, arguments, void 0, function* (accountId, request = {}, requestOptions) {
             var _a, _b;
             const _response = yield core.fetcher({
                 url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, `account/${encodeURIComponent(accountId)}`),

@@ -9,6 +9,7 @@ export interface WebhookEndpointFindOneResponse {
     secretPrefix: string;
     enabled: boolean;
     eventTypes: UnlimitedMessagingApi.WebhookEndpointFindOneResponseEventTypesItem[];
+    accountIds: string[];
     createdAt: Date;
     updatedAt: Date;
 }

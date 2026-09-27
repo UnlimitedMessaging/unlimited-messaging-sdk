@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageSendRequest = void 0;
 const core = __importStar(require("../../../../../core"));
 const MessageSendRequestMediaType_1 = require("../../types/MessageSendRequestMediaType");
+const MessageSendRequestPriority_1 = require("../../types/MessageSendRequestPriority");
 const MessageSendRequestProductData_1 = require("../../types/MessageSendRequestProductData");
 exports.MessageSendRequest = core.serialization.object({
     recipient: core.serialization.string().optional(),
@@ -47,6 +48,8 @@ exports.MessageSendRequest = core.serialization.object({
     mediaType: MessageSendRequestMediaType_1.MessageSendRequestMediaType.optional(),
     mimeType: core.serialization.string().optional(),
     filename: core.serialization.string().optional(),
+    priority: MessageSendRequestPriority_1.MessageSendRequestPriority.optional(),
+    compress: core.serialization.boolean().optional(),
     productData: MessageSendRequestProductData_1.MessageSendRequestProductData.optional(),
     accountId: core.serialization.string().optionalNullable(),
     simId: core.serialization.string().optionalNullable(),

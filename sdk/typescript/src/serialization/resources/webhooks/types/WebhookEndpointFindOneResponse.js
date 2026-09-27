@@ -46,6 +46,7 @@ exports.WebhookEndpointFindOneResponse = core.serialization.object({
     secretPrefix: core.serialization.string(),
     enabled: core.serialization.boolean(),
     eventTypes: core.serialization.list(WebhookEndpointFindOneResponseEventTypesItem_1.WebhookEndpointFindOneResponseEventTypesItem),
+    accountIds: core.serialization.list(core.serialization.string()),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

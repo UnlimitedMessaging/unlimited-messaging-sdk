@@ -46,6 +46,7 @@ exports.WebhookEndpointCreateResponse = core.serialization.object({
     secretPrefix: core.serialization.string(),
     enabled: core.serialization.boolean(),
     eventTypes: core.serialization.list(WebhookEndpointCreateResponseEventTypesItem_1.WebhookEndpointCreateResponseEventTypesItem),
+    accountIds: core.serialization.list(core.serialization.string()),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
     secret: core.serialization.string(),

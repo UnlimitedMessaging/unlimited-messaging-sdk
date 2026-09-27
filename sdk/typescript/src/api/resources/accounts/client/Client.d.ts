@@ -43,7 +43,7 @@ export declare class Accounts {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
      *
-     * Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better.
+     * Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
      *
      * @param {UnlimitedMessagingApi.AccountLinkAccountRequest} request
      * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
@@ -98,6 +98,70 @@ export declare class Accounts {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
      *
+     * Asks the phone for the messages that precede `externalId` in its conversation. The answer is not in this response: the messages arrive a few seconds later as a `message.history` webhook batch (`syncType: "on_demand"`), stored like any other. Pass the oldest message you hold and repeat to go further back. Requires `syncHistory` on the account (`409` otherwise), a connected account (`409`), and a beta (whatsmeow) WhatsApp account (`422`).
+     *
+     * @param {string} accountId
+     * @param {UnlimitedMessagingApi.AccountRequestHistoryRequest} request
+     * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.BadRequestError}
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.NotFoundError}
+     * @throws {@link UnlimitedMessagingApi.ConflictError}
+     * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.accounts.accountRequestHistory("accountId", {
+     *         externalId: "externalId"
+     *     })
+     */
+    accountRequestHistory(accountId: string, request: UnlimitedMessagingApi.AccountRequestHistoryRequest, requestOptions?: Accounts.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.AccountRequestHistoryResponse>;
+    private __accountRequestHistory;
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+     *
+     * Returns every WhatsApp group the account is a member of, with its id, name and member count. Beta (whatsmeow) WhatsApp accounts only for now: other accounts get a `422`. Returns `409` when the account is not connected, since the list is read live from WhatsApp.
+     *
+     * @param {string} accountId
+     * @param {UnlimitedMessagingApi.AccountListGroupsRequest} request
+     * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.NotFoundError}
+     * @throws {@link UnlimitedMessagingApi.ConflictError}
+     * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.accounts.accountListGroups("accountId")
+     */
+    accountListGroups(accountId: string, request?: UnlimitedMessagingApi.AccountListGroupsRequest, requestOptions?: Accounts.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.AccountListGroupsResponse>;
+    private __accountListGroups;
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+     *
+     * Returns one group the account belongs to with its members: their phone number (E.164) when WhatsApp discloses it, and whether they are an admin. `groupId` is the id from the group list, with or without its `@g.us` suffix. Returns `404` when the group does not exist or the account is not in it, `409` when the account is not connected. Beta (whatsmeow) WhatsApp accounts only for now.
+     *
+     * @param {string} accountId
+     * @param {string} groupId
+     * @param {UnlimitedMessagingApi.AccountGetGroupRequest} request
+     * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.NotFoundError}
+     * @throws {@link UnlimitedMessagingApi.ConflictError}
+     * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.accounts.accountGetGroup("accountId", "groupId")
+     */
+    accountGetGroup(accountId: string, groupId: string, request?: UnlimitedMessagingApi.AccountGetGroupRequest, requestOptions?: Accounts.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.AccountGetGroupResponse>;
+    private __accountGetGroup;
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+     *
      * Returns the current state of an account including its status. Use this to poll during the linking flow (LINKING -> ACTIVE).
      *
      * @param {string} accountId
@@ -134,7 +198,7 @@ export declare class Accounts {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
      *
-     * Updates the custom display name of a linked messaging account.
+     * Updates the custom display name of a linked messaging account, `externalRef` (your own reference for it, `null` clears it) and/or `sendIntervalSeconds`, the pause kept between two sends (2 to 120 s, default 5 s, `null` restores it).
      *
      * @param {string} accountId
      * @param {UnlimitedMessagingApi.AccountUpdateAccountRequest} request
@@ -146,11 +210,9 @@ export declare class Accounts {
      * @throws {@link UnlimitedMessagingApi.NotFoundError}
      *
      * @example
-     *     await client.accounts.accountUpdateAccount("accountId", {
-     *         name: "name"
-     *     })
+     *     await client.accounts.accountUpdateAccount("accountId")
      */
-    accountUpdateAccount(accountId: string, request: UnlimitedMessagingApi.AccountUpdateAccountRequest, requestOptions?: Accounts.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.AccountUpdateAccountResponse>;
+    accountUpdateAccount(accountId: string, request?: UnlimitedMessagingApi.AccountUpdateAccountRequest, requestOptions?: Accounts.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.AccountUpdateAccountResponse>;
     private __accountUpdateAccount;
     protected _getAuthorizationHeader(): Promise<string>;
 }

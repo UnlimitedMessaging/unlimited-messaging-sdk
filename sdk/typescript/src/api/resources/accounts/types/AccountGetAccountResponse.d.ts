@@ -9,7 +9,15 @@ export interface AccountGetAccountResponse {
     status: UnlimitedMessagingApi.AccountGetAccountResponseStatus;
     phone: string | null;
     name: string | null;
+    /** Your own reference for this account, as set at linking or with PATCH. */
+    externalRef: string | null;
     blockedUntil: Date | null;
+    /** Whether fetching a stored media also requires authenticating as its owner. */
+    mediaUrlRequiresAuth: boolean;
+    /** Whether the account's message history is stored and announced. */
+    syncHistory: boolean;
+    /** The pause this account keeps between two sends, in seconds. */
+    sendIntervalSeconds: number;
     createdAt: Date;
     updatedAt: Date;
 }

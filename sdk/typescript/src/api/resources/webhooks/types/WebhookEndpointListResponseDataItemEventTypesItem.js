@@ -6,4 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebhookEndpointListResponseDataItemEventTypesItem = void 0;
 exports.WebhookEndpointListResponseDataItemEventTypesItem = {
     MessageReceived: "message.received",
+    MessageSelfSent: "message.self_sent",
+    MessageStatus: "message.status",
+    MessageReaction: "message.reaction",
+    MessageEdited: "message.edited",
+    AccountStatusChanged: "account.status_changed",
+    MessageHistory: "message.history",
+    GroupUpdated: "group.updated",
+    MessageDeleted: "message.deleted",
 };

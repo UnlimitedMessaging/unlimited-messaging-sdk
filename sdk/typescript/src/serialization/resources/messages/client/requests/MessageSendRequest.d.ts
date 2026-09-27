@@ -5,6 +5,7 @@ import * as serializers from "../../../../index";
 import * as UnlimitedMessagingApi from "../../../../../api/index";
 import * as core from "../../../../../core";
 import { MessageSendRequestMediaType } from "../../types/MessageSendRequestMediaType";
+import { MessageSendRequestPriority } from "../../types/MessageSendRequestPriority";
 import { MessageSendRequestProductData } from "../../types/MessageSendRequestProductData";
 export declare const MessageSendRequest: core.serialization.Schema<serializers.MessageSendRequest.Raw, UnlimitedMessagingApi.MessageSendRequest>;
 export declare namespace MessageSendRequest {
@@ -15,6 +16,8 @@ export declare namespace MessageSendRequest {
         mediaType?: MessageSendRequestMediaType.Raw | null;
         mimeType?: string | null;
         filename?: string | null;
+        priority?: MessageSendRequestPriority.Raw | null;
+        compress?: boolean | null;
         productData?: MessageSendRequestProductData.Raw | null;
         accountId?: (string | null) | null;
         simId?: (string | null) | null;

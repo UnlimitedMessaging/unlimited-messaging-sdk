@@ -8,4 +8,7 @@ import * as UnlimitedMessagingApi from "../../../../index";
  */
 export interface AccountLinkAccountRequest {
     mode?: UnlimitedMessagingApi.AccountLinkAccountRequestMode;
+    new?: boolean;
+    syncHistory?: boolean;
+    externalRef?: string;
 }

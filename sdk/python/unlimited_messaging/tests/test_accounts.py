@@ -17,7 +17,11 @@ async def test_account_list_accounts(
             "status": "PENDING",
             "phone": "phone",
             "name": "name",
+            "externalRef": "externalRef",
             "blockedUntil": "2024-01-15T09:30:00Z",
+            "mediaUrlRequiresAuth": True,
+            "syncHistory": True,
+            "sendIntervalSeconds": 1.1,
             "createdAt": "2024-01-15T09:30:00Z",
             "updatedAt": "2024-01-15T09:30:00Z",
         }
@@ -32,7 +36,11 @@ async def test_account_list_accounts(
                 "status": None,
                 "phone": None,
                 "name": None,
+                "externalRef": None,
                 "blockedUntil": "datetime",
+                "mediaUrlRequiresAuth": None,
+                "syncHistory": None,
+                "sendIntervalSeconds": None,
                 "createdAt": "datetime",
                 "updatedAt": "datetime",
             }
@@ -87,6 +95,89 @@ async def test_account_get_qr_code(
     validate_response(async_response, expected_response, expected_types)
 
 
+async def test_account_request_history(
+    client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
+) -> None:
+    expected_response: typing.Any = {"requested": True}
+    expected_types: typing.Any = {"requested": None}
+    response = client.accounts.account_request_history(
+        account_id="accountId", external_id="externalId"
+    )
+    validate_response(response, expected_response, expected_types)
+
+    async_response = await async_client.accounts.account_request_history(
+        account_id="accountId", external_id="externalId"
+    )
+    validate_response(async_response, expected_response, expected_types)
+
+
+async def test_account_list_groups(
+    client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
+) -> None:
+    expected_response: typing.Any = {
+        "data": [{"id": "id", "name": "name", "memberCount": 1}]
+    }
+    expected_types: typing.Any = {
+        "data": ("list", {0: {"id": None, "name": None, "memberCount": "integer"}})
+    }
+    response = client.accounts.account_list_groups(account_id="accountId")
+    validate_response(response, expected_response, expected_types)
+
+    async_response = await async_client.accounts.account_list_groups(
+        account_id="accountId"
+    )
+    validate_response(async_response, expected_response, expected_types)
+
+
+async def test_account_get_group(
+    client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
+) -> None:
+    expected_response: typing.Any = {
+        "id": "id",
+        "name": "name",
+        "memberCount": 1,
+        "topic": "topic",
+        "members": [
+            {
+                "id": "id",
+                "address": "address",
+                "lid": "lid",
+                "displayName": "displayName",
+                "isAdmin": True,
+                "isSuperAdmin": True,
+            }
+        ],
+    }
+    expected_types: typing.Any = {
+        "id": None,
+        "name": None,
+        "memberCount": "integer",
+        "topic": None,
+        "members": (
+            "list",
+            {
+                0: {
+                    "id": None,
+                    "address": None,
+                    "lid": None,
+                    "displayName": None,
+                    "isAdmin": None,
+                    "isSuperAdmin": None,
+                }
+            },
+        ),
+    }
+    response = client.accounts.account_get_group(
+        account_id="accountId", group_id="groupId"
+    )
+    validate_response(response, expected_response, expected_types)
+
+    async_response = await async_client.accounts.account_get_group(
+        account_id="accountId", group_id="groupId"
+    )
+    validate_response(async_response, expected_response, expected_types)
+
+
 async def test_account_get_account(
     client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
 ) -> None:
@@ -97,7 +188,11 @@ async def test_account_get_account(
         "status": "PENDING",
         "phone": "phone",
         "name": "name",
+        "externalRef": "externalRef",
         "blockedUntil": "2024-01-15T09:30:00Z",
+        "mediaUrlRequiresAuth": True,
+        "syncHistory": True,
+        "sendIntervalSeconds": 1.1,
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -108,7 +203,11 @@ async def test_account_get_account(
         "status": None,
         "phone": None,
         "name": None,
+        "externalRef": None,
         "blockedUntil": "datetime",
+        "mediaUrlRequiresAuth": None,
+        "syncHistory": None,
+        "sendIntervalSeconds": None,
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
@@ -146,7 +245,11 @@ async def test_account_update_account(
         "status": "PENDING",
         "phone": "phone",
         "name": "name",
+        "externalRef": "externalRef",
         "blockedUntil": "2024-01-15T09:30:00Z",
+        "mediaUrlRequiresAuth": True,
+        "syncHistory": True,
+        "sendIntervalSeconds": 1.1,
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -157,16 +260,18 @@ async def test_account_update_account(
         "status": None,
         "phone": None,
         "name": None,
+        "externalRef": None,
         "blockedUntil": "datetime",
+        "mediaUrlRequiresAuth": None,
+        "syncHistory": None,
+        "sendIntervalSeconds": None,
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
-    response = client.accounts.account_update_account(
-        account_id="accountId", name="name"
-    )
+    response = client.accounts.account_update_account(account_id="accountId")
     validate_response(response, expected_response, expected_types)
 
     async_response = await async_client.accounts.account_update_account(
-        account_id="accountId", name="name"
+        account_id="accountId"
     )
     validate_response(async_response, expected_response, expected_types)

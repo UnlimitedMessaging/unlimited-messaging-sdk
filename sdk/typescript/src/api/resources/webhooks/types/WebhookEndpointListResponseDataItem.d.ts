@@ -9,6 +9,7 @@ export interface WebhookEndpointListResponseDataItem {
     secretPrefix: string;
     enabled: boolean;
     eventTypes: UnlimitedMessagingApi.WebhookEndpointListResponseDataItemEventTypesItem[];
+    accountIds: string[];
     createdAt: Date;
     updatedAt: Date;
 }

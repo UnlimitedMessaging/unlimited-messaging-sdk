@@ -15,7 +15,11 @@ export declare namespace AccountListAccountsResponseItem {
         status: AccountListAccountsResponseItemStatus.Raw;
         phone: string | null;
         name: string | null;
+        externalRef: string | null;
         blockedUntil: string | null;
+        mediaUrlRequiresAuth: boolean;
+        syncHistory: boolean;
+        sendIntervalSeconds: number;
         createdAt: string;
         updatedAt: string;
     }

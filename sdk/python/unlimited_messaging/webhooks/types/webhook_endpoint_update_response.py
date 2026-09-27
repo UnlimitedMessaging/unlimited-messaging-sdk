@@ -19,6 +19,7 @@ class WebhookEndpointUpdateResponse(UniversalBaseModel):
     event_types: typing.List[WebhookEndpointUpdateResponseEventTypesItem] = (
         pydantic.Field(alias="eventTypes")
     )
+    account_ids: typing.List[str] = pydantic.Field(alias="accountIds")
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
 

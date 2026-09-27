@@ -47,7 +47,11 @@ exports.AccountGetAccountResponse = core.serialization.object({
     status: AccountGetAccountResponseStatus_1.AccountGetAccountResponseStatus,
     phone: core.serialization.string().nullable(),
     name: core.serialization.string().nullable(),
+    externalRef: core.serialization.string().nullable(),
     blockedUntil: core.serialization.date().nullable(),
+    mediaUrlRequiresAuth: core.serialization.boolean(),
+    syncHistory: core.serialization.boolean(),
+    sendIntervalSeconds: core.serialization.number(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

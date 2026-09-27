@@ -23,12 +23,19 @@ export interface MessageSendResponse {
     status: UnlimitedMessagingApi.MessageSendResponseStatus;
     channel: UnlimitedMessagingApi.MessageSendResponseChannel;
     accountChannel: UnlimitedMessagingApi.MessageSendResponseAccountChannel;
+    /** Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only. */
     watermarked: boolean;
     mediaUrl: string | null;
     mediaType: string | null;
     mimeType: string | null;
     mediaFilename: string | null;
+    /** Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now. */
+    transcript: string | null;
     productData: Record<string, unknown> | null;
+    /** When the message was sent, per the channel: WhatsApp's own timestamp for a received message or one typed on the phone, the moment it went out for one sent through the API. Order conversations on this rather than createdAt. Null until an API send goes out. */
+    sentAt: Date | null;
+    /** When the message was deleted for everyone, null if it was not. */
+    deletedAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
 }

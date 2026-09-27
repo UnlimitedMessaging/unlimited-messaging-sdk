@@ -12,5 +12,6 @@ export declare namespace WebhookEndpointUpdateRequest {
         description?: (string | null) | null;
         enabled?: boolean | null;
         eventTypes?: WebhookEndpointUpdateRequestEventTypesItem.Raw[] | null;
+        accountIds?: (string[] | null) | null;
     }
 }

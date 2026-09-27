@@ -14,6 +14,7 @@ export declare namespace WebhookEndpointFindOneResponse {
         secretPrefix: string;
         enabled: boolean;
         eventTypes: WebhookEndpointFindOneResponseEventTypesItem.Raw[];
+        accountIds: string[];
         createdAt: string;
         updatedAt: string;
     }

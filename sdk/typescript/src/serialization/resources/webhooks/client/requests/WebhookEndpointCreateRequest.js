@@ -43,4 +43,5 @@ exports.WebhookEndpointCreateRequest = core.serialization.object({
     url: core.serialization.string(),
     description: core.serialization.string().optional(),
     eventTypes: core.serialization.list(WebhookEndpointCreateRequestEventTypesItem_1.WebhookEndpointCreateRequestEventTypesItem),
+    accountIds: core.serialization.list(core.serialization.string()).optional(),
 });

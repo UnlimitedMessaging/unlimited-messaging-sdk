@@ -14,6 +14,7 @@ export declare namespace WebhookEndpointCreateResponse {
         secretPrefix: string;
         enabled: boolean;
         eventTypes: WebhookEndpointCreateResponseEventTypesItem.Raw[];
+        accountIds: string[];
         createdAt: string;
         updatedAt: string;
         secret: string;

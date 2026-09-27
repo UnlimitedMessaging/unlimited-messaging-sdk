@@ -64,7 +64,10 @@ exports.MessageFindOneResponse = core.serialization.object({
     mediaType: core.serialization.string().nullable(),
     mimeType: core.serialization.string().nullable(),
     mediaFilename: core.serialization.string().nullable(),
+    transcript: core.serialization.string().nullable(),
     productData: core.serialization.record(core.serialization.string(), core.serialization.unknown()).nullable(),
+    sentAt: core.serialization.date().nullable(),
+    deletedAt: core.serialization.date().nullable(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

@@ -18,6 +18,7 @@ async def test_webhook_endpoint_list(
                 "secretPrefix": "secretPrefix",
                 "enabled": True,
                 "eventTypes": ["message.received"],
+                "accountIds": ["accountIds"],
                 "createdAt": "2024-01-15T09:30:00Z",
                 "updatedAt": "2024-01-15T09:30:00Z",
             }
@@ -34,6 +35,7 @@ async def test_webhook_endpoint_list(
                     "secretPrefix": None,
                     "enabled": None,
                     "eventTypes": ("list", {0: None}),
+                    "accountIds": ("list", {0: None}),
                     "createdAt": "datetime",
                     "updatedAt": "datetime",
                 }
@@ -57,6 +59,7 @@ async def test_webhook_endpoint_create(
         "secretPrefix": "secretPrefix",
         "enabled": True,
         "eventTypes": ["message.received"],
+        "accountIds": ["accountIds"],
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
         "secret": "secret",
@@ -68,6 +71,7 @@ async def test_webhook_endpoint_create(
         "secretPrefix": None,
         "enabled": None,
         "eventTypes": ("list", {0: None}),
+        "accountIds": ("list", {0: None}),
         "createdAt": "datetime",
         "updatedAt": "datetime",
         "secret": None,
@@ -93,6 +97,7 @@ async def test_webhook_endpoint_find_one(
         "secretPrefix": "secretPrefix",
         "enabled": True,
         "eventTypes": ["message.received"],
+        "accountIds": ["accountIds"],
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -103,6 +108,7 @@ async def test_webhook_endpoint_find_one(
         "secretPrefix": None,
         "enabled": None,
         "eventTypes": ("list", {0: None}),
+        "accountIds": ("list", {0: None}),
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
@@ -138,6 +144,7 @@ async def test_webhook_endpoint_update(
         "secretPrefix": "secretPrefix",
         "enabled": True,
         "eventTypes": ["message.received"],
+        "accountIds": ["accountIds"],
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -148,6 +155,7 @@ async def test_webhook_endpoint_update(
         "secretPrefix": None,
         "enabled": None,
         "eventTypes": ("list", {0: None}),
+        "accountIds": ("list", {0: None}),
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }

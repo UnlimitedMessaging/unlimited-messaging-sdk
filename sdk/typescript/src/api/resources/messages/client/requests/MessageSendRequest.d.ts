@@ -13,6 +13,10 @@ export interface MessageSendRequest {
     mediaType?: UnlimitedMessagingApi.MessageSendRequestMediaType;
     mimeType?: string;
     filename?: string;
+    /** `transactional` (an invoice, a reminder) is sent before any `normal` message already waiting in the queue, so a bulk send does not delay it. The pause between two sends of an account still applies. Defaults to `normal`. */
+    priority?: UnlimitedMessagingApi.MessageSendRequestPriority;
+    /** Images are always delivered to WhatsApp as uploaded. The copy UnlimitedMessaging keeps (what `mediaUrl` serves back) is resized and converted to WebP by default; set `false` to keep it byte-for-byte, e.g. for images with fine text. PNGs under 1 MB are always kept as is. */
+    compress?: boolean;
     productData?: UnlimitedMessagingApi.MessageSendRequestProductData;
     accountId?: string | null;
     simId?: string | null;

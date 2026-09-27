@@ -52,16 +52,37 @@ class MessageSendResponse(UniversalBaseModel):
     account_channel: MessageSendResponseAccountChannel = pydantic.Field(
         alias="accountChannel"
     )
-    watermarked: bool
+    watermarked: bool = pydantic.Field()
+    """
+    Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only.
+    """
+
     media_url: typing.Optional[str] = pydantic.Field(alias="mediaUrl", default=None)
     media_type: typing.Optional[str] = pydantic.Field(alias="mediaType", default=None)
     mime_type: typing.Optional[str] = pydantic.Field(alias="mimeType", default=None)
     media_filename: typing.Optional[str] = pydantic.Field(
         alias="mediaFilename", default=None
     )
+    transcript: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now.
+    """
+
     product_data: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = (
         pydantic.Field(alias="productData", default=None)
     )
+    sent_at: typing.Optional[dt.datetime] = pydantic.Field(alias="sentAt", default=None)
+    """
+    When the message was sent, per the channel: WhatsApp's own timestamp for a received message or one typed on the phone, the moment it went out for one sent through the API. Order conversations on this rather than createdAt. Null until an API send goes out.
+    """
+
+    deleted_at: typing.Optional[dt.datetime] = pydantic.Field(
+        alias="deletedAt", default=None
+    )
+    """
+    When the message was deleted for everyone, null if it was not.
+    """
+
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
 

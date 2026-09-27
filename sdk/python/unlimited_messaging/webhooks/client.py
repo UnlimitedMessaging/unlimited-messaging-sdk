@@ -37,7 +37,7 @@ class WebhooksClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to. Never includes the secret.
+        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to and the accounts it is scoped to (`accountIds`, empty for every account). Never includes the secret.
 
         Parameters
         ----------
@@ -103,12 +103,13 @@ class WebhooksClient:
         url: str,
         event_types: typing.Sequence[WebhookEndpointCreateRequestEventTypesItem],
         description: typing.Optional[str] = OMIT,
+        account_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookEndpointCreateResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Registers a URL to receive signed HTTP POST requests for the given event types. The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
+        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
 
         Parameters
         ----------
@@ -117,6 +118,8 @@ class WebhooksClient:
         event_types : typing.Sequence[WebhookEndpointCreateRequestEventTypesItem]
 
         description : typing.Optional[str]
+
+        account_ids : typing.Optional[typing.Sequence[str]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -145,6 +148,7 @@ class WebhooksClient:
                 "url": url,
                 "description": description,
                 "eventTypes": event_types,
+                "accountIds": account_ids,
             },
             request_options=request_options,
             omit=OMIT,
@@ -356,12 +360,13 @@ class WebhooksClient:
         event_types: typing.Optional[
             typing.Sequence[WebhookEndpointUpdateRequestEventTypesItem]
         ] = OMIT,
+        account_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookEndpointUpdateResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Updates the URL, description, enabled state, and/or subscribed event types. Omit a field to leave it unchanged.
+        Updates the URL, description, enabled state, subscribed event types and/or account scope. Omit a field to leave it unchanged. `accountIds` replaces the scope; `null` or `[]` clears it so every account is delivered again.
 
         Parameters
         ----------
@@ -374,6 +379,8 @@ class WebhooksClient:
         enabled : typing.Optional[bool]
 
         event_types : typing.Optional[typing.Sequence[WebhookEndpointUpdateRequestEventTypesItem]]
+
+        account_ids : typing.Optional[typing.Sequence[str]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -402,6 +409,7 @@ class WebhooksClient:
                 "description": description,
                 "enabled": enabled,
                 "eventTypes": event_types,
+                "accountIds": account_ids,
             },
             request_options=request_options,
             omit=OMIT,
@@ -471,7 +479,7 @@ class AsyncWebhooksClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to. Never includes the secret.
+        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to and the accounts it is scoped to (`accountIds`, empty for every account). Never includes the secret.
 
         Parameters
         ----------
@@ -545,12 +553,13 @@ class AsyncWebhooksClient:
         url: str,
         event_types: typing.Sequence[WebhookEndpointCreateRequestEventTypesItem],
         description: typing.Optional[str] = OMIT,
+        account_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookEndpointCreateResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Registers a URL to receive signed HTTP POST requests for the given event types. The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
+        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
 
         Parameters
         ----------
@@ -559,6 +568,8 @@ class AsyncWebhooksClient:
         event_types : typing.Sequence[WebhookEndpointCreateRequestEventTypesItem]
 
         description : typing.Optional[str]
+
+        account_ids : typing.Optional[typing.Sequence[str]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -595,6 +606,7 @@ class AsyncWebhooksClient:
                 "url": url,
                 "description": description,
                 "eventTypes": event_types,
+                "accountIds": account_ids,
             },
             request_options=request_options,
             omit=OMIT,
@@ -822,12 +834,13 @@ class AsyncWebhooksClient:
         event_types: typing.Optional[
             typing.Sequence[WebhookEndpointUpdateRequestEventTypesItem]
         ] = OMIT,
+        account_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookEndpointUpdateResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Updates the URL, description, enabled state, and/or subscribed event types. Omit a field to leave it unchanged.
+        Updates the URL, description, enabled state, subscribed event types and/or account scope. Omit a field to leave it unchanged. `accountIds` replaces the scope; `null` or `[]` clears it so every account is delivered again.
 
         Parameters
         ----------
@@ -840,6 +853,8 @@ class AsyncWebhooksClient:
         enabled : typing.Optional[bool]
 
         event_types : typing.Optional[typing.Sequence[WebhookEndpointUpdateRequestEventTypesItem]]
+
+        account_ids : typing.Optional[typing.Sequence[str]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -876,6 +891,7 @@ class AsyncWebhooksClient:
                 "description": description,
                 "enabled": enabled,
                 "eventTypes": event_types,
+                "accountIds": account_ids,
             },
             request_options=request_options,
             omit=OMIT,

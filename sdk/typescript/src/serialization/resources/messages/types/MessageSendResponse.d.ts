@@ -32,7 +32,10 @@ export declare namespace MessageSendResponse {
         mediaType: string | null;
         mimeType: string | null;
         mediaFilename: string | null;
+        transcript: string | null;
         productData: Record<string, unknown> | null;
+        sentAt: string | null;
+        deletedAt: string | null;
         createdAt: string;
         updatedAt: string;
     }

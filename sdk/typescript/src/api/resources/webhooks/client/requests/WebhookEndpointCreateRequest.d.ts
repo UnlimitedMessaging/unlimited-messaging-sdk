@@ -13,4 +13,5 @@ export interface WebhookEndpointCreateRequest {
     url: string;
     description?: string;
     eventTypes: UnlimitedMessagingApi.WebhookEndpointCreateRequestEventTypesItem[];
+    accountIds?: string[];
 }

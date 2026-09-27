@@ -44,4 +44,5 @@ exports.WebhookEndpointUpdateRequest = core.serialization.object({
     description: core.serialization.string().optionalNullable(),
     enabled: core.serialization.boolean().optional(),
     eventTypes: core.serialization.list(WebhookEndpointUpdateRequestEventTypesItem_1.WebhookEndpointUpdateRequestEventTypesItem).optional(),
+    accountIds: core.serialization.list(core.serialization.string()).optionalNullable(),
 });

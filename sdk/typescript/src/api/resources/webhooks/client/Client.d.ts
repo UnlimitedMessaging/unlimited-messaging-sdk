@@ -22,13 +22,141 @@ export declare namespace Webhooks {
         headers?: Record<string, string>;
     }
 }
+/**
+ * Receive events as they happen instead of polling. Register an endpoint with `POST /webhooks`,
+ * choosing its `eventTypes` and, optionally, the `accountIds` it covers (by default every account
+ * you have, including ones linked later). Requires a Medium or Max plan.
+ *
+ * ### Delivery
+ *
+ * Each event is an HTTP `POST` with a JSON body:
+ *
+ * ```json
+ * { "type": "message.received", "eventId": "whd_...", "occurredAt": "2026-09-27T10:00:01.000Z", "data": { } }
+ * ```
+ *
+ * Answer with any `2xx` within 10 seconds, and do the work afterwards.
+ *
+ * ### Verifying the signature
+ *
+ * Deliveries are signed per [Standard Webhooks](https://www.standardwebhooks.com), so its libraries
+ * verify them as they are. Three headers come with every request:
+ *
+ * | Header | Content |
+ * | ------ | ------- |
+ * | `webhook-id` | The delivery id, equal to the body's `eventId`. Stable across retries. |
+ * | `webhook-timestamp` | Unix seconds when this attempt was sent. |
+ * | `webhook-signature` | `v1,` followed by the base64 HMAC-SHA256 of `{webhook-id}.{webhook-timestamp}.{raw body}`. Several space-separated entries may appear during a secret rotation: accept the request if one matches. |
+ *
+ * The HMAC key is your secret (returned once, by `POST /webhooks`) with its `whsec_` prefix removed,
+ * base64-decoded. Compute it over the raw body exactly as received, compare in constant time, and
+ * reject a timestamp more than 5 minutes away from your clock.
+ *
+ * ```js
+ * const key = Buffer.from(secret.replace(/^whsec_/, ''), 'base64');
+ * const expected = crypto.createHmac('sha256', key).update(`${id}.${timestamp}.${rawBody}`).digest('base64');
+ * const valid = signatureHeader.split(' ').some((s) => s === `v1,${expected}`);
+ * ```
+ *
+ * ### Retries
+ *
+ * A `2xx` marks the delivery done. A `429`, a `5xx`, a timeout or a network error is retried
+ * after 30 s, 2 min, 10 min, 1 h, 6 h, 1 day, 2 days: 8 attempts in all, over a little more than 3 days. Any other
+ * `4xx` is final and never retried. Delivery attempts are kept for 30 days.
+ *
+ * ### Ordering and duplicates
+ *
+ * Delivery is at least once: the same event can arrive twice, so deduplicate on `eventId` (a message
+ * is also never announced twice: `message.externalId` is unique per account).
+ *
+ * **Events are not delivered in the order things happened.** Retries reorder them, and a message with
+ * media is only announced once its media is stored, a few seconds after it arrived: a text sent right
+ * after a photo usually reaches you first. Never order on arrival. Every event carries the channel's
+ * own timestamp to order on:
+ *
+ * | Event | Order on |
+ * | ----- | -------- |
+ * | `message.received`, `message.self_sent` | `data.message.sentAt` (WhatsApp's timestamp) |
+ * | `message.status` | `data.message.at`, and `previousStatus` to ignore a stale one |
+ * | `message.reaction` | `data.reaction.sentAt` |
+ * | `message.edited` | `data.edit.editedAt` |
+ * | `message.deleted` | `data.deletion.deletedAt` |
+ * | `account.status_changed` | `data.account.at` |
+ *
+ * `GET /message` returns the same `sentAt`.
+ *
+ * ### Events
+ *
+ * | Type | When |
+ * | ---- | ---- |
+ * | `message.received` | A message arrived. |
+ * | `message.self_sent` | The account's own phone sent a message by hand, outside the API. Same shape as `message.received`, with `direction: "OUT"` and `fromMe: true`. |
+ * | `message.status` | A message you sent changed status: `SENT`, `DELIVERED`, `READ`, `FAILED` or `UNDELIVERABLE`. Only effective changes fire: a late `DELIVERED` after `READ` does not. |
+ * | `message.reaction` | Someone reacted to a message, or took their reaction back (`removed: true`, empty `emoji`). |
+ * | `message.edited` | A message was edited. Carries its `externalId`, `newContent`, and `kind`: `text`, or `caption` for the caption of an image, video or document. |
+ * | `message.deleted` | A message was deleted for everyone, by its author or a group admin (`deletedBy`). The stored message is kept, with `deletedAt` set. |
+ * | `message.history` | Past messages, in batches, for an account linked with `syncHistory` (see below). |
+ * | `group.updated` | A group the account is in changed: members `added`, `removed`, `promoted` or `demoted`, a new `name` or `topic`. |
+ * | `account.status_changed` | An account's status changed: disconnected, logged out, restricted by WhatsApp (`BLOCKED`, with `blockedUntil`), reconnected... `reason` is a machine-readable code (`device_removed` when the device was removed from the phone, `logged_out` when WhatsApp refused the session), `transportCode` WhatsApp's own numeric code for diagnosis. |
+ *
+ * The schema of each payload is published with this reference, under `WebhookEvent*`.
+ *
+ * **Identifiers.** `message.externalId` is the message's id on WhatsApp: reactions
+ * (`reactedToExternalId`), edits and quoted replies (`replyTo.externalId`) refer to it.
+ * `sender` is a phone number in E.164 format, or `null` when WhatsApp hides it, in which case
+ * `senderId` (always set, a LID then) identifies the person. In a group, `participant` names who
+ * posted, `channel.conversation.id` is the group and `channel.conversation.participants` lists its
+ * members (+E164, or an id when the number is hidden). That list is kept in a cache refreshed when the
+ * group changes, so reading it on every message costs nothing: no need to call
+ * `GET /account/{accountId}/groups/{groupId}` per message. History batches do not carry it.
+ *
+ * **Media.** A media message carries `mediaType` (`image`, `video`, `document`, `audio`,
+ * `ptt` for a voice note, `sticker`), `mimeType`, `mediaFilename`, `mediaSize`, `durationSec`,
+ * and a `mediaUrl` serving the file UnlimitedMessaging stored. If it could not be stored,
+ * `mediaError` says why (`too_large` above 64 MB, `download_failed`) and there is no `mediaUrl`.
+ * The media is kept as long as its message: there is no automatic expiry. By default the URL alone
+ * gives access (its token is unguessable, so keep it private). For sensitive media, turn on
+ * `mediaUrlRequiresAuth` with `PATCH /account/{accountId}`: the URL then also requires
+ * `Authorization: Bearer ak_...` of a user the message belongs to (or their dashboard session),
+ * and answers `401` otherwise.
+ * `transcript` will hold the text extracted from the media (OCR, PDF text, voice transcription);
+ * it is `null` for now.
+ *
+ * ### History
+ *
+ * Link an account with `syncHistory=true` (`GET /account/link`, beta accounts) to receive its past
+ * conversations: the phone uploads its history once linked, and each part of it reaches you as
+ * `message.history` batches of up to 100 messages, each shaped like `message.received` (with
+ * `direction: "OUT"` for the account's own) plus its own `conversation`. `syncType` says which
+ * part it is (`initial_bootstrap` and `recent` first, then `full`), `progress` how far along, and
+ * `isLatest` that no more of that part is coming. A large history takes a while: expect batches for
+ * minutes after the link.
+ *
+ * Only messages stored for the first time are announced, so linking the same number again, or history
+ * overlapping live traffic, never repeats a message. History media is described (`mediaType`,
+ * `mimeType`, `mediaFilename`) but not stored: there is no `mediaUrl`. Subscribe to
+ * `message.history` only if you want it: endpoints that do not are never sent it.
+ *
+ * To go further back in one conversation, `POST /account/{accountId}/history` with the
+ * `externalId` of the oldest message you hold: the earlier messages arrive as a
+ * `message.history` batch with `syncType: "on_demand"`. `PATCH /account/{accountId}` turns
+ * `syncHistory` on or off for what WhatsApp sends from then on.
+ *
+ * ### Sending pace
+ *
+ * Each account keeps a pause between two sends, 5 seconds by default, which protects the number from
+ * being flagged by WhatsApp for bursts. Tune it per account with `PATCH /account/{accountId}`
+ * (`sendIntervalSeconds`, 2 to 120). Send invoices and reminders with
+ * `priority: "transactional"` on `POST /message`: they are taken before normal messages already
+ * waiting. Messages sent on a paid plan never carry a watermark.
+ */
 export declare class Webhooks {
     protected readonly _options: Webhooks.Options;
     constructor(_options: Webhooks.Options);
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
      *
-     * Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to. Never includes the secret.
+     * Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to and the accounts it is scoped to (`accountIds`, empty for every account). Never includes the secret.
      *
      * @param {Webhooks.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -43,7 +171,7 @@ export declare class Webhooks {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
      *
-     * Registers a URL to receive signed HTTP POST requests for the given event types. The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
+     * Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
      *
      * @param {UnlimitedMessagingApi.WebhookEndpointCreateRequest} request
      * @param {Webhooks.RequestOptions} requestOptions - Request-specific configuration.
@@ -99,7 +227,7 @@ export declare class Webhooks {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
      *
-     * Updates the URL, description, enabled state, and/or subscribed event types. Omit a field to leave it unchanged.
+     * Updates the URL, description, enabled state, subscribed event types and/or account scope. Omit a field to leave it unchanged. `accountIds` replaces the scope; `null` or `[]` clears it so every account is delivered again.
      *
      * @param {string} id
      * @param {UnlimitedMessagingApi.WebhookEndpointUpdateRequest} request

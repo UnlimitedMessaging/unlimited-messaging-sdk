@@ -38,6 +38,7 @@ from .message_get_status_history_response_channels_item_events_item_status impor
     MessageGetStatusHistoryResponseChannelsItemEventsItemStatus,
 )
 from .message_send_request_media_type import MessageSendRequestMediaType
+from .message_send_request_priority import MessageSendRequestPriority
 from .message_send_request_product_data import MessageSendRequestProductData
 from .message_send_response import MessageSendResponse
 from .message_send_response_account_channel import MessageSendResponseAccountChannel
@@ -66,6 +67,7 @@ __all__ = [
     "MessageGetStatusHistoryResponseChannelsItemEventsItem",
     "MessageGetStatusHistoryResponseChannelsItemEventsItemStatus",
     "MessageSendRequestMediaType",
+    "MessageSendRequestPriority",
     "MessageSendRequestProductData",
     "MessageSendResponse",
     "MessageSendResponseAccountChannel",

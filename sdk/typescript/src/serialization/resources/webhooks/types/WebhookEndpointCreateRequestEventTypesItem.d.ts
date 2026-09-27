@@ -6,5 +6,5 @@ import * as UnlimitedMessagingApi from "../../../../api/index";
 import * as core from "../../../../core";
 export declare const WebhookEndpointCreateRequestEventTypesItem: core.serialization.Schema<serializers.WebhookEndpointCreateRequestEventTypesItem.Raw, UnlimitedMessagingApi.WebhookEndpointCreateRequestEventTypesItem>;
 export declare namespace WebhookEndpointCreateRequestEventTypesItem {
-    type Raw = "message.received";
+    type Raw = "message.received" | "message.self_sent" | "message.status" | "message.reaction" | "message.edited" | "account.status_changed" | "message.history" | "group.updated" | "message.deleted";
 }

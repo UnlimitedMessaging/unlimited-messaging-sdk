@@ -11,5 +11,6 @@ export declare namespace WebhookEndpointCreateRequest {
         url: string;
         description?: string | null;
         eventTypes: WebhookEndpointCreateRequestEventTypesItem.Raw[];
+        accountIds?: string[] | null;
     }
 }

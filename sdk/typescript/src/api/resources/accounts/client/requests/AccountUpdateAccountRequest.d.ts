@@ -3,10 +3,16 @@
  */
 /**
  * @example
- *     {
- *         name: "name"
- *     }
+ *     {}
  */
 export interface AccountUpdateAccountRequest {
-    name: string;
+    name?: string;
+    /** Your own reference for this account. `null` clears it. */
+    externalRef?: string | null;
+    /** Receive the message history WhatsApp hands over from now on (`message.history`). The phone's full history is only requested when the number is linked: pass `syncHistory` to GET /account/link for that. */
+    syncHistory?: boolean;
+    /** Require an API key (or a dashboard session) of the owner, on top of the URL, to fetch this account's stored media. Off by default: the unguessable URL alone gives access. */
+    mediaUrlRequiresAuth?: boolean;
+    /** Pause between two sends of this account, in seconds (2 to 120). Spacing sends protects the number from being flagged by WhatsApp: lower it with care. `null` restores the default (5 s). */
+    sendIntervalSeconds?: number | null;
 }

@@ -16,9 +16,31 @@ class AccountGetAccountResponse(UniversalBaseModel):
     status: AccountGetAccountResponseStatus
     phone: typing.Optional[str] = None
     name: typing.Optional[str] = None
+    external_ref: typing.Optional[str] = pydantic.Field(
+        alias="externalRef", default=None
+    )
+    """
+    Your own reference for this account, as set at linking or with PATCH.
+    """
+
     blocked_until: typing.Optional[dt.datetime] = pydantic.Field(
         alias="blockedUntil", default=None
     )
+    media_url_requires_auth: bool = pydantic.Field(alias="mediaUrlRequiresAuth")
+    """
+    Whether fetching a stored media also requires authenticating as its owner.
+    """
+
+    sync_history: bool = pydantic.Field(alias="syncHistory")
+    """
+    Whether the account's message history is stored and announced.
+    """
+
+    send_interval_seconds: float = pydantic.Field(alias="sendIntervalSeconds")
+    """
+    The pause this account keeps between two sends, in seconds.
+    """
+
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
 

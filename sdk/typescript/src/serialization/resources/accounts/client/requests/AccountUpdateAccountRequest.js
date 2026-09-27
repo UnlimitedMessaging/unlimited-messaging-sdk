@@ -39,5 +39,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AccountUpdateAccountRequest = void 0;
 const core = __importStar(require("../../../../../core"));
 exports.AccountUpdateAccountRequest = core.serialization.object({
-    name: core.serialization.string(),
+    name: core.serialization.string().optional(),
+    externalRef: core.serialization.string().optionalNullable(),
+    syncHistory: core.serialization.boolean().optional(),
+    mediaUrlRequiresAuth: core.serialization.boolean().optional(),
+    sendIntervalSeconds: core.serialization.number().optionalNullable(),
 });

@@ -3,5 +3,16 @@
 import typing
 
 WebhookEndpointUpdateRequestEventTypesItem = typing.Union[
-    typing.Literal["message.received"], typing.Any
+    typing.Literal[
+        "message.received",
+        "message.self_sent",
+        "message.status",
+        "message.reaction",
+        "message.edited",
+        "account.status_changed",
+        "message.history",
+        "group.updated",
+        "message.deleted",
+    ],
+    typing.Any,
 ]
