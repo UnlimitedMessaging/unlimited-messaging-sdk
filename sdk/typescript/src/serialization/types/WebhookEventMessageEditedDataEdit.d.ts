@@ -5,13 +5,15 @@ import * as serializers from "../index";
 import * as UnlimitedMessagingApi from "../../api/index";
 import * as core from "../../core";
 import { WebhookEventMessageEditedDataEditKind } from "./WebhookEventMessageEditedDataEditKind";
+import { WebhookEventMessageEditedDataEditError } from "./WebhookEventMessageEditedDataEditError";
 export declare const WebhookEventMessageEditedDataEdit: core.serialization.ObjectSchema<serializers.WebhookEventMessageEditedDataEdit.Raw, UnlimitedMessagingApi.WebhookEventMessageEditedDataEdit>;
 export declare namespace WebhookEventMessageEditedDataEdit {
     interface Raw {
         externalId: string;
         messageId: string | null;
         newContent: string | null;
-        kind: WebhookEventMessageEditedDataEditKind.Raw;
+        kind: WebhookEventMessageEditedDataEditKind.Raw | null;
+        error: WebhookEventMessageEditedDataEditError.Raw | null;
         editedAt: string;
         sender: string | null;
         senderId: string;

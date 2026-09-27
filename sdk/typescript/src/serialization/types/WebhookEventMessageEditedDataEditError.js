@@ -36,19 +36,6 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WebhookEventMessageEditedDataEdit = void 0;
+exports.WebhookEventMessageEditedDataEditError = void 0;
 const core = __importStar(require("../../core"));
-const WebhookEventMessageEditedDataEditKind_1 = require("./WebhookEventMessageEditedDataEditKind");
-const WebhookEventMessageEditedDataEditError_1 = require("./WebhookEventMessageEditedDataEditError");
-exports.WebhookEventMessageEditedDataEdit = core.serialization.object({
-    externalId: core.serialization.string(),
-    messageId: core.serialization.string().nullable(),
-    newContent: core.serialization.string().nullable(),
-    kind: WebhookEventMessageEditedDataEditKind_1.WebhookEventMessageEditedDataEditKind.nullable(),
-    error: WebhookEventMessageEditedDataEditError_1.WebhookEventMessageEditedDataEditError.nullable(),
-    editedAt: core.serialization.date(),
-    sender: core.serialization.string().nullable(),
-    senderId: core.serialization.string(),
-    participant: core.serialization.string().nullable(),
-    fromMe: core.serialization.boolean(),
-});
+exports.WebhookEventMessageEditedDataEditError = core.serialization.enum_(["original_secret_missing", "decryption_failed"]);

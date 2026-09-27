@@ -62,6 +62,9 @@ from .webhook_event_message_edited_data_channel_type import (
     WebhookEventMessageEditedDataChannelType,
 )
 from .webhook_event_message_edited_data_edit import WebhookEventMessageEditedDataEdit
+from .webhook_event_message_edited_data_edit_error import (
+    WebhookEventMessageEditedDataEditError,
+)
 from .webhook_event_message_edited_data_edit_kind import (
     WebhookEventMessageEditedDataEditKind,
 )
@@ -210,6 +213,7 @@ __all__ = [
     "WebhookEventMessageEditedDataChannelConversation",
     "WebhookEventMessageEditedDataChannelType",
     "WebhookEventMessageEditedDataEdit",
+    "WebhookEventMessageEditedDataEditError",
     "WebhookEventMessageEditedDataEditKind",
     "WebhookEventMessageEditedType",
     "WebhookEventMessageHistory",

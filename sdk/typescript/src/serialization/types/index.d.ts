@@ -38,6 +38,7 @@ export * from "./WebhookEventMessageReactionData";
 export * from "./WebhookEventMessageReaction";
 export * from "./WebhookEventMessageEditedType";
 export * from "./WebhookEventMessageEditedDataEditKind";
+export * from "./WebhookEventMessageEditedDataEditError";
 export * from "./WebhookEventMessageEditedDataEdit";
 export * from "./WebhookEventMessageEditedDataChannelType";
 export * from "./WebhookEventMessageEditedDataChannelAccount";

@@ -54,6 +54,7 @@ __exportStar(require("./WebhookEventMessageReactionData"), exports);
 __exportStar(require("./WebhookEventMessageReaction"), exports);
 __exportStar(require("./WebhookEventMessageEditedType"), exports);
 __exportStar(require("./WebhookEventMessageEditedDataEditKind"), exports);
+__exportStar(require("./WebhookEventMessageEditedDataEditError"), exports);
 __exportStar(require("./WebhookEventMessageEditedDataEdit"), exports);
 __exportStar(require("./WebhookEventMessageEditedDataChannelType"), exports);
 __exportStar(require("./WebhookEventMessageEditedDataChannelAccount"), exports);

@@ -6,6 +6,9 @@ import typing
 from .webhook_event_message_edited_data_edit_kind import (
     WebhookEventMessageEditedDataEditKind,
 )
+from .webhook_event_message_edited_data_edit_error import (
+    WebhookEventMessageEditedDataEditError,
+)
 import datetime as dt
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
@@ -14,7 +17,8 @@ class WebhookEventMessageEditedDataEdit(UniversalBaseModel):
     external_id: str = pydantic.Field(alias="externalId")
     message_id: typing.Optional[str] = pydantic.Field(alias="messageId", default=None)
     new_content: typing.Optional[str] = pydantic.Field(alias="newContent", default=None)
-    kind: WebhookEventMessageEditedDataEditKind
+    kind: typing.Optional[WebhookEventMessageEditedDataEditKind] = None
+    error: typing.Optional[WebhookEventMessageEditedDataEditError] = None
     edited_at: dt.datetime = pydantic.Field(alias="editedAt")
     sender: typing.Optional[str] = None
     sender_id: str = pydantic.Field(alias="senderId")

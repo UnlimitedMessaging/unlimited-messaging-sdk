@@ -6,7 +6,8 @@ export interface WebhookEventMessageEditedDataEdit {
     externalId: string;
     messageId: string | null;
     newContent: string | null;
-    kind: UnlimitedMessagingApi.WebhookEventMessageEditedDataEditKind;
+    kind: UnlimitedMessagingApi.WebhookEventMessageEditedDataEditKind | null;
+    error: UnlimitedMessagingApi.WebhookEventMessageEditedDataEditError | null;
     editedAt: Date;
     sender: string | null;
     senderId: string;

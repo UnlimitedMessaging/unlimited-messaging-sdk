@@ -85,6 +85,13 @@ export declare namespace Webhooks {
  *
  * `GET /message` returns the same `sentAt`.
  *
+ * **A change can arrive before the message it changes.** A reaction, an edit or a deletion names its
+ * target by `externalId` (`reactedToExternalId`, `edit.externalId`, `deletion.externalId`), and
+ * by UnlimitedMessaging id (`reactedToMessageId`, `messageId`) only when that message was already
+ * stored. A reaction to a photo typically beats the photo, which is announced once its media is stored:
+ * the id is then `null`. Keep such an event and link it later by `externalId`, which the message
+ * carries when it arrives (`message.externalId`).
+ *
  * ### Events
  *
  * | Type | When |
@@ -93,7 +100,7 @@ export declare namespace Webhooks {
  * | `message.self_sent` | The account's own phone sent a message by hand, outside the API. Same shape as `message.received`, with `direction: "OUT"` and `fromMe: true`. |
  * | `message.status` | A message you sent changed status: `SENT`, `DELIVERED`, `READ`, `FAILED` or `UNDELIVERABLE`. Only effective changes fire: a late `DELIVERED` after `READ` does not. |
  * | `message.reaction` | Someone reacted to a message, or took their reaction back (`removed: true`, empty `emoji`). |
- * | `message.edited` | A message was edited. Carries its `externalId`, `newContent`, and `kind`: `text`, or `caption` for the caption of an image, video or document. |
+ * | `message.edited` | A message was edited. Carries its `externalId`, `newContent`, and `kind`: `text`, or `caption` for the caption of an image, video or document. Phones encrypt an edit with the original message's key: when it cannot be opened (`error`: `original_secret_missing` for a message the account received before it was linked, `decryption_failed` otherwise), the edit is still announced, with `newContent` and `kind` null, and the stored content is left as it was. |
  * | `message.deleted` | A message was deleted for everyone, by its author or a group admin (`deletedBy`). The stored message is kept, with `deletedAt` set. |
  * | `message.history` | Past messages, in batches, for an account linked with `syncHistory` (see below). |
  * | `group.updated` | A group the account is in changed: members `added`, `removed`, `promoted` or `demoted`, a new `name` or `topic`. |
