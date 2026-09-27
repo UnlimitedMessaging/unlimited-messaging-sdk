@@ -2,6 +2,61 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.19] - 2026-09-27
+
+*   **New Endpoints**
+    *   `POST /account/{accountId}/history`: Fetch older messages of a conversation.
+    *   `GET /account/{accountId}/groups`: List groups an account belongs to.
+    *   `GET /account/{accountId}/groups/{groupId}`: Get a specific group with its members.
+
+*   **Changed Parameters**
+    *   `POST /message` request body:
+        *   New `priority` parameter to send transactional messages before normal messages.
+        *   New `compress` parameter to control image compression for stored media.
+    *   `GET /account/link` query parameters:
+        *   New `new` parameter to always start a fresh linking attempt.
+        *   New `syncHistory` parameter to receive the account's message history after linking.
+        *   New `externalRef` parameter to set your own reference for the account during linking.
+    *   `PATCH /account/{accountId}` request body:
+        *   `name` parameter is now optional.
+        *   New `externalRef` parameter to set or clear your own reference for the account.
+        *   New `syncHistory` parameter to enable/disable receiving message history from now on.
+        *   New `mediaUrlRequiresAuth` parameter to require authentication for fetching stored media.
+        *   New `sendIntervalSeconds` parameter to configure the pause between sends for the account.
+    *   `POST /webhooks` request body:
+        *   New `accountIds` parameter to scope the webhook to specific accounts.
+        *   `eventTypes` parameter now accepts new values: `message.self_sent`, `message.status`, `message.reaction`, `message.edited`, `account.status_changed`, `message.history`, `group.updated`, `message.deleted`.
+    *   `PATCH /webhooks/{id}` request body:
+        *   New `accountIds` parameter to update the scope of the webhook to specific accounts.
+        *   `eventTypes` parameter now accepts new values: `message.self_sent`, `message.status`, `message.reaction`, `message.edited`, `account.status_changed`, `message.history`, `group.updated`, `message.deleted`.
+
+*   **New Response Fields**
+    *   Message objects (e.g., in `GET /message/{messageId}` response and within Account objects):
+        *   `transcript`: Text extracted from the media (OCR, PDF text, voice note transcription).
+        *   `sentAt`: The channel's timestamp for when the message was sent.
+        *   `deletedAt`: The timestamp for when the message was deleted for everyone.
+    *   Account objects (e.g., in `GET /account/{accountId}` response):
+        *   `externalRef`: Your own reference for the account.
+        *   `mediaUrlRequiresAuth`: Indicates whether fetching stored media requires authentication.
+        *   `syncHistory`: Indicates whether the account's message history is stored and announced.
+        *   `sendIntervalSeconds`: The configured pause between two sends for the account.
+    *   WebhookEndpoint objects (e.g., in `POST /webhooks`, `GET /webhooks`, `GET /webhooks/{id}`, `PATCH /webhooks/{id}` responses):
+        *   `accountIds`: A list of account IDs the webhook is configured to monitor.
+
+*   **Changed Parameters (Descriptions)**
+    *   The description for the `watermarked` field has been clarified in message schemas to explain when the "Sent with UnlimitedMessaging.app" line is appended.
+    *   The description for `POST /message` has been updated to clarify watermarking policy.
+    *   The description for `GET /account/link` has been updated to explain behavior with `externalRef` and `new=true`.
+    *   The description for `PATCH /account/{accountId}` has been updated to reflect new updateable fields.
+    *   The descriptions for `POST /webhooks`, `GET /webhooks`, and `PATCH /webhooks/{id}` have been updated to reflect the new `accountIds` parameter and expanded event types.
+
+*   **Renamed Methods**
+    *   `PATCH /account/{accountId}` operation summary changed from "Rename an account." to "Update an account: name, external reference, send pacing.".
+
+*   **New Webhook Event Schemas and Documentation**
+    *   New webhook event schemas have been added for `message.received`, `message.self_sent`, `message.status`, `message.reaction`, `message.edited`, `message.deleted`, `message.history`, `account.status_changed`, and `group.updated`.
+    *   Comprehensive documentation for webhooks has been added, covering delivery, signature verification, retries, ordering, and detailed explanations of each event type, including identifiers, media handling, and history synchronization.
+
 ## [0.1.18] - 2026-09-25
 
 *   **New Endpoints**
