@@ -6,6 +6,7 @@ import * as UnlimitedMessagingApi from "../../api/index";
 import * as core from "../../core";
 import { WebhookEventMessageHistoryDataMessagesItemDirection } from "./WebhookEventMessageHistoryDataMessagesItemDirection";
 import { WebhookEventMessageHistoryDataMessagesItemReplyTo } from "./WebhookEventMessageHistoryDataMessagesItemReplyTo";
+import { WebhookEventMessageHistoryDataMessagesItemAttachmentsItem } from "./WebhookEventMessageHistoryDataMessagesItemAttachmentsItem";
 import { WebhookEventMessageHistoryDataMessagesItemConversation } from "./WebhookEventMessageHistoryDataMessagesItemConversation";
 export declare const WebhookEventMessageHistoryDataMessagesItem: core.serialization.ObjectSchema<serializers.WebhookEventMessageHistoryDataMessagesItem.Raw, UnlimitedMessagingApi.WebhookEventMessageHistoryDataMessagesItem>;
 export declare namespace WebhookEventMessageHistoryDataMessagesItem {
@@ -30,6 +31,9 @@ export declare namespace WebhookEventMessageHistoryDataMessagesItem {
         durationSec?: number | null;
         mediaError?: string | null;
         transcript: string | null;
+        subject?: string | null;
+        html?: string | null;
+        attachments?: WebhookEventMessageHistoryDataMessagesItemAttachmentsItem.Raw[] | null;
         conversation: WebhookEventMessageHistoryDataMessagesItemConversation.Raw;
     }
 }

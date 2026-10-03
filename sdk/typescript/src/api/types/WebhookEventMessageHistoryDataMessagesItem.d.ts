@@ -23,5 +23,8 @@ export interface WebhookEventMessageHistoryDataMessagesItem {
     durationSec?: number;
     mediaError?: string;
     transcript: string | null;
+    subject?: string;
+    html?: string;
+    attachments?: UnlimitedMessagingApi.WebhookEventMessageHistoryDataMessagesItemAttachmentsItem[];
     conversation: UnlimitedMessagingApi.WebhookEventMessageHistoryDataMessagesItemConversation;
 }

@@ -10,6 +10,9 @@ import datetime as dt
 from .webhook_event_message_history_data_messages_item_reply_to import (
     WebhookEventMessageHistoryDataMessagesItemReplyTo,
 )
+from .webhook_event_message_history_data_messages_item_attachments_item import (
+    WebhookEventMessageHistoryDataMessagesItemAttachmentsItem,
+)
 from .webhook_event_message_history_data_messages_item_conversation import (
     WebhookEventMessageHistoryDataMessagesItemConversation,
 )
@@ -43,6 +46,11 @@ class WebhookEventMessageHistoryDataMessagesItem(UniversalBaseModel):
     )
     media_error: typing.Optional[str] = pydantic.Field(alias="mediaError", default=None)
     transcript: typing.Optional[str] = None
+    subject: typing.Optional[str] = None
+    html: typing.Optional[str] = None
+    attachments: typing.Optional[
+        typing.List[WebhookEventMessageHistoryDataMessagesItemAttachmentsItem]
+    ] = None
     conversation: WebhookEventMessageHistoryDataMessagesItemConversation
 
     if IS_PYDANTIC_V2:

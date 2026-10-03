@@ -83,6 +83,9 @@ from .webhook_event_message_history_data_channel_type import (
 from .webhook_event_message_history_data_messages_item import (
     WebhookEventMessageHistoryDataMessagesItem,
 )
+from .webhook_event_message_history_data_messages_item_attachments_item import (
+    WebhookEventMessageHistoryDataMessagesItemAttachmentsItem,
+)
 from .webhook_event_message_history_data_messages_item_conversation import (
     WebhookEventMessageHistoryDataMessagesItemConversation,
 )
@@ -128,6 +131,9 @@ from .webhook_event_message_received_data_channel_type import (
 from .webhook_event_message_received_data_message import (
     WebhookEventMessageReceivedDataMessage,
 )
+from .webhook_event_message_received_data_message_attachments_item import (
+    WebhookEventMessageReceivedDataMessageAttachmentsItem,
+)
 from .webhook_event_message_received_data_message_direction import (
     WebhookEventMessageReceivedDataMessageDirection,
 )
@@ -151,6 +157,9 @@ from .webhook_event_message_self_sent_data_channel_type import (
 )
 from .webhook_event_message_self_sent_data_message import (
     WebhookEventMessageSelfSentDataMessage,
+)
+from .webhook_event_message_self_sent_data_message_attachments_item import (
+    WebhookEventMessageSelfSentDataMessageAttachmentsItem,
 )
 from .webhook_event_message_self_sent_data_message_direction import (
     WebhookEventMessageSelfSentDataMessageDirection,
@@ -222,6 +231,7 @@ __all__ = [
     "WebhookEventMessageHistoryDataChannelAccount",
     "WebhookEventMessageHistoryDataChannelType",
     "WebhookEventMessageHistoryDataMessagesItem",
+    "WebhookEventMessageHistoryDataMessagesItemAttachmentsItem",
     "WebhookEventMessageHistoryDataMessagesItemConversation",
     "WebhookEventMessageHistoryDataMessagesItemDirection",
     "WebhookEventMessageHistoryDataMessagesItemReplyTo",
@@ -241,6 +251,7 @@ __all__ = [
     "WebhookEventMessageReceivedDataChannelConversation",
     "WebhookEventMessageReceivedDataChannelType",
     "WebhookEventMessageReceivedDataMessage",
+    "WebhookEventMessageReceivedDataMessageAttachmentsItem",
     "WebhookEventMessageReceivedDataMessageDirection",
     "WebhookEventMessageReceivedDataMessageReplyTo",
     "WebhookEventMessageReceivedType",
@@ -251,6 +262,7 @@ __all__ = [
     "WebhookEventMessageSelfSentDataChannelConversation",
     "WebhookEventMessageSelfSentDataChannelType",
     "WebhookEventMessageSelfSentDataMessage",
+    "WebhookEventMessageSelfSentDataMessageAttachmentsItem",
     "WebhookEventMessageSelfSentDataMessageDirection",
     "WebhookEventMessageSelfSentDataMessageReplyTo",
     "WebhookEventMessageSelfSentType",

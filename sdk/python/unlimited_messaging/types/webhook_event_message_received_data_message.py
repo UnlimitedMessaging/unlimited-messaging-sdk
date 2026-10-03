@@ -10,6 +10,9 @@ import datetime as dt
 from .webhook_event_message_received_data_message_reply_to import (
     WebhookEventMessageReceivedDataMessageReplyTo,
 )
+from .webhook_event_message_received_data_message_attachments_item import (
+    WebhookEventMessageReceivedDataMessageAttachmentsItem,
+)
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
@@ -40,6 +43,11 @@ class WebhookEventMessageReceivedDataMessage(UniversalBaseModel):
     )
     media_error: typing.Optional[str] = pydantic.Field(alias="mediaError", default=None)
     transcript: typing.Optional[str] = None
+    subject: typing.Optional[str] = None
+    html: typing.Optional[str] = None
+    attachments: typing.Optional[
+        typing.List[WebhookEventMessageReceivedDataMessageAttachmentsItem]
+    ] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(

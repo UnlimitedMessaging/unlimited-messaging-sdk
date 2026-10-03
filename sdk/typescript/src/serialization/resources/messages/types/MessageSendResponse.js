@@ -42,6 +42,8 @@ const MessageSendResponseDirection_1 = require("./MessageSendResponseDirection")
 const MessageSendResponseStatus_1 = require("./MessageSendResponseStatus");
 const MessageSendResponseChannel_1 = require("./MessageSendResponseChannel");
 const MessageSendResponseAccountChannel_1 = require("./MessageSendResponseAccountChannel");
+const MessageSendResponseAttachmentsItem_1 = require("./MessageSendResponseAttachmentsItem");
+const MessageSendResponseMessagesItem_1 = require("./MessageSendResponseMessagesItem");
 exports.MessageSendResponse = core.serialization.object({
     id: core.serialization.string(),
     content: core.serialization.string().nullable(),
@@ -60,6 +62,10 @@ exports.MessageSendResponse = core.serialization.object({
     channel: MessageSendResponseChannel_1.MessageSendResponseChannel,
     accountChannel: MessageSendResponseAccountChannel_1.MessageSendResponseAccountChannel,
     watermarked: core.serialization.boolean(),
+    subject: core.serialization.string().nullable(),
+    contentHtml: core.serialization.string().nullable(),
+    dispatchId: core.serialization.string(),
+    attachments: core.serialization.list(MessageSendResponseAttachmentsItem_1.MessageSendResponseAttachmentsItem),
     mediaUrl: core.serialization.string().nullable(),
     mediaType: core.serialization.string().nullable(),
     mimeType: core.serialization.string().nullable(),
@@ -70,4 +76,5 @@ exports.MessageSendResponse = core.serialization.object({
     deletedAt: core.serialization.date().nullable(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
+    messages: core.serialization.list(MessageSendResponseMessagesItem_1.MessageSendResponseMessagesItem),
 });

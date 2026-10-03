@@ -7,7 +7,9 @@ import pydantic
 from .message_send_response_status import MessageSendResponseStatus
 from .message_send_response_channel import MessageSendResponseChannel
 from .message_send_response_account_channel import MessageSendResponseAccountChannel
+from .message_send_response_attachments_item import MessageSendResponseAttachmentsItem
 import datetime as dt
+from .message_send_response_messages_item import MessageSendResponseMessagesItem
 from ...core.pydantic_utilities import IS_PYDANTIC_V2
 
 
@@ -54,15 +56,45 @@ class MessageSendResponse(UniversalBaseModel):
     )
     watermarked: bool = pydantic.Field()
     """
-    Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only.
+    Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
     """
 
+    subject: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The email subject. Null on channels without one.
+    """
+
+    content_html: typing.Optional[str] = pydantic.Field(
+        alias="contentHtml", default=None
+    )
+    """
+    The rich body, as sent or received. Untrusted for an inbound message: sanitise before rendering.
+    """
+
+    dispatch_id: str = pydantic.Field(alias="dispatchId")
+    attachments: typing.List[MessageSendResponseAttachmentsItem]
     media_url: typing.Optional[str] = pydantic.Field(alias="mediaUrl", default=None)
+    """
+    Deprecated: use `attachments` instead (this is the first one).
+    """
+
     media_type: typing.Optional[str] = pydantic.Field(alias="mediaType", default=None)
+    """
+    Deprecated: use `attachments` instead (this is the first one).
+    """
+
     mime_type: typing.Optional[str] = pydantic.Field(alias="mimeType", default=None)
+    """
+    Deprecated: use `attachments` instead (this is the first one).
+    """
+
     media_filename: typing.Optional[str] = pydantic.Field(
         alias="mediaFilename", default=None
     )
+    """
+    Deprecated: use `attachments` instead (this is the first one).
+    """
+
     transcript: typing.Optional[str] = pydantic.Field(default=None)
     """
     Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now.
@@ -85,6 +117,10 @@ class MessageSendResponse(UniversalBaseModel):
 
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
+    messages: typing.List[MessageSendResponseMessagesItem] = pydantic.Field()
+    """
+    Every message this request created, one per channel, in the order of `channels`.
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(

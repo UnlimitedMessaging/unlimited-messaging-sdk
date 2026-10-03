@@ -174,7 +174,19 @@ class Messages {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
      *
-     * Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16. To send a media file, upload it first with `POST /media` to get a temp URL, then pass that URL as `mediaUrl` with the matching `mediaType` (`image`, `document`, or `audio`) in this body. Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
+     * **One channel:** set `recipient` to a phone number (E.164), a WhatsApp group id, or an email address. The channel follows from it (or from `accountId`). An email needs a `subject`.
+     *
+     * **Several channels at once:** set `to` (`phone`, `email`) and `channels`, e.g. `[{ "channel": "WHATSAPP" }, { "channel": "EMAIL", "subject": "Your code" }]`. One message is created per channel, each with its own status, all sharing the returned `dispatchId`; `messages` lists them all. A channel entry may override `text`, `html` and `subject`. WhatsApp gets `text`, or the `html` converted to plain text.
+     *
+     * **Accounts:** without `accountId` (or `channels[].accountId`), your only active account on that channel is used. With several, a `400` asks you to choose; with none, `404`.
+     *
+     * **Files:** upload with `POST /media` (or use any public URL) and list them in `attachments`. Email takes up to 20 (25 MB in total), WhatsApp one. `mediaUrl`/`mediaType`/`mimeType`/`filename` are deprecated in favour of `attachments`.
+     *
+     * **Replies:** `replyToMessageId` instead of `recipient` answers a message in the account's history, threaded on its conversation (WhatsApp beta accounts and email accounts).
+     *
+     * WhatsApp text is limited to 1 600 characters. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
+     *
+     * Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message (WhatsApp) or an email ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
      *
      * @param {UnlimitedMessagingApi.MessageSendRequest} request
      * @param {Messages.RequestOptions} requestOptions - Request-specific configuration.

@@ -39,10 +39,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AccountUpdateAccountResponse = void 0;
 const core = __importStar(require("../../../../core"));
 const AccountUpdateAccountResponseChannel_1 = require("./AccountUpdateAccountResponseChannel");
+const AccountUpdateAccountResponseOwner_1 = require("./AccountUpdateAccountResponseOwner");
 const AccountUpdateAccountResponseStatus_1 = require("./AccountUpdateAccountResponseStatus");
 exports.AccountUpdateAccountResponse = core.serialization.object({
     id: core.serialization.string(),
     channel: AccountUpdateAccountResponseChannel_1.AccountUpdateAccountResponseChannel,
+    owner: AccountUpdateAccountResponseOwner_1.AccountUpdateAccountResponseOwner,
     isSystem: core.serialization.boolean(),
     status: AccountUpdateAccountResponseStatus_1.AccountUpdateAccountResponseStatus,
     phone: core.serialization.string().nullable(),

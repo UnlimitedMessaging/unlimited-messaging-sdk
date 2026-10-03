@@ -4,6 +4,9 @@ from ...core.pydantic_utilities import UniversalBaseModel
 from .account_list_accounts_response_item_channel import (
     AccountListAccountsResponseItemChannel,
 )
+from .account_list_accounts_response_item_owner import (
+    AccountListAccountsResponseItemOwner,
+)
 import pydantic
 from .account_list_accounts_response_item_status import (
     AccountListAccountsResponseItemStatus,
@@ -16,7 +19,16 @@ from ...core.pydantic_utilities import IS_PYDANTIC_V2
 class AccountListAccountsResponseItem(UniversalBaseModel):
     id: str
     channel: AccountListAccountsResponseItemChannel
+    owner: AccountListAccountsResponseItemOwner = pydantic.Field()
+    """
+    Who provides the account: USER when you connected it with your own credentials, SYSTEM when UnlimitedMessaging provides it.
+    """
+
     is_system: bool = pydantic.Field(alias="isSystem")
+    """
+    Deprecated: use `owner` instead (true when owner is SYSTEM).
+    """
+
     status: AccountListAccountsResponseItemStatus
     phone: typing.Optional[str] = None
     name: typing.Optional[str] = None

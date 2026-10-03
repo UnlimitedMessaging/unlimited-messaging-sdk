@@ -13,6 +13,7 @@ async def test_account_list_accounts(
         {
             "id": "id",
             "channel": "WHATSAPP_BAILYES",
+            "owner": "USER",
             "isSystem": True,
             "status": "PENDING",
             "phone": "phone",
@@ -32,6 +33,7 @@ async def test_account_list_accounts(
             0: {
                 "id": None,
                 "channel": None,
+                "owner": None,
                 "isSystem": None,
                 "status": None,
                 "phone": None,
@@ -184,6 +186,7 @@ async def test_account_get_account(
     expected_response: typing.Any = {
         "id": "id",
         "channel": "WHATSAPP_BAILYES",
+        "owner": "USER",
         "isSystem": True,
         "status": "PENDING",
         "phone": "phone",
@@ -199,6 +202,7 @@ async def test_account_get_account(
     expected_types: typing.Any = {
         "id": None,
         "channel": None,
+        "owner": None,
         "isSystem": None,
         "status": None,
         "phone": None,
@@ -241,6 +245,7 @@ async def test_account_update_account(
     expected_response: typing.Any = {
         "id": "id",
         "channel": "WHATSAPP_BAILYES",
+        "owner": "USER",
         "isSystem": True,
         "status": "PENDING",
         "phone": "phone",
@@ -256,6 +261,7 @@ async def test_account_update_account(
     expected_types: typing.Any = {
         "id": None,
         "channel": None,
+        "owner": None,
         "isSystem": None,
         "status": None,
         "phone": None,

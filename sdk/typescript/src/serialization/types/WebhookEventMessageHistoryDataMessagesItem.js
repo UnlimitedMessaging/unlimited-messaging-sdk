@@ -40,6 +40,7 @@ exports.WebhookEventMessageHistoryDataMessagesItem = void 0;
 const core = __importStar(require("../../core"));
 const WebhookEventMessageHistoryDataMessagesItemDirection_1 = require("./WebhookEventMessageHistoryDataMessagesItemDirection");
 const WebhookEventMessageHistoryDataMessagesItemReplyTo_1 = require("./WebhookEventMessageHistoryDataMessagesItemReplyTo");
+const WebhookEventMessageHistoryDataMessagesItemAttachmentsItem_1 = require("./WebhookEventMessageHistoryDataMessagesItemAttachmentsItem");
 const WebhookEventMessageHistoryDataMessagesItemConversation_1 = require("./WebhookEventMessageHistoryDataMessagesItemConversation");
 exports.WebhookEventMessageHistoryDataMessagesItem = core.serialization.object({
     id: core.serialization.string(),
@@ -62,5 +63,8 @@ exports.WebhookEventMessageHistoryDataMessagesItem = core.serialization.object({
     durationSec: core.serialization.number().optional(),
     mediaError: core.serialization.string().optional(),
     transcript: core.serialization.string().nullable(),
+    subject: core.serialization.string().optional(),
+    html: core.serialization.string().optional(),
+    attachments: core.serialization.list(WebhookEventMessageHistoryDataMessagesItemAttachmentsItem_1.WebhookEventMessageHistoryDataMessagesItemAttachmentsItem).optional(),
     conversation: WebhookEventMessageHistoryDataMessagesItemConversation_1.WebhookEventMessageHistoryDataMessagesItemConversation,
 });

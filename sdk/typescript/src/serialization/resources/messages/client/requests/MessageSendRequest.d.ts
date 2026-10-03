@@ -4,6 +4,9 @@
 import * as serializers from "../../../../index";
 import * as UnlimitedMessagingApi from "../../../../../api/index";
 import * as core from "../../../../../core";
+import { MessageSendRequestAttachmentsItem } from "../../types/MessageSendRequestAttachmentsItem";
+import { MessageSendRequestTo } from "../../types/MessageSendRequestTo";
+import { MessageSendRequestChannelsItem } from "../../types/MessageSendRequestChannelsItem";
 import { MessageSendRequestMediaType } from "../../types/MessageSendRequestMediaType";
 import { MessageSendRequestPriority } from "../../types/MessageSendRequestPriority";
 import { MessageSendRequestProductData } from "../../types/MessageSendRequestProductData";
@@ -12,6 +15,11 @@ export declare namespace MessageSendRequest {
     interface Raw {
         recipient?: string | null;
         text?: string | null;
+        html?: string | null;
+        subject?: string | null;
+        attachments?: MessageSendRequestAttachmentsItem.Raw[] | null;
+        to?: MessageSendRequestTo.Raw | null;
+        channels?: MessageSendRequestChannelsItem.Raw[] | null;
         mediaUrl?: string | null;
         mediaType?: MessageSendRequestMediaType.Raw | null;
         mimeType?: string | null;

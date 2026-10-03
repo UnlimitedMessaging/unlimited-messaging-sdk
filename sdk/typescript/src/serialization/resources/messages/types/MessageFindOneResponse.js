@@ -42,6 +42,7 @@ const MessageFindOneResponseDirection_1 = require("./MessageFindOneResponseDirec
 const MessageFindOneResponseStatus_1 = require("./MessageFindOneResponseStatus");
 const MessageFindOneResponseChannel_1 = require("./MessageFindOneResponseChannel");
 const MessageFindOneResponseAccountChannel_1 = require("./MessageFindOneResponseAccountChannel");
+const MessageFindOneResponseAttachmentsItem_1 = require("./MessageFindOneResponseAttachmentsItem");
 exports.MessageFindOneResponse = core.serialization.object({
     id: core.serialization.string(),
     content: core.serialization.string().nullable(),
@@ -60,6 +61,10 @@ exports.MessageFindOneResponse = core.serialization.object({
     channel: MessageFindOneResponseChannel_1.MessageFindOneResponseChannel,
     accountChannel: MessageFindOneResponseAccountChannel_1.MessageFindOneResponseAccountChannel,
     watermarked: core.serialization.boolean(),
+    subject: core.serialization.string().nullable(),
+    contentHtml: core.serialization.string().nullable(),
+    dispatchId: core.serialization.string().nullable(),
+    attachments: core.serialization.list(MessageFindOneResponseAttachmentsItem_1.MessageFindOneResponseAttachmentsItem),
     mediaUrl: core.serialization.string().nullable(),
     mediaType: core.serialization.string().nullable(),
     mimeType: core.serialization.string().nullable(),

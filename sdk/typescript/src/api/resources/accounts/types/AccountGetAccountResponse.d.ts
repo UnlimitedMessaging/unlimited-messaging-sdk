@@ -5,6 +5,9 @@ import * as UnlimitedMessagingApi from "../../../index";
 export interface AccountGetAccountResponse {
     id: string;
     channel: UnlimitedMessagingApi.AccountGetAccountResponseChannel;
+    /** Who provides the account: USER when you connected it with your own credentials, SYSTEM when UnlimitedMessaging provides it. */
+    owner: UnlimitedMessagingApi.AccountGetAccountResponseOwner;
+    /** Deprecated: use `owner` instead (true when owner is SYSTEM). */
     isSystem: boolean;
     status: UnlimitedMessagingApi.AccountGetAccountResponseStatus;
     phone: string | null;

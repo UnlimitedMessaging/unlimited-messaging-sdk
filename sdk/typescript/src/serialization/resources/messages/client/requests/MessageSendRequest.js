@@ -38,12 +38,20 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageSendRequest = void 0;
 const core = __importStar(require("../../../../../core"));
+const MessageSendRequestAttachmentsItem_1 = require("../../types/MessageSendRequestAttachmentsItem");
+const MessageSendRequestTo_1 = require("../../types/MessageSendRequestTo");
+const MessageSendRequestChannelsItem_1 = require("../../types/MessageSendRequestChannelsItem");
 const MessageSendRequestMediaType_1 = require("../../types/MessageSendRequestMediaType");
 const MessageSendRequestPriority_1 = require("../../types/MessageSendRequestPriority");
 const MessageSendRequestProductData_1 = require("../../types/MessageSendRequestProductData");
 exports.MessageSendRequest = core.serialization.object({
     recipient: core.serialization.string().optional(),
     text: core.serialization.string().optional(),
+    html: core.serialization.string().optional(),
+    subject: core.serialization.string().optional(),
+    attachments: core.serialization.list(MessageSendRequestAttachmentsItem_1.MessageSendRequestAttachmentsItem).optional(),
+    to: MessageSendRequestTo_1.MessageSendRequestTo.optional(),
+    channels: core.serialization.list(MessageSendRequestChannelsItem_1.MessageSendRequestChannelsItem).optional(),
     mediaUrl: core.serialization.string().optional(),
     mediaType: MessageSendRequestMediaType_1.MessageSendRequestMediaType.optional(),
     mimeType: core.serialization.string().optional(),

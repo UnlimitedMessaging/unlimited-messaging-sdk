@@ -23,11 +23,21 @@ export interface MessageSendResponse {
     status: UnlimitedMessagingApi.MessageSendResponseStatus;
     channel: UnlimitedMessagingApi.MessageSendResponseChannel;
     accountChannel: UnlimitedMessagingApi.MessageSendResponseAccountChannel;
-    /** Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only. */
+    /** Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only. */
     watermarked: boolean;
+    /** The email subject. Null on channels without one. */
+    subject: string | null;
+    /** The rich body, as sent or received. Untrusted for an inbound message: sanitise before rendering. */
+    contentHtml: string | null;
+    dispatchId: string;
+    attachments: UnlimitedMessagingApi.MessageSendResponseAttachmentsItem[];
+    /** Deprecated: use `attachments` instead (this is the first one). */
     mediaUrl: string | null;
+    /** Deprecated: use `attachments` instead (this is the first one). */
     mediaType: string | null;
+    /** Deprecated: use `attachments` instead (this is the first one). */
     mimeType: string | null;
+    /** Deprecated: use `attachments` instead (this is the first one). */
     mediaFilename: string | null;
     /** Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now. */
     transcript: string | null;
@@ -38,4 +48,6 @@ export interface MessageSendResponse {
     deletedAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
+    /** Every message this request created, one per channel, in the order of `channels`. */
+    messages: UnlimitedMessagingApi.MessageSendResponseMessagesItem[];
 }

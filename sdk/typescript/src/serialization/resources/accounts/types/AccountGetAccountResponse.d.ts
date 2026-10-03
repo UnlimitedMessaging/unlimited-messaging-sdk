@@ -5,12 +5,14 @@ import * as serializers from "../../../index";
 import * as UnlimitedMessagingApi from "../../../../api/index";
 import * as core from "../../../../core";
 import { AccountGetAccountResponseChannel } from "./AccountGetAccountResponseChannel";
+import { AccountGetAccountResponseOwner } from "./AccountGetAccountResponseOwner";
 import { AccountGetAccountResponseStatus } from "./AccountGetAccountResponseStatus";
 export declare const AccountGetAccountResponse: core.serialization.ObjectSchema<serializers.AccountGetAccountResponse.Raw, UnlimitedMessagingApi.AccountGetAccountResponse>;
 export declare namespace AccountGetAccountResponse {
     interface Raw {
         id: string;
         channel: AccountGetAccountResponseChannel.Raw;
+        owner: AccountGetAccountResponseOwner.Raw;
         isSystem: boolean;
         status: AccountGetAccountResponseStatus.Raw;
         phone: string | null;

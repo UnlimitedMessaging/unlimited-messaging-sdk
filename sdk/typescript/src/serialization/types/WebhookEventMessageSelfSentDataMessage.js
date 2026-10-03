@@ -40,6 +40,7 @@ exports.WebhookEventMessageSelfSentDataMessage = void 0;
 const core = __importStar(require("../../core"));
 const WebhookEventMessageSelfSentDataMessageDirection_1 = require("./WebhookEventMessageSelfSentDataMessageDirection");
 const WebhookEventMessageSelfSentDataMessageReplyTo_1 = require("./WebhookEventMessageSelfSentDataMessageReplyTo");
+const WebhookEventMessageSelfSentDataMessageAttachmentsItem_1 = require("./WebhookEventMessageSelfSentDataMessageAttachmentsItem");
 exports.WebhookEventMessageSelfSentDataMessage = core.serialization.object({
     id: core.serialization.string(),
     externalId: core.serialization.string().nullable(),
@@ -61,4 +62,7 @@ exports.WebhookEventMessageSelfSentDataMessage = core.serialization.object({
     durationSec: core.serialization.number().optional(),
     mediaError: core.serialization.string().optional(),
     transcript: core.serialization.string().nullable(),
+    subject: core.serialization.string().optional(),
+    html: core.serialization.string().optional(),
+    attachments: core.serialization.list(WebhookEventMessageSelfSentDataMessageAttachmentsItem_1.WebhookEventMessageSelfSentDataMessageAttachmentsItem).optional(),
 });

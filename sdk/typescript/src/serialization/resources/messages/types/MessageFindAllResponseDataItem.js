@@ -42,6 +42,7 @@ const MessageFindAllResponseDataItemDirection_1 = require("./MessageFindAllRespo
 const MessageFindAllResponseDataItemStatus_1 = require("./MessageFindAllResponseDataItemStatus");
 const MessageFindAllResponseDataItemChannel_1 = require("./MessageFindAllResponseDataItemChannel");
 const MessageFindAllResponseDataItemAccountChannel_1 = require("./MessageFindAllResponseDataItemAccountChannel");
+const MessageFindAllResponseDataItemAttachmentsItem_1 = require("./MessageFindAllResponseDataItemAttachmentsItem");
 exports.MessageFindAllResponseDataItem = core.serialization.object({
     id: core.serialization.string(),
     content: core.serialization.string().nullable(),
@@ -60,6 +61,10 @@ exports.MessageFindAllResponseDataItem = core.serialization.object({
     channel: MessageFindAllResponseDataItemChannel_1.MessageFindAllResponseDataItemChannel,
     accountChannel: MessageFindAllResponseDataItemAccountChannel_1.MessageFindAllResponseDataItemAccountChannel,
     watermarked: core.serialization.boolean(),
+    subject: core.serialization.string().nullable(),
+    contentHtml: core.serialization.string().nullable(),
+    dispatchId: core.serialization.string().nullable(),
+    attachments: core.serialization.list(MessageFindAllResponseDataItemAttachmentsItem_1.MessageFindAllResponseDataItemAttachmentsItem),
     mediaUrl: core.serialization.string().nullable(),
     mediaType: core.serialization.string().nullable(),
     mimeType: core.serialization.string().nullable(),

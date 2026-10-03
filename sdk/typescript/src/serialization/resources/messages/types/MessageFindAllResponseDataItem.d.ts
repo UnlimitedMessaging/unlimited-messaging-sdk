@@ -8,6 +8,7 @@ import { MessageFindAllResponseDataItemDirection } from "./MessageFindAllRespons
 import { MessageFindAllResponseDataItemStatus } from "./MessageFindAllResponseDataItemStatus";
 import { MessageFindAllResponseDataItemChannel } from "./MessageFindAllResponseDataItemChannel";
 import { MessageFindAllResponseDataItemAccountChannel } from "./MessageFindAllResponseDataItemAccountChannel";
+import { MessageFindAllResponseDataItemAttachmentsItem } from "./MessageFindAllResponseDataItemAttachmentsItem";
 export declare const MessageFindAllResponseDataItem: core.serialization.ObjectSchema<serializers.MessageFindAllResponseDataItem.Raw, UnlimitedMessagingApi.MessageFindAllResponseDataItem>;
 export declare namespace MessageFindAllResponseDataItem {
     interface Raw {
@@ -28,6 +29,10 @@ export declare namespace MessageFindAllResponseDataItem {
         channel: MessageFindAllResponseDataItemChannel.Raw;
         accountChannel: MessageFindAllResponseDataItemAccountChannel.Raw;
         watermarked: boolean;
+        subject: string | null;
+        contentHtml: string | null;
+        dispatchId: string | null;
+        attachments: MessageFindAllResponseDataItemAttachmentsItem.Raw[];
         mediaUrl: string | null;
         mediaType: string | null;
         mimeType: string | null;

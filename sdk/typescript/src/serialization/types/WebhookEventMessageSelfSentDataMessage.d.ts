@@ -6,6 +6,7 @@ import * as UnlimitedMessagingApi from "../../api/index";
 import * as core from "../../core";
 import { WebhookEventMessageSelfSentDataMessageDirection } from "./WebhookEventMessageSelfSentDataMessageDirection";
 import { WebhookEventMessageSelfSentDataMessageReplyTo } from "./WebhookEventMessageSelfSentDataMessageReplyTo";
+import { WebhookEventMessageSelfSentDataMessageAttachmentsItem } from "./WebhookEventMessageSelfSentDataMessageAttachmentsItem";
 export declare const WebhookEventMessageSelfSentDataMessage: core.serialization.ObjectSchema<serializers.WebhookEventMessageSelfSentDataMessage.Raw, UnlimitedMessagingApi.WebhookEventMessageSelfSentDataMessage>;
 export declare namespace WebhookEventMessageSelfSentDataMessage {
     interface Raw {
@@ -29,5 +30,8 @@ export declare namespace WebhookEventMessageSelfSentDataMessage {
         durationSec?: number | null;
         mediaError?: string | null;
         transcript: string | null;
+        subject?: string | null;
+        html?: string | null;
+        attachments?: WebhookEventMessageSelfSentDataMessageAttachmentsItem.Raw[] | null;
     }
 }

@@ -8,6 +8,7 @@ import { MessageFindOneResponseDirection } from "./MessageFindOneResponseDirecti
 import { MessageFindOneResponseStatus } from "./MessageFindOneResponseStatus";
 import { MessageFindOneResponseChannel } from "./MessageFindOneResponseChannel";
 import { MessageFindOneResponseAccountChannel } from "./MessageFindOneResponseAccountChannel";
+import { MessageFindOneResponseAttachmentsItem } from "./MessageFindOneResponseAttachmentsItem";
 export declare const MessageFindOneResponse: core.serialization.ObjectSchema<serializers.MessageFindOneResponse.Raw, UnlimitedMessagingApi.MessageFindOneResponse>;
 export declare namespace MessageFindOneResponse {
     interface Raw {
@@ -28,6 +29,10 @@ export declare namespace MessageFindOneResponse {
         channel: MessageFindOneResponseChannel.Raw;
         accountChannel: MessageFindOneResponseAccountChannel.Raw;
         watermarked: boolean;
+        subject: string | null;
+        contentHtml: string | null;
+        dispatchId: string | null;
+        attachments: MessageFindOneResponseAttachmentsItem.Raw[];
         mediaUrl: string | null;
         mediaType: string | null;
         mimeType: string | null;

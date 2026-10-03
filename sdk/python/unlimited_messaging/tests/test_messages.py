@@ -29,6 +29,18 @@ async def test_message_find_all(
                 "channel": "WHATSAPP",
                 "accountChannel": "WHATSAPP_BAILYES",
                 "watermarked": True,
+                "subject": "subject",
+                "contentHtml": "contentHtml",
+                "dispatchId": "dispatchId",
+                "attachments": [
+                    {
+                        "url": "url",
+                        "filename": None,
+                        "mimeType": "mimeType",
+                        "size": 1,
+                        "contentId": None,
+                    }
+                ],
                 "mediaUrl": "mediaUrl",
                 "mediaType": "mediaType",
                 "mimeType": "mimeType",
@@ -68,6 +80,21 @@ async def test_message_find_all(
                     "channel": None,
                     "accountChannel": None,
                     "watermarked": None,
+                    "subject": None,
+                    "contentHtml": None,
+                    "dispatchId": None,
+                    "attachments": (
+                        "list",
+                        {
+                            0: {
+                                "url": None,
+                                "filename": None,
+                                "mimeType": None,
+                                "size": "integer",
+                                "contentId": None,
+                            }
+                        },
+                    ),
                     "mediaUrl": None,
                     "mediaType": None,
                     "mimeType": None,
@@ -114,6 +141,18 @@ async def test_message_send(
         "channel": "WHATSAPP",
         "accountChannel": "WHATSAPP_BAILYES",
         "watermarked": True,
+        "subject": "subject",
+        "contentHtml": "contentHtml",
+        "dispatchId": "dispatchId",
+        "attachments": [
+            {
+                "url": "url",
+                "filename": "filename",
+                "mimeType": "mimeType",
+                "size": 1,
+                "contentId": "contentId",
+            }
+        ],
         "mediaUrl": "mediaUrl",
         "mediaType": "mediaType",
         "mimeType": "mimeType",
@@ -124,6 +163,49 @@ async def test_message_send(
         "deletedAt": "2024-01-15T09:30:00Z",
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
+        "messages": [
+            {
+                "id": "id",
+                "content": "content",
+                "direction": "IN",
+                "fromMe": True,
+                "externalId": "externalId",
+                "error": "error",
+                "interlocutor": "interlocutor",
+                "conversationId": "conversationId",
+                "isGroup": True,
+                "replyToExternalId": "replyToExternalId",
+                "replyToParticipant": "replyToParticipant",
+                "retryCount": 1,
+                "messagingAccountId": "messagingAccountId",
+                "status": "PENDING",
+                "channel": "WHATSAPP",
+                "accountChannel": "WHATSAPP_BAILYES",
+                "watermarked": True,
+                "subject": "subject",
+                "contentHtml": "contentHtml",
+                "dispatchId": "dispatchId",
+                "attachments": [
+                    {
+                        "url": "url",
+                        "filename": None,
+                        "mimeType": "mimeType",
+                        "size": 1,
+                        "contentId": None,
+                    }
+                ],
+                "mediaUrl": "mediaUrl",
+                "mediaType": "mediaType",
+                "mimeType": "mimeType",
+                "mediaFilename": "mediaFilename",
+                "transcript": "transcript",
+                "productData": {"key": "value"},
+                "sentAt": "2024-01-15T09:30:00Z",
+                "deletedAt": "2024-01-15T09:30:00Z",
+                "createdAt": "2024-01-15T09:30:00Z",
+                "updatedAt": "2024-01-15T09:30:00Z",
+            }
+        ],
     }
     expected_types: typing.Any = {
         "id": None,
@@ -143,6 +225,21 @@ async def test_message_send(
         "channel": None,
         "accountChannel": None,
         "watermarked": None,
+        "subject": None,
+        "contentHtml": None,
+        "dispatchId": None,
+        "attachments": (
+            "list",
+            {
+                0: {
+                    "url": None,
+                    "filename": None,
+                    "mimeType": None,
+                    "size": "integer",
+                    "contentId": None,
+                }
+            },
+        ),
         "mediaUrl": None,
         "mediaType": None,
         "mimeType": None,
@@ -153,6 +250,55 @@ async def test_message_send(
         "deletedAt": "datetime",
         "createdAt": "datetime",
         "updatedAt": "datetime",
+        "messages": (
+            "list",
+            {
+                0: {
+                    "id": None,
+                    "content": None,
+                    "direction": None,
+                    "fromMe": None,
+                    "externalId": None,
+                    "error": None,
+                    "interlocutor": None,
+                    "conversationId": None,
+                    "isGroup": None,
+                    "replyToExternalId": None,
+                    "replyToParticipant": None,
+                    "retryCount": "integer",
+                    "messagingAccountId": None,
+                    "status": None,
+                    "channel": None,
+                    "accountChannel": None,
+                    "watermarked": None,
+                    "subject": None,
+                    "contentHtml": None,
+                    "dispatchId": None,
+                    "attachments": (
+                        "list",
+                        {
+                            0: {
+                                "url": None,
+                                "filename": None,
+                                "mimeType": None,
+                                "size": "integer",
+                                "contentId": None,
+                            }
+                        },
+                    ),
+                    "mediaUrl": None,
+                    "mediaType": None,
+                    "mimeType": None,
+                    "mediaFilename": None,
+                    "transcript": None,
+                    "productData": ("dict", {0: (None, None)}),
+                    "sentAt": "datetime",
+                    "deletedAt": "datetime",
+                    "createdAt": "datetime",
+                    "updatedAt": "datetime",
+                }
+            },
+        ),
     }
     response = client.messages.message_send()
     validate_response(response, expected_response, expected_types)
@@ -182,6 +328,18 @@ async def test_message_find_one(
         "channel": "WHATSAPP",
         "accountChannel": "WHATSAPP_BAILYES",
         "watermarked": True,
+        "subject": "subject",
+        "contentHtml": "contentHtml",
+        "dispatchId": "dispatchId",
+        "attachments": [
+            {
+                "url": "url",
+                "filename": "filename",
+                "mimeType": "mimeType",
+                "size": 1,
+                "contentId": "contentId",
+            }
+        ],
         "mediaUrl": "mediaUrl",
         "mediaType": "mediaType",
         "mimeType": "mimeType",
@@ -211,6 +369,21 @@ async def test_message_find_one(
         "channel": None,
         "accountChannel": None,
         "watermarked": None,
+        "subject": None,
+        "contentHtml": None,
+        "dispatchId": None,
+        "attachments": (
+            "list",
+            {
+                0: {
+                    "url": None,
+                    "filename": None,
+                    "mimeType": None,
+                    "size": "integer",
+                    "contentId": None,
+                }
+            },
+        ),
         "mediaUrl": None,
         "mediaType": None,
         "mimeType": None,

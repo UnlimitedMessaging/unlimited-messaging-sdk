@@ -1,4 +1,5 @@
 export * from "./AccountListAccountsResponseItemChannel";
+export * from "./AccountListAccountsResponseItemOwner";
 export * from "./AccountListAccountsResponseItemStatus";
 export * from "./AccountListAccountsResponseItem";
 export * from "./AccountLinkAccountRequestMode";
@@ -16,8 +17,10 @@ export * from "./AccountListGroupsResponse";
 export * from "./AccountGetGroupResponseMembersItem";
 export * from "./AccountGetGroupResponse";
 export * from "./AccountGetAccountResponseChannel";
+export * from "./AccountGetAccountResponseOwner";
 export * from "./AccountGetAccountResponseStatus";
 export * from "./AccountGetAccountResponse";
 export * from "./AccountUpdateAccountResponseChannel";
+export * from "./AccountUpdateAccountResponseOwner";
 export * from "./AccountUpdateAccountResponseStatus";
 export * from "./AccountUpdateAccountResponse";

@@ -9,6 +9,9 @@ from .message_find_one_response_channel import MessageFindOneResponseChannel
 from .message_find_one_response_account_channel import (
     MessageFindOneResponseAccountChannel,
 )
+from .message_find_one_response_attachments_item import (
+    MessageFindOneResponseAttachmentsItem,
+)
 import datetime as dt
 from ...core.pydantic_utilities import IS_PYDANTIC_V2
 
@@ -56,15 +59,49 @@ class MessageFindOneResponse(UniversalBaseModel):
     )
     watermarked: bool = pydantic.Field()
     """
-    Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only.
+    Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
     """
 
+    subject: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The email subject. Null on channels without one.
+    """
+
+    content_html: typing.Optional[str] = pydantic.Field(
+        alias="contentHtml", default=None
+    )
+    """
+    The rich body, as sent or received. Untrusted for an inbound message: sanitise before rendering.
+    """
+
+    dispatch_id: typing.Optional[str] = pydantic.Field(alias="dispatchId", default=None)
+    """
+    Ties together the messages one send request created, one per channel. Null for inbound messages.
+    """
+
+    attachments: typing.List[MessageFindOneResponseAttachmentsItem]
     media_url: typing.Optional[str] = pydantic.Field(alias="mediaUrl", default=None)
+    """
+    Deprecated: use `attachments` instead (this is the first one).
+    """
+
     media_type: typing.Optional[str] = pydantic.Field(alias="mediaType", default=None)
+    """
+    Deprecated: use `attachments` instead (this is the first one).
+    """
+
     mime_type: typing.Optional[str] = pydantic.Field(alias="mimeType", default=None)
+    """
+    Deprecated: use `attachments` instead (this is the first one).
+    """
+
     media_filename: typing.Optional[str] = pydantic.Field(
         alias="mediaFilename", default=None
     )
+    """
+    Deprecated: use `attachments` instead (this is the first one).
+    """
+
     transcript: typing.Optional[str] = pydantic.Field(default=None)
     """
     Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now.

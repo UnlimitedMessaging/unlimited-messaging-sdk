@@ -7,11 +7,21 @@ import * as UnlimitedMessagingApi from "../../../../index";
  *     {}
  */
 export interface MessageSendRequest {
+    /** Single-channel send: an email address, a phone number (E.164) or a WhatsApp group id. Use `to` with `channels` to send on several channels at once. */
     recipient?: string;
     text?: string;
+    html?: string;
+    subject?: string;
+    attachments?: UnlimitedMessagingApi.MessageSendRequestAttachmentsItem[];
+    to?: UnlimitedMessagingApi.MessageSendRequestTo;
+    channels?: UnlimitedMessagingApi.MessageSendRequestChannelsItem[];
+    /** Deprecated: use `attachments` instead. */
     mediaUrl?: string;
+    /** Deprecated: use `attachments` instead (the type is derived from the MIME type). */
     mediaType?: UnlimitedMessagingApi.MessageSendRequestMediaType;
+    /** Deprecated: use `attachments[].mimeType` instead. */
     mimeType?: string;
+    /** Deprecated: use `attachments[].filename` instead. */
     filename?: string;
     /** `transactional` (an invoice, a reminder) is sent before any `normal` message already waiting in the queue, so a bulk send does not delay it. The pause between two sends of an account still applies. Defaults to `normal`. */
     priority?: UnlimitedMessagingApi.MessageSendRequestPriority;

@@ -13,6 +13,11 @@ from ..errors.unauthorized_error import UnauthorizedError
 from ..errors.forbidden_error import ForbiddenError
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
+from .types.message_send_request_attachments_item import (
+    MessageSendRequestAttachmentsItem,
+)
+from .types.message_send_request_to import MessageSendRequestTo
+from .types.message_send_request_channels_item import MessageSendRequestChannelsItem
 from .types.message_send_request_media_type import MessageSendRequestMediaType
 from .types.message_send_request_priority import MessageSendRequestPriority
 from .types.message_send_request_product_data import MessageSendRequestProductData
@@ -150,6 +155,15 @@ class MessagesClient:
         *,
         recipient: typing.Optional[str] = OMIT,
         text: typing.Optional[str] = OMIT,
+        html: typing.Optional[str] = OMIT,
+        subject: typing.Optional[str] = OMIT,
+        attachments: typing.Optional[
+            typing.Sequence[MessageSendRequestAttachmentsItem]
+        ] = OMIT,
+        to: typing.Optional[MessageSendRequestTo] = OMIT,
+        channels: typing.Optional[
+            typing.Sequence[MessageSendRequestChannelsItem]
+        ] = OMIT,
         media_url: typing.Optional[str] = OMIT,
         media_type: typing.Optional[MessageSendRequestMediaType] = OMIT,
         mime_type: typing.Optional[str] = OMIT,
@@ -165,21 +179,48 @@ class MessagesClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16. To send a media file, upload it first with `POST /media` to get a temp URL, then pass that URL as `mediaUrl` with the matching `mediaType` (`image`, `document`, or `audio`) in this body. Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
+        **One channel:** set `recipient` to a phone number (E.164), a WhatsApp group id, or an email address. The channel follows from it (or from `accountId`). An email needs a `subject`.
+
+        **Several channels at once:** set `to` (`phone`, `email`) and `channels`, e.g. `[{ "channel": "WHATSAPP" }, { "channel": "EMAIL", "subject": "Your code" }]`. One message is created per channel, each with its own status, all sharing the returned `dispatchId`; `messages` lists them all. A channel entry may override `text`, `html` and `subject`. WhatsApp gets `text`, or the `html` converted to plain text.
+
+        **Accounts:** without `accountId` (or `channels[].accountId`), your only active account on that channel is used. With several, a `400` asks you to choose; with none, `404`.
+
+        **Files:** upload with `POST /media` (or use any public URL) and list them in `attachments`. Email takes up to 20 (25 MB in total), WhatsApp one. `mediaUrl`/`mediaType`/`mimeType`/`filename` are deprecated in favour of `attachments`.
+
+        **Replies:** `replyToMessageId` instead of `recipient` answers a message in the account's history, threaded on its conversation (WhatsApp beta accounts and email accounts).
+
+        WhatsApp text is limited to 1 600 characters. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
+
+        Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message (WhatsApp) or an email ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
 
         Parameters
         ----------
         recipient : typing.Optional[str]
+            Single-channel send: an email address, a phone number (E.164) or a WhatsApp group id. Use `to` with `channels` to send on several channels at once.
 
         text : typing.Optional[str]
 
+        html : typing.Optional[str]
+
+        subject : typing.Optional[str]
+
+        attachments : typing.Optional[typing.Sequence[MessageSendRequestAttachmentsItem]]
+
+        to : typing.Optional[MessageSendRequestTo]
+
+        channels : typing.Optional[typing.Sequence[MessageSendRequestChannelsItem]]
+
         media_url : typing.Optional[str]
+            Deprecated: use `attachments` instead.
 
         media_type : typing.Optional[MessageSendRequestMediaType]
+            Deprecated: use `attachments` instead (the type is derived from the MIME type).
 
         mime_type : typing.Optional[str]
+            Deprecated: use `attachments[].mimeType` instead.
 
         filename : typing.Optional[str]
+            Deprecated: use `attachments[].filename` instead.
 
         priority : typing.Optional[MessageSendRequestPriority]
             `transactional` (an invoice, a reminder) is sent before any `normal` message already waiting in the queue, so a bulk send does not delay it. The pause between two sends of an account still applies. Defaults to `normal`.
@@ -218,6 +259,11 @@ class MessagesClient:
             json={
                 "recipient": recipient,
                 "text": text,
+                "html": html,
+                "subject": subject,
+                "attachments": attachments,
+                "to": to,
+                "channels": channels,
                 "mediaUrl": media_url,
                 "mediaType": media_type,
                 "mimeType": mime_type,
@@ -596,6 +642,15 @@ class AsyncMessagesClient:
         *,
         recipient: typing.Optional[str] = OMIT,
         text: typing.Optional[str] = OMIT,
+        html: typing.Optional[str] = OMIT,
+        subject: typing.Optional[str] = OMIT,
+        attachments: typing.Optional[
+            typing.Sequence[MessageSendRequestAttachmentsItem]
+        ] = OMIT,
+        to: typing.Optional[MessageSendRequestTo] = OMIT,
+        channels: typing.Optional[
+            typing.Sequence[MessageSendRequestChannelsItem]
+        ] = OMIT,
         media_url: typing.Optional[str] = OMIT,
         media_type: typing.Optional[MessageSendRequestMediaType] = OMIT,
         mime_type: typing.Optional[str] = OMIT,
@@ -611,21 +666,48 @@ class AsyncMessagesClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16. To send a media file, upload it first with `POST /media` to get a temp URL, then pass that URL as `mediaUrl` with the matching `mediaType` (`image`, `document`, or `audio`) in this body. Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
+        **One channel:** set `recipient` to a phone number (E.164), a WhatsApp group id, or an email address. The channel follows from it (or from `accountId`). An email needs a `subject`.
+
+        **Several channels at once:** set `to` (`phone`, `email`) and `channels`, e.g. `[{ "channel": "WHATSAPP" }, { "channel": "EMAIL", "subject": "Your code" }]`. One message is created per channel, each with its own status, all sharing the returned `dispatchId`; `messages` lists them all. A channel entry may override `text`, `html` and `subject`. WhatsApp gets `text`, or the `html` converted to plain text.
+
+        **Accounts:** without `accountId` (or `channels[].accountId`), your only active account on that channel is used. With several, a `400` asks you to choose; with none, `404`.
+
+        **Files:** upload with `POST /media` (or use any public URL) and list them in `attachments`. Email takes up to 20 (25 MB in total), WhatsApp one. `mediaUrl`/`mediaType`/`mimeType`/`filename` are deprecated in favour of `attachments`.
+
+        **Replies:** `replyToMessageId` instead of `recipient` answers a message in the account's history, threaded on its conversation (WhatsApp beta accounts and email accounts).
+
+        WhatsApp text is limited to 1 600 characters. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
+
+        Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message (WhatsApp) or an email ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
 
         Parameters
         ----------
         recipient : typing.Optional[str]
+            Single-channel send: an email address, a phone number (E.164) or a WhatsApp group id. Use `to` with `channels` to send on several channels at once.
 
         text : typing.Optional[str]
 
+        html : typing.Optional[str]
+
+        subject : typing.Optional[str]
+
+        attachments : typing.Optional[typing.Sequence[MessageSendRequestAttachmentsItem]]
+
+        to : typing.Optional[MessageSendRequestTo]
+
+        channels : typing.Optional[typing.Sequence[MessageSendRequestChannelsItem]]
+
         media_url : typing.Optional[str]
+            Deprecated: use `attachments` instead.
 
         media_type : typing.Optional[MessageSendRequestMediaType]
+            Deprecated: use `attachments` instead (the type is derived from the MIME type).
 
         mime_type : typing.Optional[str]
+            Deprecated: use `attachments[].mimeType` instead.
 
         filename : typing.Optional[str]
+            Deprecated: use `attachments[].filename` instead.
 
         priority : typing.Optional[MessageSendRequestPriority]
             `transactional` (an invoice, a reminder) is sent before any `normal` message already waiting in the queue, so a bulk send does not delay it. The pause between two sends of an account still applies. Defaults to `normal`.
@@ -672,6 +754,11 @@ class AsyncMessagesClient:
             json={
                 "recipient": recipient,
                 "text": text,
+                "html": html,
+                "subject": subject,
+                "attachments": attachments,
+                "to": to,
+                "channels": channels,
                 "mediaUrl": media_url,
                 "mediaType": media_type,
                 "mimeType": mime_type,

@@ -8,6 +8,8 @@ import { MessageSendResponseDirection } from "./MessageSendResponseDirection";
 import { MessageSendResponseStatus } from "./MessageSendResponseStatus";
 import { MessageSendResponseChannel } from "./MessageSendResponseChannel";
 import { MessageSendResponseAccountChannel } from "./MessageSendResponseAccountChannel";
+import { MessageSendResponseAttachmentsItem } from "./MessageSendResponseAttachmentsItem";
+import { MessageSendResponseMessagesItem } from "./MessageSendResponseMessagesItem";
 export declare const MessageSendResponse: core.serialization.ObjectSchema<serializers.MessageSendResponse.Raw, UnlimitedMessagingApi.MessageSendResponse>;
 export declare namespace MessageSendResponse {
     interface Raw {
@@ -28,6 +30,10 @@ export declare namespace MessageSendResponse {
         channel: MessageSendResponseChannel.Raw;
         accountChannel: MessageSendResponseAccountChannel.Raw;
         watermarked: boolean;
+        subject: string | null;
+        contentHtml: string | null;
+        dispatchId: string;
+        attachments: MessageSendResponseAttachmentsItem.Raw[];
         mediaUrl: string | null;
         mediaType: string | null;
         mimeType: string | null;
@@ -38,5 +44,6 @@ export declare namespace MessageSendResponse {
         deletedAt: string | null;
         createdAt: string;
         updatedAt: string;
+        messages: MessageSendResponseMessagesItem.Raw[];
     }
 }

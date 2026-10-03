@@ -2,6 +2,7 @@
 
 from ...core.pydantic_utilities import UniversalBaseModel
 from .account_get_account_response_channel import AccountGetAccountResponseChannel
+from .account_get_account_response_owner import AccountGetAccountResponseOwner
 import pydantic
 from .account_get_account_response_status import AccountGetAccountResponseStatus
 import typing
@@ -12,7 +13,16 @@ from ...core.pydantic_utilities import IS_PYDANTIC_V2
 class AccountGetAccountResponse(UniversalBaseModel):
     id: str
     channel: AccountGetAccountResponseChannel
+    owner: AccountGetAccountResponseOwner = pydantic.Field()
+    """
+    Who provides the account: USER when you connected it with your own credentials, SYSTEM when UnlimitedMessaging provides it.
+    """
+
     is_system: bool = pydantic.Field(alias="isSystem")
+    """
+    Deprecated: use `owner` instead (true when owner is SYSTEM).
+    """
+
     status: AccountGetAccountResponseStatus
     phone: typing.Optional[str] = None
     name: typing.Optional[str] = None

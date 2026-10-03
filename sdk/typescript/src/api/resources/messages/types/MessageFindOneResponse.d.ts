@@ -23,11 +23,22 @@ export interface MessageFindOneResponse {
     status: UnlimitedMessagingApi.MessageFindOneResponseStatus;
     channel: UnlimitedMessagingApi.MessageFindOneResponseChannel;
     accountChannel: UnlimitedMessagingApi.MessageFindOneResponseAccountChannel;
-    /** Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only. */
+    /** Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only. */
     watermarked: boolean;
+    /** The email subject. Null on channels without one. */
+    subject: string | null;
+    /** The rich body, as sent or received. Untrusted for an inbound message: sanitise before rendering. */
+    contentHtml: string | null;
+    /** Ties together the messages one send request created, one per channel. Null for inbound messages. */
+    dispatchId: string | null;
+    attachments: UnlimitedMessagingApi.MessageFindOneResponseAttachmentsItem[];
+    /** Deprecated: use `attachments` instead (this is the first one). */
     mediaUrl: string | null;
+    /** Deprecated: use `attachments` instead (this is the first one). */
     mediaType: string | null;
+    /** Deprecated: use `attachments` instead (this is the first one). */
     mimeType: string | null;
+    /** Deprecated: use `attachments` instead (this is the first one). */
     mediaFilename: string | null;
     /** Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now. */
     transcript: string | null;

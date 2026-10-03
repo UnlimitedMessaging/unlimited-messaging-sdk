@@ -6,6 +6,7 @@ import * as UnlimitedMessagingApi from "../../api/index";
 import * as core from "../../core";
 import { WebhookEventMessageReceivedDataMessageDirection } from "./WebhookEventMessageReceivedDataMessageDirection";
 import { WebhookEventMessageReceivedDataMessageReplyTo } from "./WebhookEventMessageReceivedDataMessageReplyTo";
+import { WebhookEventMessageReceivedDataMessageAttachmentsItem } from "./WebhookEventMessageReceivedDataMessageAttachmentsItem";
 export declare const WebhookEventMessageReceivedDataMessage: core.serialization.ObjectSchema<serializers.WebhookEventMessageReceivedDataMessage.Raw, UnlimitedMessagingApi.WebhookEventMessageReceivedDataMessage>;
 export declare namespace WebhookEventMessageReceivedDataMessage {
     interface Raw {
@@ -29,5 +30,8 @@ export declare namespace WebhookEventMessageReceivedDataMessage {
         durationSec?: number | null;
         mediaError?: string | null;
         transcript: string | null;
+        subject?: string | null;
+        html?: string | null;
+        attachments?: WebhookEventMessageReceivedDataMessageAttachmentsItem.Raw[] | null;
     }
 }

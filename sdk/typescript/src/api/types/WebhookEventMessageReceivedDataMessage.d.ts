@@ -23,4 +23,7 @@ export interface WebhookEventMessageReceivedDataMessage {
     durationSec?: number;
     mediaError?: string;
     transcript: string | null;
+    subject?: string;
+    html?: string;
+    attachments?: UnlimitedMessagingApi.WebhookEventMessageReceivedDataMessageAttachmentsItem[];
 }

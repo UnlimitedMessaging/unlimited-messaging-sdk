@@ -8,6 +8,9 @@ from .message_find_all_response_data_item import MessageFindAllResponseDataItem
 from .message_find_all_response_data_item_account_channel import (
     MessageFindAllResponseDataItemAccountChannel,
 )
+from .message_find_all_response_data_item_attachments_item import (
+    MessageFindAllResponseDataItemAttachmentsItem,
+)
 from .message_find_all_response_data_item_channel import (
     MessageFindAllResponseDataItemChannel,
 )
@@ -20,6 +23,9 @@ from .message_find_all_response_data_item_status import (
 from .message_find_one_response import MessageFindOneResponse
 from .message_find_one_response_account_channel import (
     MessageFindOneResponseAccountChannel,
+)
+from .message_find_one_response_attachments_item import (
+    MessageFindOneResponseAttachmentsItem,
 )
 from .message_find_one_response_channel import MessageFindOneResponseChannel
 from .message_find_one_response_direction import MessageFindOneResponseDirection
@@ -37,13 +43,36 @@ from .message_get_status_history_response_channels_item_events_item import (
 from .message_get_status_history_response_channels_item_events_item_status import (
     MessageGetStatusHistoryResponseChannelsItemEventsItemStatus,
 )
+from .message_send_request_attachments_item import MessageSendRequestAttachmentsItem
+from .message_send_request_channels_item import MessageSendRequestChannelsItem
+from .message_send_request_channels_item_channel import (
+    MessageSendRequestChannelsItemChannel,
+)
 from .message_send_request_media_type import MessageSendRequestMediaType
 from .message_send_request_priority import MessageSendRequestPriority
 from .message_send_request_product_data import MessageSendRequestProductData
+from .message_send_request_to import MessageSendRequestTo
 from .message_send_response import MessageSendResponse
 from .message_send_response_account_channel import MessageSendResponseAccountChannel
+from .message_send_response_attachments_item import MessageSendResponseAttachmentsItem
 from .message_send_response_channel import MessageSendResponseChannel
 from .message_send_response_direction import MessageSendResponseDirection
+from .message_send_response_messages_item import MessageSendResponseMessagesItem
+from .message_send_response_messages_item_account_channel import (
+    MessageSendResponseMessagesItemAccountChannel,
+)
+from .message_send_response_messages_item_attachments_item import (
+    MessageSendResponseMessagesItemAttachmentsItem,
+)
+from .message_send_response_messages_item_channel import (
+    MessageSendResponseMessagesItemChannel,
+)
+from .message_send_response_messages_item_direction import (
+    MessageSendResponseMessagesItemDirection,
+)
+from .message_send_response_messages_item_status import (
+    MessageSendResponseMessagesItemStatus,
+)
 from .message_send_response_status import MessageSendResponseStatus
 
 __all__ = [
@@ -53,11 +82,13 @@ __all__ = [
     "MessageFindAllResponse",
     "MessageFindAllResponseDataItem",
     "MessageFindAllResponseDataItemAccountChannel",
+    "MessageFindAllResponseDataItemAttachmentsItem",
     "MessageFindAllResponseDataItemChannel",
     "MessageFindAllResponseDataItemDirection",
     "MessageFindAllResponseDataItemStatus",
     "MessageFindOneResponse",
     "MessageFindOneResponseAccountChannel",
+    "MessageFindOneResponseAttachmentsItem",
     "MessageFindOneResponseChannel",
     "MessageFindOneResponseDirection",
     "MessageFindOneResponseStatus",
@@ -66,12 +97,23 @@ __all__ = [
     "MessageGetStatusHistoryResponseChannelsItemChannel",
     "MessageGetStatusHistoryResponseChannelsItemEventsItem",
     "MessageGetStatusHistoryResponseChannelsItemEventsItemStatus",
+    "MessageSendRequestAttachmentsItem",
+    "MessageSendRequestChannelsItem",
+    "MessageSendRequestChannelsItemChannel",
     "MessageSendRequestMediaType",
     "MessageSendRequestPriority",
     "MessageSendRequestProductData",
+    "MessageSendRequestTo",
     "MessageSendResponse",
     "MessageSendResponseAccountChannel",
+    "MessageSendResponseAttachmentsItem",
     "MessageSendResponseChannel",
     "MessageSendResponseDirection",
+    "MessageSendResponseMessagesItem",
+    "MessageSendResponseMessagesItemAccountChannel",
+    "MessageSendResponseMessagesItemAttachmentsItem",
+    "MessageSendResponseMessagesItemChannel",
+    "MessageSendResponseMessagesItemDirection",
+    "MessageSendResponseMessagesItemStatus",
     "MessageSendResponseStatus",
 ]
