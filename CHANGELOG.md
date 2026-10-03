@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.21] - 2026-10-03
+
+*   **Changed parameters:**
+    *   **`POST /message`**
+        *   The `recipient` parameter's description has been updated to include email addresses and mention the new `to` and `channels` parameters for multi-channel sending.
+        *   The `text` parameter's maximum length has been increased from 1,600 to 100,000 characters.
+        *   The `mediaUrl` parameter is now deprecated. Use `attachments` instead.
+        *   The `mediaType` parameter is now deprecated. Use `attachments` instead (the type is derived from the MIME type).
+        *   The `mimeType` parameter is now deprecated. Use `attachments[].mimeType` instead.
+        *   The `filename` parameter is now deprecated. Use `attachments[].filename` instead.
+
+*   **New parameters:**
+    *   **`POST /message`**
+        *   `html` (string): Allows sending rich text content (max 500,000 characters).
+        *   `subject` (string): Specifies the email subject (max 998 characters).
+        *   `attachments` (array of objects): Specifies files to attach, replacing the deprecated `mediaUrl`, `mediaType`, `mimeType`, and `filename` parameters. Each attachment requires a `url` and can include `filename`, `mimeType`, and `contentId`. Maximum 20 attachments.
+        *   `to` (object): Specifies recipients for multi-channel sends, including `phone` (string) and `email` (string, email format).
+        *   `channels` (array of objects): Defines channel-specific properties for multi-channel sends. Each item requires a `channel` (WHATSAPP or EMAIL) and can override `accountId`, `text`, `html`, and `subject` for that channel. Supports 1 to 2 channels.
+
+*   **New response fields:**
+    *   **For messages (`GET /message/{id}`, `GET /message/{id}/history`, and `POST /message` success response):**
+        *   `subject` (string or null): The email subject. Null on channels without one.
+        *   `contentHtml` (string or null): The rich body, as sent or received.
+        *   `dispatchId` (string or null): Ties together messages from a single send request. Null for inbound messages.
+        *   `attachments` (array of objects): Detailed information about attached files, including `url`, `filename`, `mimeType`, `size`, and `contentId`.
+    *   **For `POST /message` success response:**
+        *   `messages` (array of Message objects): Lists every message created by the request, one per channel, in the order of `channels`.
+    *   **For messaging accounts (`GET /accounts` and `GET /accounts/{id}`):**
+        *   `owner` (enum: `USER`, `SYSTEM`): Indicates whether the account was connected by the user or provided by UnlimitedMessaging.
+    *   **For inbound messages (`InboundMessage` and `WebhookInboundMessage` schemas):**
+        *   `subject` (string): The email subject.
+        *   `html` (string): The rich body of the message.
+        *   `attachments` (array of objects): Detailed information about attached files, including `url`, `filename`, `mimeType`, `size`, and `contentId`.
+
+*   **Changed response fields:**
+    *   **For messages (`GET /message/{id}`, `GET /message/{id}/history`, and `POST /message` success response):**
+        *   The `watermarked` field's description now includes emails in the free plan.
+        *   The `mediaUrl` field is now deprecated. Use `attachments` instead.
+        *   The `mediaType` field is now deprecated. Use `attachments` instead.
+        *   The `mimeType` field is now deprecated. Use `attachments[].mimeType` instead.
+        *   The `mediaFilename` field is now deprecated. Use `attachments[].filename` instead.
+    *   **For messaging accounts (`GET /accounts` and `GET /accounts/{id}`):**
+        *   The `isSystem` field is now deprecated. Use `owner` instead.
+
 ## [0.1.20] - 2026-09-27
 
 *   **Changed Parameters**
