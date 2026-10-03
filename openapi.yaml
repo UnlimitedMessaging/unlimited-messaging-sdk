@@ -203,23 +203,75 @@ paths:
                             - WHATSAPP_WHATSMEOW
                         watermarked:
                           type: boolean
-                          description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only.
+                          description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
+                        subject:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: The email subject. Null on channels without one.
+                        contentHtml:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: "The rich body, as sent or received. Untrusted for an inbound message: sanitise before rendering."
+                        dispatchId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: Ties together the messages one send request created, one per channel. Null for inbound messages.
+                        attachments:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                              filename:
+                                anyOf:
+                                  - type: string
+                                  - type: "null"
+                              mimeType:
+                                type: string
+                              size:
+                                type: integer
+                                minimum: 0
+                                maximum: 9007199254740991
+                              contentId:
+                                anyOf:
+                                  - type: string
+                                  - type: "null"
+                                description: Set for an inline image the HTML body references as cid:<contentId>.
+                            required:
+                              - url
+                              - filename
+                              - mimeType
+                              - size
+                              - contentId
+                            additionalProperties: false
                         mediaUrl:
                           anyOf:
                             - type: string
                             - type: "null"
+                          deprecated: true
+                          description: "Deprecated: use `attachments` instead (this is the first one)."
                         mediaType:
                           anyOf:
                             - type: string
                             - type: "null"
+                          deprecated: true
+                          description: "Deprecated: use `attachments` instead (this is the first one)."
                         mimeType:
                           anyOf:
                             - type: string
                             - type: "null"
+                          deprecated: true
+                          description: "Deprecated: use `attachments` instead (this is the first one)."
                         mediaFilename:
                           anyOf:
                             - type: string
                             - type: "null"
+                          deprecated: true
+                          description: "Deprecated: use `attachments` instead (this is the first one)."
                         transcript:
                           anyOf:
                             - type: string
@@ -272,6 +324,10 @@ paths:
                         - channel
                         - accountChannel
                         - watermarked
+                        - subject
+                        - contentHtml
+                        - dispatchId
+                        - attachments
                         - mediaUrl
                         - mediaType
                         - mimeType
@@ -322,7 +378,19 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Queues a WhatsApp message for delivery to the specified `recipient`: a phone number (E.164 format) for a 1:1 chat, or a WhatsApp group id (numeric, with or without its `@g.us` suffix) to address a group directly. If `accountId` is omitted, the platform resolves an account automatically using this priority order: (1) if the caller has exactly one active account, it is used; (2) if the caller has no account, the shared system account is used as fallback; (3) if the caller has multiple active accounts, a `400` is returned asking to specify `accountId`. Returns `404` if no account is available at all. Message text is limited to 1 600 characters. Provide `replyToMessageId` instead of `recipient` to send a quoted reply to a message already in the account's history: the conversation (a group included) and the account used are both derived from that message, and `accountId` is ignored. Beta (whatsmeow) WhatsApp accounts only for now. `simId` is a deprecated alias for `accountId`, removed 2026-12-16. To send a media file, upload it first with `POST /media` to get a temp URL, then pass that URL as `mediaUrl` with the matching `mediaType` (`image`, `document`, or `audio`) in this body. Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
+        **One channel:** set `recipient` to a phone number (E.164), a WhatsApp group id, or an email address. The channel follows from it (or from `accountId`). An email needs a `subject`.
+
+        **Several channels at once:** set `to` (`phone`, `email`) and `channels`, e.g. `[{ "channel": "WHATSAPP" }, { "channel": "EMAIL", "subject": "Your code" }]`. One message is created per channel, each with its own status, all sharing the returned `dispatchId`; `messages` lists them all. A channel entry may override `text`, `html` and `subject`. WhatsApp gets `text`, or the `html` converted to plain text.
+
+        **Accounts:** without `accountId` (or `channels[].accountId`), your only active account on that channel is used. With several, a `400` asks you to choose; with none, `404`.
+
+        **Files:** upload with `POST /media` (or use any public URL) and list them in `attachments`. Email takes up to 20 (25 MB in total), WhatsApp one. `mediaUrl`/`mediaType`/`mimeType`/`filename` are deprecated in favour of `attachments`.
+
+        **Replies:** `replyToMessageId` instead of `recipient` answers a message in the account's history, threaded on its conversation (WhatsApp beta accounts and email accounts).
+
+        WhatsApp text is limited to 1 600 characters. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
+
+        Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message (WhatsApp) or an email ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
       operationId: Message_send
       parameters: []
       requestBody:
@@ -333,24 +401,99 @@ paths:
               type: object
               properties:
                 recipient:
+                  description: "Single-channel send: an email address, a phone number (E.164) or a WhatsApp group id. Use `to` with `channels` to send on several channels at once."
                   type: string
                   minLength: 1
                 text:
                   type: string
                   minLength: 1
-                  maxLength: 1600
+                  maxLength: 100000
+                html:
+                  type: string
+                  minLength: 1
+                  maxLength: 500000
+                subject:
+                  type: string
+                  minLength: 1
+                  maxLength: 998
+                attachments:
+                  maxItems: 20
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                      filename:
+                        type: string
+                        maxLength: 255
+                      mimeType:
+                        type: string
+                        maxLength: 255
+                      contentId:
+                        type: string
+                        maxLength: 255
+                    required:
+                      - url
+                to:
+                  type: object
+                  properties:
+                    phone:
+                      type: string
+                      minLength: 1
+                    email:
+                      type: string
+                      format: email
+                      pattern: ^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$
+                channels:
+                  minItems: 1
+                  maxItems: 2
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      channel:
+                        type: string
+                        enum:
+                          - WHATSAPP
+                          - EMAIL
+                      accountId:
+                        type: string
+                      text:
+                        type: string
+                        minLength: 1
+                        maxLength: 100000
+                      html:
+                        type: string
+                        minLength: 1
+                        maxLength: 500000
+                      subject:
+                        type: string
+                        minLength: 1
+                        maxLength: 998
+                    required:
+                      - channel
                 mediaUrl:
+                  deprecated: true
+                  description: "Deprecated: use `attachments` instead."
                   type: string
                   format: uri
                 mediaType:
+                  deprecated: true
+                  description: "Deprecated: use `attachments` instead (the type is derived from the MIME type)."
                   type: string
                   enum:
                     - image
                     - document
                     - audio
                 mimeType:
+                  deprecated: true
+                  description: "Deprecated: use `attachments[].mimeType` instead."
                   type: string
                 filename:
+                  deprecated: true
+                  description: "Deprecated: use `attachments[].filename` instead."
                   type: string
                 priority:
                   description: "`transactional` (an invoice, a reminder) is sent before any `normal` message already waiting in the queue, so a bulk send does not delay it. The pause between two sends of an account still applies. Defaults to `normal`."
@@ -496,23 +639,72 @@ paths:
                       - WHATSAPP_WHATSMEOW
                   watermarked:
                     type: boolean
-                    description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only.
+                    description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
+                  subject:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: The email subject. Null on channels without one.
+                  contentHtml:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: "The rich body, as sent or received. Untrusted for an inbound message: sanitise before rendering."
+                  dispatchId:
+                    type: string
+                  attachments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                        filename:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        mimeType:
+                          type: string
+                        size:
+                          type: integer
+                          minimum: 0
+                          maximum: 9007199254740991
+                        contentId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: Set for an inline image the HTML body references as cid:<contentId>.
+                      required:
+                        - url
+                        - filename
+                        - mimeType
+                        - size
+                        - contentId
+                      additionalProperties: false
                   mediaUrl:
                     anyOf:
                       - type: string
                       - type: "null"
+                    deprecated: true
+                    description: "Deprecated: use `attachments` instead (this is the first one)."
                   mediaType:
                     anyOf:
                       - type: string
                       - type: "null"
+                    deprecated: true
+                    description: "Deprecated: use `attachments` instead (this is the first one)."
                   mimeType:
                     anyOf:
                       - type: string
                       - type: "null"
+                    deprecated: true
+                    description: "Deprecated: use `attachments` instead (this is the first one)."
                   mediaFilename:
                     anyOf:
                       - type: string
                       - type: "null"
+                    deprecated: true
+                    description: "Deprecated: use `attachments` instead (this is the first one)."
                   transcript:
                     anyOf:
                       - type: string
@@ -547,6 +739,220 @@ paths:
                     type: string
                     format: date-time
                     pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        content:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        direction:
+                          type: string
+                          enum:
+                            - IN
+                            - OUT
+                        fromMe:
+                          type: boolean
+                          description: True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe.
+                        externalId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        error:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        interlocutor:
+                          type: string
+                          description: "Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead."
+                        conversationId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        isGroup:
+                          type: boolean
+                        replyToExternalId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: The externalId of the message this one quotes as a reply, or null if it isn't a reply.
+                        replyToParticipant:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case.
+                        retryCount:
+                          type: integer
+                          minimum: 0
+                          maximum: 9007199254740991
+                        messagingAccountId:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                            - PENDING
+                            - SENDING
+                            - SENT
+                            - DELIVERED
+                            - READ
+                            - FAILED
+                            - UNDELIVERABLE
+                        channel:
+                          type: string
+                          enum:
+                            - WHATSAPP
+                            - SMS
+                            - EMAIL
+                        accountChannel:
+                          type: string
+                          enum:
+                            - WHATSAPP_BAILYES
+                            - EMAIL
+                            - SMS
+                            - WHATSAPP_WHATSMEOW
+                        watermarked:
+                          type: boolean
+                          description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
+                        subject:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: The email subject. Null on channels without one.
+                        contentHtml:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: "The rich body, as sent or received. Untrusted for an inbound message: sanitise before rendering."
+                        dispatchId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: Ties together the messages one send request created, one per channel. Null for inbound messages.
+                        attachments:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              url:
+                                type: string
+                              filename:
+                                anyOf:
+                                  - type: string
+                                  - type: "null"
+                              mimeType:
+                                type: string
+                              size:
+                                type: integer
+                                minimum: 0
+                                maximum: 9007199254740991
+                              contentId:
+                                anyOf:
+                                  - type: string
+                                  - type: "null"
+                                description: Set for an inline image the HTML body references as cid:<contentId>.
+                            required:
+                              - url
+                              - filename
+                              - mimeType
+                              - size
+                              - contentId
+                            additionalProperties: false
+                        mediaUrl:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          deprecated: true
+                          description: "Deprecated: use `attachments` instead (this is the first one)."
+                        mediaType:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          deprecated: true
+                          description: "Deprecated: use `attachments` instead (this is the first one)."
+                        mimeType:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          deprecated: true
+                          description: "Deprecated: use `attachments` instead (this is the first one)."
+                        mediaFilename:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          deprecated: true
+                          description: "Deprecated: use `attachments` instead (this is the first one)."
+                        transcript:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: "Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now."
+                        productData:
+                          anyOf:
+                            - type: object
+                              propertyNames:
+                                type: string
+                              additionalProperties: {}
+                            - type: "null"
+                        sentAt:
+                          anyOf:
+                            - type: string
+                              format: date-time
+                              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                            - type: "null"
+                          description: "When the message was sent, per the channel: WhatsApp's own timestamp for a received message or one typed on the phone, the moment it went out for one sent through the API. Order conversations on this rather than createdAt. Null until an API send goes out."
+                        deletedAt:
+                          anyOf:
+                            - type: string
+                              format: date-time
+                              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                            - type: "null"
+                          description: When the message was deleted for everyone, null if it was not.
+                        createdAt:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      required:
+                        - id
+                        - content
+                        - direction
+                        - fromMe
+                        - externalId
+                        - error
+                        - interlocutor
+                        - conversationId
+                        - isGroup
+                        - replyToExternalId
+                        - replyToParticipant
+                        - retryCount
+                        - messagingAccountId
+                        - status
+                        - channel
+                        - accountChannel
+                        - watermarked
+                        - subject
+                        - contentHtml
+                        - dispatchId
+                        - attachments
+                        - mediaUrl
+                        - mediaType
+                        - mimeType
+                        - mediaFilename
+                        - transcript
+                        - productData
+                        - sentAt
+                        - deletedAt
+                        - createdAt
+                        - updatedAt
+                      additionalProperties: false
+                    description: Every message this request created, one per channel, in the order of `channels`.
                 required:
                   - id
                   - content
@@ -565,6 +971,10 @@ paths:
                   - channel
                   - accountChannel
                   - watermarked
+                  - subject
+                  - contentHtml
+                  - dispatchId
+                  - attachments
                   - mediaUrl
                   - mediaType
                   - mimeType
@@ -575,6 +985,7 @@ paths:
                   - deletedAt
                   - createdAt
                   - updatedAt
+                  - messages
                 additionalProperties: false
           description: ""
         "400":
@@ -591,7 +1002,7 @@ paths:
           description: The request could not be processed.
       security:
         - bearer: []
-      summary: Send a WhatsApp message.
+      summary: Send a message by WhatsApp, email, or both.
       tags:
         - Messages
   /message/{id}:
@@ -686,23 +1097,75 @@ paths:
                       - WHATSAPP_WHATSMEOW
                   watermarked:
                     type: boolean
-                    description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages only.
+                    description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
+                  subject:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: The email subject. Null on channels without one.
+                  contentHtml:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: "The rich body, as sent or received. Untrusted for an inbound message: sanitise before rendering."
+                  dispatchId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: Ties together the messages one send request created, one per channel. Null for inbound messages.
+                  attachments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                        filename:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                        mimeType:
+                          type: string
+                        size:
+                          type: integer
+                          minimum: 0
+                          maximum: 9007199254740991
+                        contentId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: Set for an inline image the HTML body references as cid:<contentId>.
+                      required:
+                        - url
+                        - filename
+                        - mimeType
+                        - size
+                        - contentId
+                      additionalProperties: false
                   mediaUrl:
                     anyOf:
                       - type: string
                       - type: "null"
+                    deprecated: true
+                    description: "Deprecated: use `attachments` instead (this is the first one)."
                   mediaType:
                     anyOf:
                       - type: string
                       - type: "null"
+                    deprecated: true
+                    description: "Deprecated: use `attachments` instead (this is the first one)."
                   mimeType:
                     anyOf:
                       - type: string
                       - type: "null"
+                    deprecated: true
+                    description: "Deprecated: use `attachments` instead (this is the first one)."
                   mediaFilename:
                     anyOf:
                       - type: string
                       - type: "null"
+                    deprecated: true
+                    description: "Deprecated: use `attachments` instead (this is the first one)."
                   transcript:
                     anyOf:
                       - type: string
@@ -755,6 +1218,10 @@ paths:
                   - channel
                   - accountChannel
                   - watermarked
+                  - subject
+                  - contentHtml
+                  - dispatchId
+                  - attachments
                   - mediaUrl
                   - mediaType
                   - mimeType
@@ -891,8 +1358,16 @@ paths:
                         - EMAIL
                         - SMS
                         - WHATSAPP_WHATSMEOW
+                    owner:
+                      type: string
+                      enum:
+                        - USER
+                        - SYSTEM
+                      description: "Who provides the account: USER when you connected it with your own credentials, SYSTEM when UnlimitedMessaging provides it."
                     isSystem:
                       type: boolean
+                      deprecated: true
+                      description: "Deprecated: use `owner` instead (true when owner is SYSTEM)."
                     status:
                       type: string
                       enum:
@@ -941,6 +1416,7 @@ paths:
                   required:
                     - id
                     - channel
+                    - owner
                     - isSystem
                     - status
                     - phone
@@ -1394,8 +1870,16 @@ paths:
                       - EMAIL
                       - SMS
                       - WHATSAPP_WHATSMEOW
+                  owner:
+                    type: string
+                    enum:
+                      - USER
+                      - SYSTEM
+                    description: "Who provides the account: USER when you connected it with your own credentials, SYSTEM when UnlimitedMessaging provides it."
                   isSystem:
                     type: boolean
+                    deprecated: true
+                    description: "Deprecated: use `owner` instead (true when owner is SYSTEM)."
                   status:
                     type: string
                     enum:
@@ -1444,6 +1928,7 @@ paths:
                 required:
                   - id
                   - channel
+                  - owner
                   - isSystem
                   - status
                   - phone
@@ -1527,8 +2012,16 @@ paths:
                       - EMAIL
                       - SMS
                       - WHATSAPP_WHATSMEOW
+                  owner:
+                    type: string
+                    enum:
+                      - USER
+                      - SYSTEM
+                    description: "Who provides the account: USER when you connected it with your own credentials, SYSTEM when UnlimitedMessaging provides it."
                   isSystem:
                     type: boolean
+                    deprecated: true
+                    description: "Deprecated: use `owner` instead (true when owner is SYSTEM)."
                   status:
                     type: string
                     enum:
@@ -1577,6 +2070,7 @@ paths:
                 required:
                   - id
                   - channel
+                  - owner
                   - isSystem
                   - status
                   - phone
@@ -2892,6 +3386,35 @@ components:
                 transcript:
                   nullable: true
                   type: string
+                subject:
+                  type: string
+                html:
+                  type: string
+                attachments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                      filename:
+                        nullable: true
+                        type: string
+                      mimeType:
+                        type: string
+                      size:
+                        type: integer
+                        minimum: -9007199254740991
+                        maximum: 9007199254740991
+                      contentId:
+                        nullable: true
+                        type: string
+                    required:
+                      - url
+                      - filename
+                      - mimeType
+                      - size
+                      - contentId
               required:
                 - id
                 - externalId
@@ -3043,6 +3566,35 @@ components:
                 transcript:
                   nullable: true
                   type: string
+                subject:
+                  type: string
+                html:
+                  type: string
+                attachments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                      filename:
+                        nullable: true
+                        type: string
+                      mimeType:
+                        type: string
+                      size:
+                        type: integer
+                        minimum: -9007199254740991
+                        maximum: 9007199254740991
+                      contentId:
+                        nullable: true
+                        type: string
+                    required:
+                      - url
+                      - filename
+                      - mimeType
+                      - size
+                      - contentId
               required:
                 - id
                 - externalId
@@ -3665,6 +4217,35 @@ components:
                   transcript:
                     nullable: true
                     type: string
+                  subject:
+                    type: string
+                  html:
+                    type: string
+                  attachments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                        filename:
+                          nullable: true
+                          type: string
+                        mimeType:
+                          type: string
+                        size:
+                          type: integer
+                          minimum: -9007199254740991
+                          maximum: 9007199254740991
+                        contentId:
+                          nullable: true
+                          type: string
+                      required:
+                        - url
+                        - filename
+                        - mimeType
+                        - size
+                        - contentId
                   conversation:
                     type: object
                     properties:
