@@ -36,6 +36,17 @@ __exportStar(require("./WebhookEventMessageSelfSentDataChannelConversation"), ex
 __exportStar(require("./WebhookEventMessageSelfSentDataChannel"), exports);
 __exportStar(require("./WebhookEventMessageSelfSentData"), exports);
 __exportStar(require("./WebhookEventMessageSelfSent"), exports);
+__exportStar(require("./WebhookEventMessageSentType"), exports);
+__exportStar(require("./WebhookEventMessageSentDataMessageDirection"), exports);
+__exportStar(require("./WebhookEventMessageSentDataMessageReplyTo"), exports);
+__exportStar(require("./WebhookEventMessageSentDataMessageAttachmentsItem"), exports);
+__exportStar(require("./WebhookEventMessageSentDataMessage"), exports);
+__exportStar(require("./WebhookEventMessageSentDataChannelType"), exports);
+__exportStar(require("./WebhookEventMessageSentDataChannelAccount"), exports);
+__exportStar(require("./WebhookEventMessageSentDataChannelConversation"), exports);
+__exportStar(require("./WebhookEventMessageSentDataChannel"), exports);
+__exportStar(require("./WebhookEventMessageSentData"), exports);
+__exportStar(require("./WebhookEventMessageSent"), exports);
 __exportStar(require("./WebhookEventMessageStatusType"), exports);
 __exportStar(require("./WebhookEventMessageStatusDataMessageStatus"), exports);
 __exportStar(require("./WebhookEventMessageStatusDataMessagePreviousStatus"), exports);

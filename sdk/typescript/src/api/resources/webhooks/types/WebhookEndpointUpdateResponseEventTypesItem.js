@@ -14,4 +14,5 @@ exports.WebhookEndpointUpdateResponseEventTypesItem = {
     MessageHistory: "message.history",
     GroupUpdated: "group.updated",
     MessageDeleted: "message.deleted",
+    MessageSent: "message.sent",
 };

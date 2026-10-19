@@ -168,6 +168,29 @@ from .webhook_event_message_self_sent_data_message_reply_to import (
     WebhookEventMessageSelfSentDataMessageReplyTo,
 )
 from .webhook_event_message_self_sent_type import WebhookEventMessageSelfSentType
+from .webhook_event_message_sent import WebhookEventMessageSent
+from .webhook_event_message_sent_data import WebhookEventMessageSentData
+from .webhook_event_message_sent_data_channel import WebhookEventMessageSentDataChannel
+from .webhook_event_message_sent_data_channel_account import (
+    WebhookEventMessageSentDataChannelAccount,
+)
+from .webhook_event_message_sent_data_channel_conversation import (
+    WebhookEventMessageSentDataChannelConversation,
+)
+from .webhook_event_message_sent_data_channel_type import (
+    WebhookEventMessageSentDataChannelType,
+)
+from .webhook_event_message_sent_data_message import WebhookEventMessageSentDataMessage
+from .webhook_event_message_sent_data_message_attachments_item import (
+    WebhookEventMessageSentDataMessageAttachmentsItem,
+)
+from .webhook_event_message_sent_data_message_direction import (
+    WebhookEventMessageSentDataMessageDirection,
+)
+from .webhook_event_message_sent_data_message_reply_to import (
+    WebhookEventMessageSentDataMessageReplyTo,
+)
+from .webhook_event_message_sent_type import WebhookEventMessageSentType
 from .webhook_event_message_status import WebhookEventMessageStatus
 from .webhook_event_message_status_data import WebhookEventMessageStatusData
 from .webhook_event_message_status_data_channel import (
@@ -266,6 +289,17 @@ __all__ = [
     "WebhookEventMessageSelfSentDataMessageDirection",
     "WebhookEventMessageSelfSentDataMessageReplyTo",
     "WebhookEventMessageSelfSentType",
+    "WebhookEventMessageSent",
+    "WebhookEventMessageSentData",
+    "WebhookEventMessageSentDataChannel",
+    "WebhookEventMessageSentDataChannelAccount",
+    "WebhookEventMessageSentDataChannelConversation",
+    "WebhookEventMessageSentDataChannelType",
+    "WebhookEventMessageSentDataMessage",
+    "WebhookEventMessageSentDataMessageAttachmentsItem",
+    "WebhookEventMessageSentDataMessageDirection",
+    "WebhookEventMessageSentDataMessageReplyTo",
+    "WebhookEventMessageSentType",
     "WebhookEventMessageStatus",
     "WebhookEventMessageStatusData",
     "WebhookEventMessageStatusDataChannel",

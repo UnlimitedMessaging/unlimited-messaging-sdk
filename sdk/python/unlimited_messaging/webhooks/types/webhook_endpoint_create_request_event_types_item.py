@@ -13,6 +13,7 @@ WebhookEndpointCreateRequestEventTypesItem = typing.Union[
         "message.history",
         "group.updated",
         "message.deleted",
+        "message.sent",
     ],
     typing.Any,
 ]

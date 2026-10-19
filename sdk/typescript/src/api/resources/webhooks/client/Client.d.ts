@@ -66,8 +66,12 @@ export declare namespace Webhooks {
  *
  * ### Ordering and duplicates
  *
- * Delivery is at least once: the same event can arrive twice, so deduplicate on `eventId` (a message
- * is also never announced twice: `message.externalId` is unique per account).
+ * Delivery is at least once: the same event can arrive twice, so deduplicate on `eventId` (equal to
+ * the `webhook-id` header and kept across retries). `eventId` is per endpoint: two endpoints
+ * receiving the same event get two ids, so deduplicate across endpoints on the message's `id` or
+ * `externalId` instead. A message is also never announced twice: `message.externalId` is unique per
+ * account, and each message is announced by one of `message.received`, `message.self_sent` or
+ * `message.sent`, never by two.
  *
  * **Events are not delivered in the order things happened.** Retries reorder them, and a message with
  * media is only announced once its media is stored, a few seconds after it arrived: a text sent right
@@ -76,12 +80,13 @@ export declare namespace Webhooks {
  *
  * | Event | Order on |
  * | ----- | -------- |
- * | `message.received`, `message.self_sent` | `data.message.sentAt` (WhatsApp's timestamp) |
+ * | `message.received`, `message.self_sent`, `message.sent` | `data.message.sentAt` (WhatsApp's timestamp) |
  * | `message.status` | `data.message.at`, and `previousStatus` to ignore a stale one |
  * | `message.reaction` | `data.reaction.sentAt` |
  * | `message.edited` | `data.edit.editedAt` |
  * | `message.deleted` | `data.deletion.deletedAt` |
  * | `account.status_changed` | `data.account.at` |
+ * | `group.updated` | `data.at` |
  *
  * `GET /message` returns the same `sentAt`.
  *
@@ -97,14 +102,128 @@ export declare namespace Webhooks {
  * | Type | When |
  * | ---- | ---- |
  * | `message.received` | A message arrived. |
- * | `message.self_sent` | The account's own phone sent a message by hand, outside the API. Same shape as `message.received`, with `direction: "OUT"` and `fromMe: true`. |
- * | `message.status` | A message you sent changed status: `SENT`, `DELIVERED`, `READ`, `FAILED` or `UNDELIVERABLE`. Only effective changes fire: a late `DELIVERED` after `READ` does not. |
- * | `message.reaction` | Someone reacted to a message, or took their reaction back (`removed: true`, empty `emoji`). |
- * | `message.edited` | A message was edited. Carries its `externalId`, `newContent`, and `kind`: `text`, or `caption` for the caption of an image, video or document. Phones encrypt an edit with the original message's key: when it cannot be opened (`error`: `original_secret_missing` for a message the account received before it was linked, `decryption_failed` otherwise), the edit is still announced, with `newContent` and `kind` null, and the stored content is left as it was. |
- * | `message.deleted` | A message was deleted for everyone, by its author or a group admin (`deletedBy`). The stored message is kept, with `deletedAt` set. |
- * | `message.history` | Past messages, in batches, for an account linked with `syncHistory` (see below). |
- * | `group.updated` | A group the account is in changed: members `added`, `removed`, `promoted` or `demoted`, a new `name` or `topic`. |
- * | `account.status_changed` | An account's status changed: disconnected, logged out, restricted by WhatsApp (`BLOCKED`, with `blockedUntil`), reconnected... `reason` is a machine-readable code (`device_removed` when the device was removed from the phone, `logged_out` when WhatsApp refused the session), `transportCode` WhatsApp's own numeric code for diagnosis. |
+ * | `message.self_sent` | The account's own phone sent a message by hand, outside the API. |
+ * | `message.sent` | A message you sent through the API reached the channel. Carries its content. |
+ * | `message.status` | A message you sent changed status: `SENT`, `DELIVERED`, `READ`, `FAILED` or `UNDELIVERABLE`. |
+ * | `message.reaction` | Someone reacted to a message, or took their reaction back. |
+ * | `message.edited` | A message was edited. |
+ * | `message.deleted` | A message was deleted for everyone. |
+ * | `message.history` | Past messages, in batches, for an account linked with `syncHistory`. |
+ * | `group.updated` | A group the account is in changed. |
+ * | `account.status_changed` | An account's status changed. |
+ *
+ * An endpoint receives only the types listed in its `eventTypes`: there is no "every event" option,
+ * and a type added later is never turned on for existing endpoints. To start receiving one, send the
+ * full list you want with `PATCH /webhooks/{id}` (`eventTypes` replaces the previous list).
+ *
+ * The four `message.received`, `message.self_sent`, `message.sent` and `message.history` events carry
+ * the same message object (`data.message`, or each item of `data.messages`): `id` (UnlimitedMessaging),
+ * `externalId` (WhatsApp), `direction` (`IN` or `OUT`), `fromMe`, `content`, `sentAt` (the channel's
+ * timestamp), `receivedAt` (when UnlimitedMessaging recorded it), `sender`, `senderId`, `senderName`,
+ * `participant`, `replyTo`, `transcript`, the media fields described below, and for email `subject`,
+ * `html` and `attachments`. Message events also carry `data.channel`: `type` (`WHATSAPP`, `EMAIL`),
+ * `account` (`id`, `name`) and `conversation` (`id`, `isGroup`, `address`, and `participants` for a
+ * group).
+ *
+ * #### message.received
+ *
+ * A message arrived on one of your accounts, in a 1:1 conversation or a group. Fired once per message:
+ * a message WhatsApp delivers twice, or that a history sync brings again, is not announced again. A
+ * message with media is announced once its media is stored, so it carries `mediaUrl` (or
+ * `mediaError`). `direction` is `IN`, `fromMe` is `false`. Not fired for the account's own messages:
+ * those are `message.self_sent` or `message.sent`.
+ *
+ * #### message.self_sent
+ *
+ * The account's own phone, or another device linked to it, sent a message by hand, outside the API.
+ * Same shape as `message.received`, with `direction: "OUT"`, `fromMe: true`, and `sender` the
+ * account's own number. Fired once per message. Never fired for a message sent through the API, even
+ * though WhatsApp echoes those back too: that is `message.sent`.
+ *
+ * #### message.sent
+ *
+ * A message you sent through the API (`POST /message`, a reply) reached the channel. Same shape as
+ * `message.self_sent`: `direction: "OUT"`, `fromMe: true`, with the `content`, `externalId`, `sentAt`,
+ * the conversation it went to (`conversation.id`, `isGroup`, `address`, and `participants` for a group
+ * when they could be read) and, for a media message, `mediaUrl`, `mediaType`, `mimeType` and
+ * `mediaFilename`. `id` is the one `POST /message` returned.
+ *
+ * It fires exactly once per message, when the message first reaches the channel: on its move from
+ * `PENDING` or `SENDING` to `SENT`, or straight to `DELIVERED` or `READ` when the channel skips `SENT`.
+ * By then its `externalId` is known. Later receipts (`DELIVERED`, `READ`) never fire it again, nor does
+ * a retry or a duplicate receipt. A message that never goes out (`FAILED`, `UNDELIVERABLE`) never fires
+ * it: watch `message.status` for those. Not fired for a message typed on the phone
+ * (`message.self_sent`) or for a received message. A message that had already reached the channel
+ * before this event existed is not announced.
+ *
+ * `message.sent` and the `message.status` reporting `SENT` come from the same change and are delivered
+ * independently: either can arrive first.
+ *
+ * #### message.status
+ *
+ * A message you sent changed status. `data.message` holds `id`, `externalId`, `status`,
+ * `previousStatus`, `error` (why a `FAILED` or `UNDELIVERABLE` message did not go through), `at` (when
+ * the status changed) and `sentAt`. No content: that is `message.sent`. Fired once per effective
+ * change to `SENT`, `DELIVERED`, `READ`, `FAILED` or `UNDELIVERABLE`; `PENDING` and `SENDING` are
+ * UnlimitedMessaging's own queueing steps and are not reported. A receipt arriving out of order (a
+ * `DELIVERED` after a `READ`) changes nothing and fires nothing. A failed message that is retried goes
+ * through `SENT` again from `SENDING`. Receipts WhatsApp reports for a message typed on the phone
+ * (stored as `SENT`) fire it too.
+ *
+ * #### message.reaction
+ *
+ * Someone reacted to a message, or took their reaction back (`removed: true`, empty `emoji`). The
+ * account's own reactions are included, with `fromMe: true`. `data.reaction` holds `emoji`, `removed`,
+ * `reactedToExternalId`, `reactedToMessageId` (null when that message is not stored, see below),
+ * `sender`, `senderId`, `senderName`, `participant` (in a group), `fromMe` and `sentAt`. Nothing is
+ * stored: a reaction is not a message.
+ *
+ * #### message.edited
+ *
+ * A message was edited, by its author. `data.edit` holds `externalId`, `messageId`, `newContent`,
+ * `kind` (`text`, or `caption` for the caption of an image, video or document), `error`, `editedAt`,
+ * `sender`, `senderId`, `participant` and `fromMe`. The stored content is updated. Phones encrypt an
+ * edit with the original message's key: when it cannot be opened (`error`: `original_secret_missing`
+ * for a message the account received before it was linked, `decryption_failed` otherwise), the edit is
+ * still announced, with `newContent` and `kind` null, and the stored content is left as it was.
+ *
+ * #### message.deleted
+ *
+ * A message was deleted for everyone, by its author or a group admin. `data.deletion` holds
+ * `externalId`, `messageId`, `deletedAt`, `deletedBy`, `deletedById`, `participant` and `fromMe`. The
+ * stored message is kept, with `deletedAt` set.
+ *
+ * #### message.history
+ *
+ * Past messages, in batches of up to 100, for an account linked with `syncHistory` (see History
+ * below), or asked for with `POST /account/{accountId}/history`. `data` holds `syncType`,
+ * `chunkOrder`, `progress`, `isLatest`, `channel` (`type`, `account`) and `messages`, each shaped like
+ * the message of `message.received` plus its own `conversation`. Only messages stored for the first
+ * time are included. Never sent to an endpoint that did not subscribe to it, and never fired for an
+ * account that did not ask for its history.
+ *
+ * #### group.updated
+ *
+ * A group the account is in changed (beta accounts). `data` holds `group.id`, `by` (who made the
+ * change, when the channel says), `at`, `name`, `topic`, and the members `added`, `removed`,
+ * `promoted` and `demoted` (+E164, or an id when the number is hidden). A field that did not change is
+ * null or empty.
+ *
+ * #### account.status_changed
+ *
+ * An account's status changed: connected, disconnected, logged out, restricted by WhatsApp
+ * (`BLOCKED`, with `blockedUntil`), reconnected, deleted... `data.account` holds `id`, `name`,
+ * `status`, `previousStatus`, `reason`, `transportCode`, `blockedUntil` and `at`. Fired on every
+ * effective change only: a status reported again unchanged fires nothing. `reason` is a
+ * machine-readable code (`connected`, `disconnected`, `device_removed` when the device was removed
+ * from the phone, `logged_out` when WhatsApp refused the session, `temporary_ban`, `restricted`,
+ * `restriction_lifted`, `deleted`, `linking_started`...); treat an unknown value as "changed for another
+ * reason", the list grows. `transportCode` is WhatsApp's own numeric code, for diagnosis.
+ *
+ * #### message.transcribed
+ *
+ * Reserved for the text extracted from media (OCR, PDF text, voice transcription). It is not fired yet
+ * and cannot be subscribed to; `transcript` is `null` on messages until it is.
  *
  * The schema of each payload is published with this reference, under `WebhookEvent*`.
  *
