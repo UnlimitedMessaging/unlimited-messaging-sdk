@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.22] - 2026-10-19
+
+*   **Changed Parameters**
+    *   The `eventTypes` parameter for webhook configuration (e.g., in `PATCH /webhooks/{id}`, `POST /webhooks`, etc.) now accepts a new enum value: `message.sent`.
+
+*   **New Webhook Event Type (New Response Fields)**
+    *   A new webhook event type, `message.sent`, has been added. This event is triggered when a message sent through the API successfully reaches the channel.
+        *   The `WebhookEventMessageSent` payload includes:
+            *   `type`: Set to `"message.sent"`.
+            *   `eventId`: A unique identifier for the event.
+            *   `occurredAt`: The timestamp when the event occurred.
+            *   `data`:
+                *   `message`: An object containing details about the sent message.
+                    *   `id`: The UnlimitedMessaging ID of the message.
+                    *   `externalId`: WhatsApp's external ID for the message (nullable).
+                    *   `direction`: Indicates message direction (e.g., `"OUT"`).
+                    *   `fromMe`: `true` if the message was sent by the account.
+                    *   `content`: The message text content (nullable).
+                    *   `sentAt`: WhatsApp's timestamp for when the message was sent.
+                    *   `receivedAt`: UnlimitedMessaging's timestamp for when the message was recorded.
+                    *   `sender`: The sender's identifier (nullable).
+                    *   `senderId`: The sender's ID.
+                    *   `senderName`: The sender's name (nullable).
+                    *   `participant`: The participant in a group context (nullable).
+                    *   `replyTo`: An object with `externalId` and `participant` if it's a reply (nullable).
+                    *   `mediaUrl`, `mediaType`, `mimeType`, `mediaFilename`, `mediaSize`, `durationSec`, `mediaError`: Fields for media messages.
+                    *   `transcript`: Reserved for text extracted from media (nullable).
+                    *   `subject`, `html`, `attachments`: Fields specific to email messages.
+                *   `channel`: An object describing the channel and conversation.
+                    *   `type`: The channel type (e.g., `"WHATSAPP"`, `"SMS"`, `"EMAIL"`).
+                    *   `account`: An object with the `id` and `name` (nullable) of the account.
+                    *   `conversation`: An object with the `id` (nullable), `isGroup` (boolean), `address` (nullable), and `participants` (array of strings for groups) of the conversation.
+
 ## [0.1.21] - 2026-10-03
 
 *   **Changed parameters:**
