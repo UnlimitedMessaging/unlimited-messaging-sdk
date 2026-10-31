@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.23] - 2026-10-31
+
+*   **Changed Parameters**
+    *   An existing query parameter (which defaults to `stable` and is of `type: string`) now includes a description clarifying the connection method: "Connection method. Both "stable" and "beta" use the same underlying transport (whatsmeow). The two values are kept for backwards compatibility. Defaults to "stable"."
+
 ## [0.1.22] - 2026-10-19
 
 *   **Changed Parameters**
