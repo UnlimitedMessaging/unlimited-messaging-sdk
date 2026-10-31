@@ -1452,6 +1452,7 @@ paths:
           in: query
           schema:
             default: stable
+            description: Connection method. Both "stable" and "beta" use the same underlying transport (whatsmeow). The two values are kept for backwards compatibility. Defaults to "stable".
             type: string
             enum:
               - stable
