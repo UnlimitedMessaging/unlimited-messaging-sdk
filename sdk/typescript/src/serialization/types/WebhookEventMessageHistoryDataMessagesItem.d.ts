@@ -30,6 +30,9 @@ export declare namespace WebhookEventMessageHistoryDataMessagesItem {
         mediaSize?: number | null;
         durationSec?: number | null;
         mediaError?: string | null;
+        latitude?: number | null;
+        longitude?: number | null;
+        locationName?: string | null;
         transcript: string | null;
         subject?: string | null;
         html?: string | null;

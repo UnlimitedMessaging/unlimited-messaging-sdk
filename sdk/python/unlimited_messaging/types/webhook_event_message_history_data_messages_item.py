@@ -45,6 +45,11 @@ class WebhookEventMessageHistoryDataMessagesItem(UniversalBaseModel):
         alias="durationSec", default=None
     )
     media_error: typing.Optional[str] = pydantic.Field(alias="mediaError", default=None)
+    latitude: typing.Optional[float] = None
+    longitude: typing.Optional[float] = None
+    location_name: typing.Optional[str] = pydantic.Field(
+        alias="locationName", default=None
+    )
     transcript: typing.Optional[str] = None
     subject: typing.Optional[str] = None
     html: typing.Optional[str] = None

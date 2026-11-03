@@ -22,6 +22,9 @@ export interface WebhookEventMessageHistoryDataMessagesItem {
     mediaSize?: number;
     durationSec?: number;
     mediaError?: string;
+    latitude?: number;
+    longitude?: number;
+    locationName?: string;
     transcript: string | null;
     subject?: string;
     html?: string;
