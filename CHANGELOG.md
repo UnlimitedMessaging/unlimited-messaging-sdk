@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.24] - 2026-11-03
+
+- New response fields:
+  - `latitude` (number), `longitude` (number), and `locationName` (string) have been added to the `WhatsAppMessageIncomingMedia`, `WhatsAppMessageIncomingVideo`, `WhatsAppMessageIncomingAudio`, and `WhatsAppMessageIncomingImage` objects.
+
 ## [0.1.23] - 2026-10-31
 
 *   **Changed Parameters**
