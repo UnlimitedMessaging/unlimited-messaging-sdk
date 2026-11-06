@@ -1,6 +1,6 @@
 # Unlimited Messaging SDK
 
-Official TypeScript and Python clients for the [Unlimited Messaging](https://unlimitedmessaging.app) API — send and receive WhatsApp messages programmatically.
+Official TypeScript and Python clients for the [Unlimited Messaging](https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=sdk) API — send and receive WhatsApp messages programmatically.
 
 [![npm version](https://img.shields.io/npm/v/@unlimited-messaging/sdk?style=flat-square&label=npm&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
 [![npm downloads](https://img.shields.io/npm/dm/@unlimited-messaging/sdk?style=flat-square&label=npm%20downloads&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
@@ -84,7 +84,7 @@ sims = client.sim.get_linked_sims()
 
 ## Authentication
 
-All endpoints require a Bearer token. Pass it as the `token` option when initialising the client. You can generate a token from your [dashboard](https://unlimitedmessaging.app).
+All endpoints require a Bearer token. Pass it as the `token` option when initialising the client. You can generate a token from your [dashboard](https://app.unlimitedmessaging.app/api?utm_source=github&utm_medium=readme&utm_campaign=sdk).
 
 ## API reference
 
@@ -157,9 +157,9 @@ API_TOKEN=your_token npx tsx examples/typescript/src/send-message.ts
 
 ## Links
 
-- Website: [unlimitedmessaging.app](https://unlimitedmessaging.app)
+- Website: [unlimitedmessaging.app](https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=sdk)
 - Docs: [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
-- APP : [app.unlimitedmessaging.app](https://app.unlimitedmessaging.app)
+- APP : [app.unlimitedmessaging.app](https://app.unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=sdk)
 - API: [api.unlimitedmessaging.app](https://api.unlimitedmessaging.app)
 - npm: [@unlimited-messaging/sdk](https://www.npmjs.com/package/@unlimited-messaging/sdk)
 - PyPI: [unlimited-messaging](https://pypi.org/project/unlimited-messaging/)

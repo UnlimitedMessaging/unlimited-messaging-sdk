@@ -1,6 +1,6 @@
 # unlimited-messaging
 
-Official Python client for the [Unlimited Messaging](https://unlimitedmessaging.app) API — send and receive WhatsApp messages programmatically.
+Official Python client for the [Unlimited Messaging](https://unlimitedmessaging.app?utm_source=pypi&utm_medium=readme&utm_campaign=sdk_python) API — send and receive WhatsApp messages programmatically.
 
 [![PyPI version](https://img.shields.io/pypi/v/unlimited-messaging?style=flat-square&color=3775a9)](https://pypi.org/project/unlimited-messaging/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/unlimited-messaging?style=flat-square&color=3775a9)](https://pypi.org/project/unlimited-messaging/)
@@ -9,7 +9,7 @@ Official Python client for the [Unlimited Messaging](https://unlimitedmessaging.
 [![License](https://img.shields.io/pypi/l/unlimited-messaging?style=flat-square)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/unlimitedmessaging/unlimited-messaging-sdk/release.yml?style=flat-square&label=CI)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/actions/workflows/release.yml)
 
-- **Website:** [unlimitedmessaging.app](https://unlimitedmessaging.app)
+- **Website:** [unlimitedmessaging.app](https://unlimitedmessaging.app?utm_source=pypi&utm_medium=readme&utm_campaign=sdk_python)
 - **Docs:** [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
 - **API reference:** [api.unlimitedmessaging.app](https://api.unlimitedmessaging.app)
 - **GitHub:** [unlimitedmessaging/unlimited-messaging-sdk](https://github.com/unlimitedmessaging/unlimited-messaging-sdk)
@@ -42,7 +42,7 @@ print(message.id, message.status)
 
 ## Authentication
 
-Get your API token from the [dashboard](https://app.unlimitedmessaging.app) and pass it as the `token` argument.
+Get your API token from the [dashboard](https://app.unlimitedmessaging.app/api?utm_source=pypi&utm_medium=readme&utm_campaign=sdk_python) and pass it as the `token` argument.
 
 ```python
 client = UnlimitedMessagingApi(token="your_api_token")

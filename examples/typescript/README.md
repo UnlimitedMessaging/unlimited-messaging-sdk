@@ -13,4 +13,4 @@ API_TOKEN=your_token npm run list-messages
 API_TOKEN=your_token npm run list-sims
 ```
 
-Get your API token at [app.unlimitedmessaging.app](https://app.unlimitedmessaging.app).
+Get your API token at [app.unlimitedmessaging.app](https://app.unlimitedmessaging.app/api?utm_source=github&utm_medium=examples&utm_campaign=sdk_typescript).
