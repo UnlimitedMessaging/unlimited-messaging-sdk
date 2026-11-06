@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.25] - 2026-11-06
+
+SDK update.
+
 ## [0.1.24] - 2026-11-03
 
 - New response fields:
