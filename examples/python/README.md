@@ -13,4 +13,4 @@ API_TOKEN=your_token python3 src/list_messages.py
 API_TOKEN=your_token python3 src/list_sims.py
 ```
 
-Get your API token at [app.unlimitedmessaging.app](https://app.unlimitedmessaging.app).
+Get your API token at [app.unlimitedmessaging.app](https://app.unlimitedmessaging.app/api?utm_source=github&utm_medium=examples&utm_campaign=sdk_python).

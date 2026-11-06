@@ -1,6 +1,6 @@
 # @unlimited-messaging/sdk
 
-Official TypeScript / Node.js client for the [Unlimited Messaging](https://unlimitedmessaging.app) API — send and receive WhatsApp messages programmatically.
+Official TypeScript / Node.js client for the [Unlimited Messaging](https://unlimitedmessaging.app?utm_source=npm&utm_medium=readme&utm_campaign=sdk_typescript) API — send and receive WhatsApp messages programmatically.
 
 [![npm version](https://img.shields.io/npm/v/@unlimited-messaging/sdk?style=flat-square&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
 [![npm downloads](https://img.shields.io/npm/dm/@unlimited-messaging/sdk?style=flat-square&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
@@ -10,7 +10,7 @@ Official TypeScript / Node.js client for the [Unlimited Messaging](https://unlim
 [![License](https://img.shields.io/npm/l/@unlimited-messaging/sdk?style=flat-square)](https://github.com/unlimitedmessaging/unlimited-messaging-sdk/blob/main/LICENSE)
 [![Socket](https://socket.dev/api/badge/npm/package/@unlimited-messaging/sdk)](https://socket.dev/npm/package/@unlimited-messaging/sdk)
 
-- **Website:** [unlimitedmessaging.app](https://unlimitedmessaging.app)
+- **Website:** [unlimitedmessaging.app](https://unlimitedmessaging.app?utm_source=npm&utm_medium=readme&utm_campaign=sdk_typescript)
 - **Docs:** [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
 - **API reference:** [api.unlimitedmessaging.app](https://api.unlimitedmessaging.app)
 - **GitHub:** [unlimitedmessaging/unlimited-messaging-sdk](https://github.com/unlimitedmessaging/unlimited-messaging-sdk)
@@ -42,7 +42,7 @@ console.log(message.id, message.status);
 
 ## Authentication
 
-Get your API token from the [dashboard](https://app.unlimitedmessaging.app) and pass it as the `token` option.
+Get your API token from the [dashboard](https://app.unlimitedmessaging.app/api?utm_source=npm&utm_medium=readme&utm_campaign=sdk_typescript) and pass it as the `token` option.
 
 ```typescript
 const client = new UnlimitedMessagingApiClient({

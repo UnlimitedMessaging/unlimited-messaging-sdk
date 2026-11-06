@@ -30,7 +30,7 @@
     "url": "https://ilianazz.com"
   },
   "license": "MIT",
-  "homepage": "https://unlimitedmessaging.app",
+  "homepage": "https://unlimitedmessaging.app?utm_source=npm&utm_medium=package&utm_campaign=sdk_typescript",
   "repository": {
     "type": "git",
     "url": "https://github.com/UnlimitedMessaging/unlimited-messaging-sdk.git"

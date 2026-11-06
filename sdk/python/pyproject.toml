@@ -45,9 +45,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://unlimitedmessaging.app"
+Homepage = "https://unlimitedmessaging.app?utm_source=pypi&utm_medium=package&utm_campaign=sdk_python"
 Documentation = "https://docs.unlimitedmessaging.app"
-Dashboard = "https://app.unlimitedmessaging.app"
+Dashboard = "https://app.unlimitedmessaging.app?utm_source=pypi&utm_medium=package&utm_campaign=sdk_python"
 Repository = "https://github.com/UnlimitedMessaging/unlimited-messaging-sdk"
 Issues = "https://github.com/UnlimitedMessaging/unlimited-messaging-sdk/issues"
 Changelog = "https://github.com/UnlimitedMessaging/unlimited-messaging-sdk/releases"
