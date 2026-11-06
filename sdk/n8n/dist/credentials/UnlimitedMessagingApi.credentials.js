@@ -14,7 +14,7 @@ class UnlimitedMessagingApi {
                 type: 'string',
                 typeOptions: { password: true },
                 default: '',
-                hint: 'Generate your token at https://app.unlimitedmessaging.app/settings/tokens',
+                hint: 'Generate your token at https://app.unlimitedmessaging.app/api',
             },
         ];
         // Injects "Authorization: Bearer <token>" on every request automatically
