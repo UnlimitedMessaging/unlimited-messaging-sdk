@@ -448,7 +448,7 @@ paths:
                       pattern: ^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$
                 channels:
                   minItems: 1
-                  maxItems: 2
+                  maxItems: 3
                   type: array
                   items:
                     type: object
@@ -458,6 +458,7 @@ paths:
                         enum:
                           - WHATSAPP
                           - EMAIL
+                          - SMS
                       accountId:
                         type: string
                       text:
@@ -4792,3 +4793,144 @@ components:
 externalDocs:
   description: Documentation
   url: https://docs.unlimitedmessaging.app
+x-webhooks:
+  message.received:
+    post:
+      tags:
+        - Webhook Events
+      summary: An inbound message arrived on one of your accounts.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventMessageReceived"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  message.self_sent:
+    post:
+      tags:
+        - Webhook Events
+      summary: The account's own phone sent a message by hand, outside the API.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventMessageSelfSent"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  message.sent:
+    post:
+      tags:
+        - Webhook Events
+      summary: A message you sent through the API reached the channel.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventMessageSent"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  message.status:
+    post:
+      tags:
+        - Webhook Events
+      summary: An outbound message changed status (SENT, DELIVERED, READ, FAILED...).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventMessageStatus"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  message.reaction:
+    post:
+      tags:
+        - Webhook Events
+      summary: Someone reacted to a message, or removed their reaction.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventMessageReaction"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  message.edited:
+    post:
+      tags:
+        - Webhook Events
+      summary: A message was edited by its author.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventMessageEdited"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  message.deleted:
+    post:
+      tags:
+        - Webhook Events
+      summary: A message was deleted for everyone.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventMessageDeleted"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  message.history:
+    post:
+      tags:
+        - Webhook Events
+      summary: A batch of past messages from an account's history sync.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventMessageHistory"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  account.status_changed:
+    post:
+      tags:
+        - Webhook Events
+      summary: An account's connection status changed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventAccountStatusChanged"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  group.updated:
+    post:
+      tags:
+        - Webhook Events
+      summary: A group the account is in changed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventGroupUpdated"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
