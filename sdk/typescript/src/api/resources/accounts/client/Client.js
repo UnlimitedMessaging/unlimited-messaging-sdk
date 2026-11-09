@@ -126,10 +126,8 @@ const errors = __importStar(require("../../../../errors/index"));
  * both channels too:
  *
  * - **WhatsApp**: the `add-account` tool shows the QR code in the chat, to scan like above.
- * - **Email**: `add-email-account` first recommends the dashboard, where the user types the password
- *   themselves and it never goes through the conversation. If the user prefers, they can give their
- *   address and password (or app password) in the chat instead: the tool finds the servers and
- *   connects the mailbox directly.
+ * - **Email**: `add-email-account` gives the link to the dashboard, where the user types the password
+ *   themselves: it never goes through the conversation.
  */
 class Accounts {
     constructor(_options) {
