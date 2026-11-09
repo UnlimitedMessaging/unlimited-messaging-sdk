@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.27] - 2026-11-09
+
+*   **Removed response fields:**
+    *   For `POST /account/email/connect`, the `409 EMAIL_ALREADY_CONNECTED` error response, including its associated `context.accountId` field, has been removed. Existing mailboxes are now handled by creating a new account or reusing an existing one.
+    *   For `POST /account/email/test`, the `409 EMAIL_ALREADY_CONNECTED` error response has been removed.
+
 ## [0.1.26] - 2026-11-09
 
 *   **New Endpoints:**
