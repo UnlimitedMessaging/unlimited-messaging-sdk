@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.26] - 2026-11-09
+
+*   **New Endpoints:**
+    *   `GET /account/email/autoconfig`: Suggests IMAP and SMTP settings for an email address, including whether OAuth is required.
+    *   `POST /account/email/test`: Allows testing mailbox credentials (address, password, IMAP/SMTP server settings) without saving them.
+    *   `POST /account/email`: Connects a mailbox as a new EMAIL account using provided credentials and server settings. This account is immediately `ACTIVE` upon success.
+    *   `PUT /account/{accountId}/email`: Updates the credentials (password, username, server settings) for an existing EMAIL account.
+
+*   **Changed Endpoints:**
+    *   `GET /account/link`:
+        *   Description updated to provide more detailed instructions for polling `GET /account/{accountId}/challenge` for QR code data, rendering it, and the user scanning it in WhatsApp.
+        *   Clarified that the `mode` parameter (`stable` and `beta`) now uses the same underlying connection.
+        *   Explicitly mentions that an `account.status_changed` webhook is sent when the account becomes `ACTIVE` after scanning.
+
+*   **Changed Tag Descriptions:**
+    *   The `Accounts` tag description has been significantly expanded to include detailed guides for linking WhatsApp numbers and connecting mailboxes, including code examples and explanations of app passwords and error codes. It also mentions integration with the MCP server for both channels.
+    *   The `Messages` tag description now specifies that messages can be sent and retrieved by "WhatsApp, email or SMS".
+
 ## [0.1.25] - 2026-11-06
 
 SDK update.
