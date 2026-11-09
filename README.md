@@ -1,6 +1,43 @@
-# Unlimited Messaging SDK
+<!-- um-header:start (shared across UnlimitedMessaging repos, keep in sync) -->
+<p align="center">
+  <a href="https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=unlimited-messaging-sdk"><img src="https://unlimitedmessaging.app/assets/favicon/android-chrome-512x512.png" width="72" height="72" alt="Unlimited Messaging logo"></a>
+</p>
 
-Official TypeScript and Python clients for the [Unlimited Messaging](https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=sdk) API — send and receive WhatsApp messages programmatically.
+<h1 align="center">Unlimited Messaging · SDK</h1>
+
+<p align="center">
+  <b>WhatsApp, email and SMS from your own number, mailbox and Android phone, in one API request.</b><br>
+  Free plan, unlimited messages. REST API, SDKs, n8n and an MCP server for Claude, ChatGPT and Cursor.
+</p>
+
+<p align="center">
+  <a href="https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=unlimited-messaging-sdk"><img alt="Website" src="https://img.shields.io/badge/Website-0D1F16?style=flat-square"></a>
+  <a href="https://app.unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=unlimited-messaging-sdk"><img alt="App" src="https://img.shields.io/badge/App-075E54?style=flat-square"></a>
+  <a href="https://docs.unlimitedmessaging.app"><img alt="Docs" src="https://img.shields.io/badge/Docs-128C7E?style=flat-square"></a>
+  <a href="https://unlimitedmessaging.app/mcp?utm_source=github&utm_medium=readme&utm_campaign=unlimited-messaging-sdk"><img alt="MCP" src="https://img.shields.io/badge/MCP-128C7E?style=flat-square"></a>
+  <a href="https://unlimitedmessaging.app/pricing?utm_source=github&utm_medium=readme&utm_campaign=unlimited-messaging-sdk"><img alt="Pricing" src="https://img.shields.io/badge/Pricing-128C7E?style=flat-square"></a>
+  <a href="https://www.npmjs.com/package/@unlimited-messaging/sdk"><img alt="npm" src="https://img.shields.io/badge/npm-cb0000?style=flat-square&logo=npm&logoColor=white"></a>
+  <a href="https://pypi.org/project/unlimited-messaging"><img alt="PyPI" src="https://img.shields.io/badge/PyPI-3775a9?style=flat-square&logo=pypi&logoColor=white"></a>
+  <a href="https://discord.gg/danrEJV5Xx"><img alt="Discord" src="https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white"></a>
+  <a href="https://x.com/unlimitedmess"><img alt="X" src="https://img.shields.io/badge/X-000000?style=flat-square&logo=x&logoColor=white"></a>
+</p>
+
+**Unlimited Messaging projects**
+
+| Project | What it is |
+| --- | --- |
+| [unlimited-messaging-mcp](https://github.com/UnlimitedMessaging/unlimited-messaging-mcp) | Hosted MCP server for Claude, ChatGPT, Cursor and any MCP client: setup guide and ready-to-paste configs |
+| **[unlimited-messaging-sdk](https://github.com/UnlimitedMessaging/unlimited-messaging-sdk)** (this repo) | OpenAPI spec, official TypeScript and Python SDKs, and the n8n node source |
+| [unlimited-messaging-android](https://github.com/UnlimitedMessaging/unlimited-messaging-android) | Open source Android app: send and receive SMS from your own phone and SIM |
+| [n8n-nodes-unlimited-messaging](https://www.npmjs.com/package/n8n-nodes-unlimited-messaging) | n8n community node for WhatsApp, email and SMS workflows, no code |
+| [unlimitedmessaging.app](https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=unlimited-messaging-sdk) | Website, web app, pricing and guides |
+
+<!-- um-header:end -->
+
+
+## About this repository
+
+Official TypeScript and Python clients for the [Unlimited Messaging](https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=sdk) API, generated from [`openapi.yaml`](./openapi.yaml), plus the source of the [n8n community node](./sdk/n8n). Prefer to work from an AI assistant? Use the hosted [MCP server](https://github.com/UnlimitedMessaging/unlimited-messaging-mcp) at `https://mcp.unlimitedmessaging.app`.
 
 [![npm version](https://img.shields.io/npm/v/@unlimited-messaging/sdk?style=flat-square&label=npm&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
 [![npm downloads](https://img.shields.io/npm/dm/@unlimited-messaging/sdk?style=flat-square&label=npm%20downloads&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
@@ -159,7 +196,9 @@ API_TOKEN=your_token npx tsx examples/typescript/src/send-message.ts
 
 - Website: [unlimitedmessaging.app](https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=sdk)
 - Docs: [docs.unlimitedmessaging.app](https://docs.unlimitedmessaging.app)
-- APP : [app.unlimitedmessaging.app](https://app.unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=sdk)
+- App: [app.unlimitedmessaging.app](https://app.unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=sdk)
 - API: [api.unlimitedmessaging.app](https://api.unlimitedmessaging.app)
 - npm: [@unlimited-messaging/sdk](https://www.npmjs.com/package/@unlimited-messaging/sdk)
 - PyPI: [unlimited-messaging](https://pypi.org/project/unlimited-messaging/)
+- MCP server: [https://mcp.unlimitedmessaging.app](https://github.com/UnlimitedMessaging/unlimited-messaging-mcp)
+- n8n node: [n8n-nodes-unlimited-messaging](https://www.npmjs.com/package/n8n-nodes-unlimited-messaging)
