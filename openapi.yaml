@@ -1445,7 +1445,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
+        Creates a new WHATSAPP account in LINKING status and starts a WhatsApp session. Poll GET /account/{accountId}/challenge every second: it returns `{ kind: "qr", data }`, the string to render as a QR code. The user scans it in WhatsApp > Settings > Linked devices > Link a device. The QR rotates about every 20 seconds, keep polling and re-rendering it. Once scanned the challenge becomes null and GET /account/{accountId} shows status ACTIVE (an `account.status_changed` webhook is also sent). If the attempt expires before it is scanned, call this endpoint again: the pending attempt is resumed. `mode` is kept for backwards compatibility, `stable` and `beta` now use the same connection. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
       operationId: Account_link_account
       parameters:
         - name: mode
@@ -1500,6 +1500,609 @@ paths:
       security:
         - bearer: []
       summary: Start a WhatsApp linking session.
+      tags:
+        - Accounts
+  /account/email/autoconfig:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        First step of connecting a mailbox: looks up the IMAP and SMTP servers for an address (provider autoconfig, Mozilla ISP database, DNS, probing). Pass the result to POST /account/email/test or POST /account/email along with the password. When `oauthRequired` is true (Outlook.com, Hotmail, Microsoft 365) the mailbox cannot be connected yet.
+      operationId: Account_email_autoconfig
+      parameters:
+        - name: email
+          required: true
+          in: query
+          schema:
+            type: string
+            format: email
+            pattern: ^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$
+            description: The address to look up settings for.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  source:
+                    type: string
+                    description: "How the settings were found, from most to least reliable: `autoconfig` (published by the provider), `ispdb` (Mozilla ISP database), `mx` or `srv` (DNS records), `probe` (servers answered), `guess` (common hostnames, check them before connecting)."
+                  imap:
+                    type: object
+                    properties:
+                      host:
+                        type: string
+                        minLength: 1
+                        pattern: ^[a-zA-Z0-9.-]+$
+                        description: Server hostname, e.g. imap.gmail.com.
+                      port:
+                        type: integer
+                        minimum: 1
+                        maximum: 65535
+                        description: Server port, e.g. 993 (IMAP) or 465 / 587 (SMTP).
+                      security:
+                        type: string
+                        enum:
+                          - tls
+                          - starttls
+                        description: "`tls` for implicit TLS (993, 465), `starttls` for an upgraded connection (143, 587). Plain text is refused."
+                    required:
+                      - host
+                      - port
+                      - security
+                    additionalProperties: false
+                  smtp:
+                    type: object
+                    properties:
+                      host:
+                        type: string
+                        minLength: 1
+                        pattern: ^[a-zA-Z0-9.-]+$
+                        description: Server hostname, e.g. imap.gmail.com.
+                      port:
+                        type: integer
+                        minimum: 1
+                        maximum: 65535
+                        description: Server port, e.g. 993 (IMAP) or 465 / 587 (SMTP).
+                      security:
+                        type: string
+                        enum:
+                          - tls
+                          - starttls
+                        description: "`tls` for implicit TLS (993, 465), `starttls` for an upgraded connection (143, 587). Plain text is refused."
+                    required:
+                      - host
+                      - port
+                      - security
+                    additionalProperties: false
+                  username:
+                    type: string
+                    description: The login to use, usually the address itself.
+                  appendSent:
+                    type: boolean
+                    description: Suggested value for `appendSent` when connecting.
+                  oauthRequired:
+                    type: boolean
+                    description: True when the provider refuses password logins (Outlook.com, Hotmail, Microsoft 365). Such mailboxes cannot be connected yet.
+                required:
+                  - source
+                  - imap
+                  - smtp
+                  - username
+                  - appendSent
+                  - oauthRequired
+                additionalProperties: false
+          description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "503":
+          description: The service needed to satisfy this request is not available right now.
+      security:
+        - bearer: []
+      summary: Suggest IMAP/SMTP settings for an email address.
+      tags:
+        - Accounts
+  /account/email/test:
+    post:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Logs in to the IMAP and SMTP servers and saves nothing. Optional: POST /account/email runs the same test before connecting. Errors (422) carry `context.code`: AUTH_FAILED (wrong password, or an app password is required), OAUTH_REQUIRED (Microsoft 365 / Outlook.com), HOST_UNREACHABLE, TLS_ERROR.
+      operationId: Account_test_email
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  description: The mailbox address. It identifies the account and cannot change later.
+                  type: string
+                  format: email
+                  pattern: ^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$
+                username:
+                  description: Login for the IMAP and SMTP servers. Defaults to the address.
+                  type: string
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 1
+                  description: Mailbox password. For Gmail, iCloud and Yahoo this must be an app password, not the account password. It is stored encrypted by the mail service and never returned.
+                imap:
+                  type: object
+                  properties:
+                    host:
+                      type: string
+                      minLength: 1
+                      pattern: ^[a-zA-Z0-9.-]+$
+                      description: Server hostname, e.g. imap.gmail.com.
+                    port:
+                      type: integer
+                      minimum: 1
+                      maximum: 65535
+                      description: Server port, e.g. 993 (IMAP) or 465 / 587 (SMTP).
+                    security:
+                      type: string
+                      enum:
+                        - tls
+                        - starttls
+                      description: "`tls` for implicit TLS (993, 465), `starttls` for an upgraded connection (143, 587). Plain text is refused."
+                  required:
+                    - host
+                    - port
+                    - security
+                  description: Incoming mail server (IMAP).
+                smtp:
+                  type: object
+                  properties:
+                    host:
+                      type: string
+                      minLength: 1
+                      pattern: ^[a-zA-Z0-9.-]+$
+                      description: Server hostname, e.g. imap.gmail.com.
+                    port:
+                      type: integer
+                      minimum: 1
+                      maximum: 65535
+                      description: Server port, e.g. 993 (IMAP) or 465 / 587 (SMTP).
+                    security:
+                      type: string
+                      enum:
+                        - tls
+                        - starttls
+                      description: "`tls` for implicit TLS (993, 465), `starttls` for an upgraded connection (143, 587). Plain text is refused."
+                  required:
+                    - host
+                    - port
+                    - security
+                  description: Outgoing mail server (SMTP).
+                appendSent:
+                  description: Copy each sent email into the Sent folder over IMAP. Defaults to true, except for providers that file sent mail themselves (Gmail).
+                  type: boolean
+              required:
+                - address
+                - password
+                - imap
+                - smtp
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  sentFolder:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: The Sent folder found on the IMAP server, or null when none was found.
+                required:
+                  - ok
+                  - sentFolder
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "422":
+          description: The request could not be processed.
+        "503":
+          description: The service needed to satisfy this request is not available right now.
+      security:
+        - bearer: []
+      summary: Test mailbox credentials without saving them.
+      tags:
+        - Accounts
+  /account/email:
+    post:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Tests the credentials and connects the mailbox as an EMAIL account. There is no QR code or challenge: the account is ACTIVE as soon as this returns. Its id is then the `accountId` to send email from with POST /message, and incoming email arrives as `message.received` webhooks. Gmail, iCloud and Yahoo require an app password. Same error codes as POST /account/email/test, plus EMAIL_ALREADY_CONNECTED (409, with `context.accountId` when the mailbox is already yours: update its password with PUT /account/{accountId}/email instead).
+      operationId: Account_connect_email
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  description: The mailbox address. It identifies the account and cannot change later.
+                  type: string
+                  format: email
+                  pattern: ^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$
+                username:
+                  description: Login for the IMAP and SMTP servers. Defaults to the address.
+                  type: string
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 1
+                  description: Mailbox password. For Gmail, iCloud and Yahoo this must be an app password, not the account password. It is stored encrypted by the mail service and never returned.
+                imap:
+                  type: object
+                  properties:
+                    host:
+                      type: string
+                      minLength: 1
+                      pattern: ^[a-zA-Z0-9.-]+$
+                      description: Server hostname, e.g. imap.gmail.com.
+                    port:
+                      type: integer
+                      minimum: 1
+                      maximum: 65535
+                      description: Server port, e.g. 993 (IMAP) or 465 / 587 (SMTP).
+                    security:
+                      type: string
+                      enum:
+                        - tls
+                        - starttls
+                      description: "`tls` for implicit TLS (993, 465), `starttls` for an upgraded connection (143, 587). Plain text is refused."
+                  required:
+                    - host
+                    - port
+                    - security
+                  description: Incoming mail server (IMAP).
+                smtp:
+                  type: object
+                  properties:
+                    host:
+                      type: string
+                      minLength: 1
+                      pattern: ^[a-zA-Z0-9.-]+$
+                      description: Server hostname, e.g. imap.gmail.com.
+                    port:
+                      type: integer
+                      minimum: 1
+                      maximum: 65535
+                      description: Server port, e.g. 993 (IMAP) or 465 / 587 (SMTP).
+                    security:
+                      type: string
+                      enum:
+                        - tls
+                        - starttls
+                      description: "`tls` for implicit TLS (993, 465), `starttls` for an upgraded connection (143, 587). Plain text is refused."
+                  required:
+                    - host
+                    - port
+                    - security
+                  description: Outgoing mail server (SMTP).
+                appendSent:
+                  description: Copy each sent email into the Sent folder over IMAP. Defaults to true, except for providers that file sent mail themselves (Gmail).
+                  type: boolean
+                name:
+                  description: Display name of the account. Defaults to the address.
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                externalRef:
+                  description: Your own reference for this account (e.g. your customer id), stored on it and returned with it. Can be changed later with PATCH /account/{accountId}.
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+              required:
+                - address
+                - password
+                - imap
+                - smtp
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  channel:
+                    type: string
+                    enum:
+                      - WHATSAPP_BAILYES
+                      - EMAIL
+                      - SMS
+                      - WHATSAPP_WHATSMEOW
+                  owner:
+                    type: string
+                    enum:
+                      - USER
+                      - SYSTEM
+                    description: "Who provides the account: USER when you connected it with your own credentials, SYSTEM when UnlimitedMessaging provides it."
+                  isSystem:
+                    type: boolean
+                    deprecated: true
+                    description: "Deprecated: use `owner` instead (true when owner is SYSTEM)."
+                  status:
+                    type: string
+                    enum:
+                      - PENDING
+                      - ACTIVE
+                      - INACTIVE
+                      - LINKING
+                      - BLOCKED
+                      - DUPLICATE
+                  phone:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  name:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  externalRef:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: Your own reference for this account, as set at linking or with PATCH.
+                  blockedUntil:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                  mediaUrlRequiresAuth:
+                    type: boolean
+                    description: Whether fetching a stored media also requires authenticating as its owner.
+                  syncHistory:
+                    type: boolean
+                    description: Whether the account's message history is stored and announced.
+                  sendIntervalSeconds:
+                    type: number
+                    description: The pause this account keeps between two sends, in seconds.
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                required:
+                  - id
+                  - channel
+                  - owner
+                  - isSystem
+                  - status
+                  - phone
+                  - name
+                  - externalRef
+                  - blockedUntil
+                  - mediaUrlRequiresAuth
+                  - syncHistory
+                  - sendIntervalSeconds
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "409":
+          description: A resource with the same identifier already exists.
+        "422":
+          description: The request could not be processed.
+        "503":
+          description: The service needed to satisfy this request is not available right now.
+      security:
+        - bearer: []
+      summary: Connect a mailbox as an email account.
+      tags:
+        - Accounts
+  /account/{accountId}/email:
+    put:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        For a changed password, or an account whose credentials the mail server refused (status INACTIVE, see the `account.status_changed` webhook). Servers default to the stored ones. The address cannot change: connect a new mailbox instead.
+      operationId: Account_reconnect_email
+      parameters:
+        - name: accountId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  description: New login. Defaults to the stored one.
+                  type: string
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 1
+                  description: The new password (or app password).
+                imap:
+                  description: New IMAP server. Defaults to the stored one.
+                  type: object
+                  properties:
+                    host:
+                      type: string
+                      minLength: 1
+                      pattern: ^[a-zA-Z0-9.-]+$
+                      description: Server hostname, e.g. imap.gmail.com.
+                    port:
+                      type: integer
+                      minimum: 1
+                      maximum: 65535
+                      description: Server port, e.g. 993 (IMAP) or 465 / 587 (SMTP).
+                    security:
+                      type: string
+                      enum:
+                        - tls
+                        - starttls
+                      description: "`tls` for implicit TLS (993, 465), `starttls` for an upgraded connection (143, 587). Plain text is refused."
+                  required:
+                    - host
+                    - port
+                    - security
+                smtp:
+                  description: New SMTP server. Defaults to the stored one.
+                  type: object
+                  properties:
+                    host:
+                      type: string
+                      minLength: 1
+                      pattern: ^[a-zA-Z0-9.-]+$
+                      description: Server hostname, e.g. imap.gmail.com.
+                    port:
+                      type: integer
+                      minimum: 1
+                      maximum: 65535
+                      description: Server port, e.g. 993 (IMAP) or 465 / 587 (SMTP).
+                    security:
+                      type: string
+                      enum:
+                        - tls
+                        - starttls
+                      description: "`tls` for implicit TLS (993, 465), `starttls` for an upgraded connection (143, 587). Plain text is refused."
+                  required:
+                    - host
+                    - port
+                    - security
+                appendSent:
+                  description: Defaults to the stored setting.
+                  type: boolean
+              required:
+                - password
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  channel:
+                    type: string
+                    enum:
+                      - WHATSAPP_BAILYES
+                      - EMAIL
+                      - SMS
+                      - WHATSAPP_WHATSMEOW
+                  owner:
+                    type: string
+                    enum:
+                      - USER
+                      - SYSTEM
+                    description: "Who provides the account: USER when you connected it with your own credentials, SYSTEM when UnlimitedMessaging provides it."
+                  isSystem:
+                    type: boolean
+                    deprecated: true
+                    description: "Deprecated: use `owner` instead (true when owner is SYSTEM)."
+                  status:
+                    type: string
+                    enum:
+                      - PENDING
+                      - ACTIVE
+                      - INACTIVE
+                      - LINKING
+                      - BLOCKED
+                      - DUPLICATE
+                  phone:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  name:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  externalRef:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: Your own reference for this account, as set at linking or with PATCH.
+                  blockedUntil:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                  mediaUrlRequiresAuth:
+                    type: boolean
+                    description: Whether fetching a stored media also requires authenticating as its owner.
+                  syncHistory:
+                    type: boolean
+                    description: Whether the account's message history is stored and announced.
+                  sendIntervalSeconds:
+                    type: number
+                    description: The pause this account keeps between two sends, in seconds.
+                  createdAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                required:
+                  - id
+                  - channel
+                  - owner
+                  - isSystem
+                  - status
+                  - phone
+                  - name
+                  - externalRef
+                  - blockedUntil
+                  - mediaUrlRequiresAuth
+                  - syncHistory
+                  - sendIntervalSeconds
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+          description: ""
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+        "404":
+          description: The requested resource was not found.
+        "422":
+          description: The request could not be processed.
+        "503":
+          description: The service needed to satisfy this request is not available right now.
+      security:
+        - bearer: []
+      summary: Update the credentials of a connected mailbox.
       tags:
         - Accounts
   /account/{accountId}/challenge:
@@ -3157,8 +3760,84 @@ info:
     email: support@unlimitedmessaging.app
   termsOfService: https://unlimitedmessaging.app/privacy
 tags:
+  - name: Accounts
+    description: |
+      
+      An account is one of your own messaging identities: a WhatsApp number, a mailbox, or an Android
+      phone sending SMS. Every message is sent from and received on an account. Link as many as your
+      plan allows, then send with `POST /message` (pass `accountId`, or omit it to let the API pick one
+      for the channel).
+
+      | Channel | How it is linked | Through the API |
+      | ------- | ---------------- | --------------- |
+      | `WHATSAPP_WHATSMEOW` | Scan a QR code with the phone | `GET /account/link`, then poll `GET /account/{accountId}/challenge` |
+      | `EMAIL` | IMAP/SMTP credentials of the mailbox | `POST /account/email` |
+      | `SMS` | The free Android app, signed in to your account | Not linkable through the API |
+
+      All of these work with an API key (`Authorization: Bearer <key>`). Status changes of every account
+      (linked, disconnected, credentials refused...) are also sent as `account.status_changed` webhooks.
+
+      ### Linking a WhatsApp number
+
+      1. `GET /account/link` creates the account in status `LINKING` and returns its `accountId`.
+      2. Poll `GET /account/{accountId}/challenge` every second. It returns
+         `{ "challenge": { "kind": "qr", "data": "2@..." } }`: render `data` as a QR code (any QR library).
+         It rotates about every 20 seconds, so keep polling and re-rendering.
+      3. The user scans it in WhatsApp: **Settings > Linked devices > Link a device**.
+      4. Once scanned, `challenge` becomes `null` and `GET /account/{accountId}` shows status `ACTIVE`.
+
+      If the attempt expires, call `GET /account/link` again: the pending account is resumed, not
+      duplicated. Linking numbers for several of your customers? Pass `externalRef` (your id for the
+      customer) so each one resumes only their own attempt.
+
+      ```bash
+      curl -H "Authorization: Bearer $UM_API_KEY" https://api.unlimitedmessaging.app/account/link
+      # { "accountId": "6f1c..." }
+      curl -H "Authorization: Bearer $UM_API_KEY" https://api.unlimitedmessaging.app/account/6f1c.../challenge
+      # { "challenge": { "kind": "qr", "data": "2@AbC..." } }
+      ```
+
+      ### Connecting a mailbox
+
+      No QR code: a mailbox connects from its credentials alone and is `ACTIVE` as soon as the call returns.
+
+      1. `GET /account/email/autoconfig?email=jane@example.com` suggests the IMAP and SMTP servers.
+         If `oauthRequired` is true (Outlook.com, Hotmail, Microsoft 365), the mailbox cannot be connected yet.
+      2. Optional: `POST /account/email/test` checks the credentials without saving anything.
+      3. `POST /account/email` with the address, the password and the servers connects it and returns the account.
+
+      Gmail, iCloud and Yahoo refuse the normal account password over IMAP: create an **app password**
+      in the provider's security settings and send that instead. The password is stored encrypted by the
+      mail service and never returned by the API.
+
+      ```bash
+      curl -X POST https://api.unlimitedmessaging.app/account/email \
+        -H "Authorization: Bearer $UM_API_KEY" -H "Content-Type: application/json" \
+        -d '{
+          "address": "jane@example.com",
+          "password": "app-password",
+          "imap": { "host": "imap.gmail.com", "port": 993, "security": "tls" },
+          "smtp": { "host": "smtp.gmail.com", "port": 465, "security": "tls" }
+        }'
+      ```
+
+      Failures answer `422` with `context.code`: `AUTH_FAILED` (wrong password, or an app password is
+      required), `OAUTH_REQUIRED`, `HOST_UNREACHABLE`, `TLS_ERROR`; and `409` `EMAIL_ALREADY_CONNECTED`.
+      When the password changes, or the server starts refusing it (status `INACTIVE`), send the new one
+      with `PUT /account/{accountId}/email`.
+
+      ### Through the MCP server
+
+      An AI assistant connected to the MCP server (`https://api.unlimitedmessaging.app/mcp`) links
+      both channels too:
+
+      - **WhatsApp**: the `add-account` tool shows the QR code in the chat, to scan like above.
+      - **Email**: `add-email-account` first recommends the dashboard, where the user types the password
+        themselves and it never goes through the conversation. If the user prefers, they can give their
+        address and password (or app password) in the chat instead: the tool finds the servers and
+        connects the mailbox directly.
   - name: Messages
-    description: Send and retrieve WhatsApp messages.
+    description: Send and retrieve messages by WhatsApp, email or SMS.
   - name: SIMs
     description: Manage WhatsApp SIM cards linked to your account.
   - name: Webhooks
