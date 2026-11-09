@@ -1,6 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AccountUpdateAccountRequest = exports.AccountRequestHistoryRequest = void 0;
+exports.AccountUpdateAccountRequest = exports.AccountRequestHistoryRequest = exports.AccountReconnectEmailRequest = exports.AccountConnectEmailRequest = exports.AccountTestEmailRequest = void 0;
+var AccountTestEmailRequest_1 = require("./AccountTestEmailRequest");
+Object.defineProperty(exports, "AccountTestEmailRequest", { enumerable: true, get: function () { return AccountTestEmailRequest_1.AccountTestEmailRequest; } });
+var AccountConnectEmailRequest_1 = require("./AccountConnectEmailRequest");
+Object.defineProperty(exports, "AccountConnectEmailRequest", { enumerable: true, get: function () { return AccountConnectEmailRequest_1.AccountConnectEmailRequest; } });
+var AccountReconnectEmailRequest_1 = require("./AccountReconnectEmailRequest");
+Object.defineProperty(exports, "AccountReconnectEmailRequest", { enumerable: true, get: function () { return AccountReconnectEmailRequest_1.AccountReconnectEmailRequest; } });
 var AccountRequestHistoryRequest_1 = require("./AccountRequestHistoryRequest");
 Object.defineProperty(exports, "AccountRequestHistoryRequest", { enumerable: true, get: function () { return AccountRequestHistoryRequest_1.AccountRequestHistoryRequest; } });
 var AccountUpdateAccountRequest_1 = require("./AccountUpdateAccountRequest");

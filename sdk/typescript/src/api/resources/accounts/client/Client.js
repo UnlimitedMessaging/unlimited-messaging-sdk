@@ -55,6 +55,82 @@ const UnlimitedMessagingApi = __importStar(require("../../../index"));
 const url_join_1 = __importDefault(require("url-join"));
 const serializers = __importStar(require("../../../../serialization/index"));
 const errors = __importStar(require("../../../../errors/index"));
+/**
+ *
+ * An account is one of your own messaging identities: a WhatsApp number, a mailbox, or an Android
+ * phone sending SMS. Every message is sent from and received on an account. Link as many as your
+ * plan allows, then send with `POST /message` (pass `accountId`, or omit it to let the API pick one
+ * for the channel).
+ *
+ * | Channel | How it is linked | Through the API |
+ * | ------- | ---------------- | --------------- |
+ * | `WHATSAPP_WHATSMEOW` | Scan a QR code with the phone | `GET /account/link`, then poll `GET /account/{accountId}/challenge` |
+ * | `EMAIL` | IMAP/SMTP credentials of the mailbox | `POST /account/email` |
+ * | `SMS` | The free Android app, signed in to your account | Not linkable through the API |
+ *
+ * All of these work with an API key (`Authorization: Bearer <key>`). Status changes of every account
+ * (linked, disconnected, credentials refused...) are also sent as `account.status_changed` webhooks.
+ *
+ * ### Linking a WhatsApp number
+ *
+ * 1. `GET /account/link` creates the account in status `LINKING` and returns its `accountId`.
+ * 2. Poll `GET /account/{accountId}/challenge` every second. It returns
+ *    `{ "challenge": { "kind": "qr", "data": "2@..." } }`: render `data` as a QR code (any QR library).
+ *    It rotates about every 20 seconds, so keep polling and re-rendering.
+ * 3. The user scans it in WhatsApp: **Settings > Linked devices > Link a device**.
+ * 4. Once scanned, `challenge` becomes `null` and `GET /account/{accountId}` shows status `ACTIVE`.
+ *
+ * If the attempt expires, call `GET /account/link` again: the pending account is resumed, not
+ * duplicated. Linking numbers for several of your customers? Pass `externalRef` (your id for the
+ * customer) so each one resumes only their own attempt.
+ *
+ * ```bash
+ * curl -H "Authorization: Bearer $UM_API_KEY" https://api.unlimitedmessaging.app/account/link
+ * # { "accountId": "6f1c..." }
+ * curl -H "Authorization: Bearer $UM_API_KEY" https://api.unlimitedmessaging.app/account/6f1c.../challenge
+ * # { "challenge": { "kind": "qr", "data": "2@AbC..." } }
+ * ```
+ *
+ * ### Connecting a mailbox
+ *
+ * No QR code: a mailbox connects from its credentials alone and is `ACTIVE` as soon as the call returns.
+ *
+ * 1. `GET /account/email/autoconfig?email=jane@example.com` suggests the IMAP and SMTP servers.
+ *    If `oauthRequired` is true (Outlook.com, Hotmail, Microsoft 365), the mailbox cannot be connected yet.
+ * 2. Optional: `POST /account/email/test` checks the credentials without saving anything.
+ * 3. `POST /account/email` with the address, the password and the servers connects it and returns the account.
+ *
+ * Gmail, iCloud and Yahoo refuse the normal account password over IMAP: create an **app password**
+ * in the provider's security settings and send that instead. The password is stored encrypted by the
+ * mail service and never returned by the API.
+ *
+ * ```bash
+ * curl -X POST https://api.unlimitedmessaging.app/account/email \
+ *   -H "Authorization: Bearer $UM_API_KEY" -H "Content-Type: application/json" \
+ *   -d '{
+ *     "address": "jane@example.com",
+ *     "password": "app-password",
+ *     "imap": { "host": "imap.gmail.com", "port": 993, "security": "tls" },
+ *     "smtp": { "host": "smtp.gmail.com", "port": 465, "security": "tls" }
+ *   }'
+ * ```
+ *
+ * Failures answer `422` with `context.code`: `AUTH_FAILED` (wrong password, or an app password is
+ * required), `OAUTH_REQUIRED`, `HOST_UNREACHABLE`, `TLS_ERROR`; and `409` `EMAIL_ALREADY_CONNECTED`.
+ * When the password changes, or the server starts refusing it (status `INACTIVE`), send the new one
+ * with `PUT /account/{accountId}/email`.
+ *
+ * ### Through the MCP server
+ *
+ * An AI assistant connected to the MCP server (`https://api.unlimitedmessaging.app/mcp`) links
+ * both channels too:
+ *
+ * - **WhatsApp**: the `add-account` tool shows the QR code in the chat, to scan like above.
+ * - **Email**: `add-email-account` first recommends the dashboard, where the user types the password
+ *   themselves and it never goes through the conversation. If the user prefers, they can give their
+ *   address and password (or app password) in the chat instead: the tool finds the servers and
+ *   connects the mailbox directly.
+ */
 class Accounts {
     constructor(_options) {
         this._options = _options;
@@ -134,7 +210,7 @@ class Accounts {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
      *
-     * Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
+     * Creates a new WHATSAPP account in LINKING status and starts a WhatsApp session. Poll GET /account/{accountId}/challenge every second: it returns `{ kind: "qr", data }`, the string to render as a QR code. The user scans it in WhatsApp > Settings > Linked devices > Link a device. The QR rotates about every 20 seconds, keep polling and re-rendering it. Once scanned the challenge becomes null and GET /account/{accountId} shows status ACTIVE (an `account.status_changed` webhook is also sent). If the attempt expires before it is scanned, call this endpoint again: the pending attempt is resumed. `mode` is kept for backwards compatibility, `stable` and `beta` now use the same connection. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
      *
      * @param {UnlimitedMessagingApi.AccountLinkAccountRequest} request
      * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
@@ -216,6 +292,366 @@ class Accounts {
                     });
                 case "timeout":
                     throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling GET /account/link.");
+                case "unknown":
+                    throw new errors.UnlimitedMessagingApiError({
+                        message: _response.error.errorMessage,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        });
+    }
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+     *
+     * First step of connecting a mailbox: looks up the IMAP and SMTP servers for an address (provider autoconfig, Mozilla ISP database, DNS, probing). Pass the result to POST /account/email/test or POST /account/email along with the password. When `oauthRequired` is true (Outlook.com, Hotmail, Microsoft 365) the mailbox cannot be connected yet.
+     *
+     * @param {UnlimitedMessagingApi.AccountEmailAutoconfigRequest} request
+     * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.BadRequestError}
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.ServiceUnavailableError}
+     *
+     * @example
+     *     await client.accounts.accountEmailAutoconfig({
+     *         email: "email"
+     *     })
+     */
+    accountEmailAutoconfig(request, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__accountEmailAutoconfig(request, requestOptions));
+    }
+    __accountEmailAutoconfig(request, requestOptions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            const { email } = request;
+            const _queryParams = {};
+            _queryParams["email"] = email;
+            const _response = yield core.fetcher({
+                url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, "account/email/autoconfig"),
+                method: "GET",
+                headers: Object.assign({ Authorization: yield this._getAuthorizationHeader(), "X-Fern-Language": "JavaScript", "X-Fern-Runtime": core.RUNTIME.type, "X-Fern-Runtime-Version": core.RUNTIME.version }, requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.headers),
+                contentType: "application/json",
+                queryParameters: _queryParams,
+                requestType: "json",
+                timeoutMs: (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeoutInSeconds) != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+                maxRetries: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.maxRetries,
+                withCredentials: true,
+                abortSignal: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.abortSignal,
+            });
+            if (_response.ok) {
+                return {
+                    data: serializers.AccountEmailAutoconfigResponse.parseOrThrow(_response.body, {
+                        unrecognizedObjectKeys: "passthrough",
+                        allowUnrecognizedUnionMembers: true,
+                        allowUnrecognizedEnumValues: true,
+                        breadcrumbsPrefix: ["response"],
+                    }),
+                    rawResponse: _response.rawResponse,
+                };
+            }
+            if (_response.error.reason === "status-code") {
+                switch (_response.error.statusCode) {
+                    case 400:
+                        throw new UnlimitedMessagingApi.BadRequestError(_response.error.body, _response.rawResponse);
+                    case 401:
+                        throw new UnlimitedMessagingApi.UnauthorizedError(_response.error.body, _response.rawResponse);
+                    case 403:
+                        throw new UnlimitedMessagingApi.ForbiddenError(_response.error.body, _response.rawResponse);
+                    case 503:
+                        throw new UnlimitedMessagingApi.ServiceUnavailableError(_response.error.body, _response.rawResponse);
+                    default:
+                        throw new errors.UnlimitedMessagingApiError({
+                            statusCode: _response.error.statusCode,
+                            body: _response.error.body,
+                            rawResponse: _response.rawResponse,
+                        });
+                }
+            }
+            switch (_response.error.reason) {
+                case "non-json":
+                    throw new errors.UnlimitedMessagingApiError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.rawBody,
+                        rawResponse: _response.rawResponse,
+                    });
+                case "timeout":
+                    throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling GET /account/email/autoconfig.");
+                case "unknown":
+                    throw new errors.UnlimitedMessagingApiError({
+                        message: _response.error.errorMessage,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        });
+    }
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+     *
+     * Logs in to the IMAP and SMTP servers and saves nothing. Optional: POST /account/email runs the same test before connecting. Errors (422) carry `context.code`: AUTH_FAILED (wrong password, or an app password is required), OAUTH_REQUIRED (Microsoft 365 / Outlook.com), HOST_UNREACHABLE, TLS_ERROR.
+     *
+     * @param {UnlimitedMessagingApi.AccountTestEmailRequest} request
+     * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
+     * @throws {@link UnlimitedMessagingApi.ServiceUnavailableError}
+     *
+     * @example
+     *     await client.accounts.accountTestEmail({
+     *         address: "address",
+     *         password: "password",
+     *         imap: {
+     *             host: "host",
+     *             port: 1,
+     *             security: "tls"
+     *         },
+     *         smtp: {
+     *             host: "host",
+     *             port: 1,
+     *             security: "tls"
+     *         }
+     *     })
+     */
+    accountTestEmail(request, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__accountTestEmail(request, requestOptions));
+    }
+    __accountTestEmail(request, requestOptions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            const _response = yield core.fetcher({
+                url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, "account/email/test"),
+                method: "POST",
+                headers: Object.assign({ Authorization: yield this._getAuthorizationHeader(), "X-Fern-Language": "JavaScript", "X-Fern-Runtime": core.RUNTIME.type, "X-Fern-Runtime-Version": core.RUNTIME.version }, requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.headers),
+                contentType: "application/json",
+                requestType: "json",
+                body: serializers.AccountTestEmailRequest.jsonOrThrow(request, { unrecognizedObjectKeys: "strip" }),
+                timeoutMs: (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeoutInSeconds) != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+                maxRetries: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.maxRetries,
+                withCredentials: true,
+                abortSignal: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.abortSignal,
+            });
+            if (_response.ok) {
+                return {
+                    data: serializers.AccountTestEmailResponse.parseOrThrow(_response.body, {
+                        unrecognizedObjectKeys: "passthrough",
+                        allowUnrecognizedUnionMembers: true,
+                        allowUnrecognizedEnumValues: true,
+                        breadcrumbsPrefix: ["response"],
+                    }),
+                    rawResponse: _response.rawResponse,
+                };
+            }
+            if (_response.error.reason === "status-code") {
+                switch (_response.error.statusCode) {
+                    case 401:
+                        throw new UnlimitedMessagingApi.UnauthorizedError(_response.error.body, _response.rawResponse);
+                    case 403:
+                        throw new UnlimitedMessagingApi.ForbiddenError(_response.error.body, _response.rawResponse);
+                    case 422:
+                        throw new UnlimitedMessagingApi.UnprocessableEntityError(_response.error.body, _response.rawResponse);
+                    case 503:
+                        throw new UnlimitedMessagingApi.ServiceUnavailableError(_response.error.body, _response.rawResponse);
+                    default:
+                        throw new errors.UnlimitedMessagingApiError({
+                            statusCode: _response.error.statusCode,
+                            body: _response.error.body,
+                            rawResponse: _response.rawResponse,
+                        });
+                }
+            }
+            switch (_response.error.reason) {
+                case "non-json":
+                    throw new errors.UnlimitedMessagingApiError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.rawBody,
+                        rawResponse: _response.rawResponse,
+                    });
+                case "timeout":
+                    throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling POST /account/email/test.");
+                case "unknown":
+                    throw new errors.UnlimitedMessagingApiError({
+                        message: _response.error.errorMessage,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        });
+    }
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+     *
+     * Tests the credentials and connects the mailbox as an EMAIL account. There is no QR code or challenge: the account is ACTIVE as soon as this returns. Its id is then the `accountId` to send email from with POST /message, and incoming email arrives as `message.received` webhooks. Gmail, iCloud and Yahoo require an app password. Same error codes as POST /account/email/test, plus EMAIL_ALREADY_CONNECTED (409, with `context.accountId` when the mailbox is already yours: update its password with PUT /account/{accountId}/email instead).
+     *
+     * @param {UnlimitedMessagingApi.AccountConnectEmailRequest} request
+     * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.ConflictError}
+     * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
+     * @throws {@link UnlimitedMessagingApi.ServiceUnavailableError}
+     *
+     * @example
+     *     await client.accounts.accountConnectEmail({
+     *         address: "address",
+     *         password: "password",
+     *         imap: {
+     *             host: "host",
+     *             port: 1,
+     *             security: "tls"
+     *         },
+     *         smtp: {
+     *             host: "host",
+     *             port: 1,
+     *             security: "tls"
+     *         }
+     *     })
+     */
+    accountConnectEmail(request, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__accountConnectEmail(request, requestOptions));
+    }
+    __accountConnectEmail(request, requestOptions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            const _response = yield core.fetcher({
+                url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, "account/email"),
+                method: "POST",
+                headers: Object.assign({ Authorization: yield this._getAuthorizationHeader(), "X-Fern-Language": "JavaScript", "X-Fern-Runtime": core.RUNTIME.type, "X-Fern-Runtime-Version": core.RUNTIME.version }, requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.headers),
+                contentType: "application/json",
+                requestType: "json",
+                body: serializers.AccountConnectEmailRequest.jsonOrThrow(request, { unrecognizedObjectKeys: "strip" }),
+                timeoutMs: (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeoutInSeconds) != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+                maxRetries: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.maxRetries,
+                withCredentials: true,
+                abortSignal: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.abortSignal,
+            });
+            if (_response.ok) {
+                return {
+                    data: serializers.AccountConnectEmailResponse.parseOrThrow(_response.body, {
+                        unrecognizedObjectKeys: "passthrough",
+                        allowUnrecognizedUnionMembers: true,
+                        allowUnrecognizedEnumValues: true,
+                        breadcrumbsPrefix: ["response"],
+                    }),
+                    rawResponse: _response.rawResponse,
+                };
+            }
+            if (_response.error.reason === "status-code") {
+                switch (_response.error.statusCode) {
+                    case 401:
+                        throw new UnlimitedMessagingApi.UnauthorizedError(_response.error.body, _response.rawResponse);
+                    case 403:
+                        throw new UnlimitedMessagingApi.ForbiddenError(_response.error.body, _response.rawResponse);
+                    case 409:
+                        throw new UnlimitedMessagingApi.ConflictError(_response.error.body, _response.rawResponse);
+                    case 422:
+                        throw new UnlimitedMessagingApi.UnprocessableEntityError(_response.error.body, _response.rawResponse);
+                    case 503:
+                        throw new UnlimitedMessagingApi.ServiceUnavailableError(_response.error.body, _response.rawResponse);
+                    default:
+                        throw new errors.UnlimitedMessagingApiError({
+                            statusCode: _response.error.statusCode,
+                            body: _response.error.body,
+                            rawResponse: _response.rawResponse,
+                        });
+                }
+            }
+            switch (_response.error.reason) {
+                case "non-json":
+                    throw new errors.UnlimitedMessagingApiError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.rawBody,
+                        rawResponse: _response.rawResponse,
+                    });
+                case "timeout":
+                    throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling POST /account/email.");
+                case "unknown":
+                    throw new errors.UnlimitedMessagingApiError({
+                        message: _response.error.errorMessage,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        });
+    }
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+     *
+     * For a changed password, or an account whose credentials the mail server refused (status INACTIVE, see the `account.status_changed` webhook). Servers default to the stored ones. The address cannot change: connect a new mailbox instead.
+     *
+     * @param {string} accountId
+     * @param {UnlimitedMessagingApi.AccountReconnectEmailRequest} request
+     * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     * @throws {@link UnlimitedMessagingApi.NotFoundError}
+     * @throws {@link UnlimitedMessagingApi.UnprocessableEntityError}
+     * @throws {@link UnlimitedMessagingApi.ServiceUnavailableError}
+     *
+     * @example
+     *     await client.accounts.accountReconnectEmail("accountId", {
+     *         password: "password"
+     *     })
+     */
+    accountReconnectEmail(accountId, request, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__accountReconnectEmail(accountId, request, requestOptions));
+    }
+    __accountReconnectEmail(accountId, request, requestOptions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            const _response = yield core.fetcher({
+                url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, `account/${encodeURIComponent(accountId)}/email`),
+                method: "PUT",
+                headers: Object.assign({ Authorization: yield this._getAuthorizationHeader(), "X-Fern-Language": "JavaScript", "X-Fern-Runtime": core.RUNTIME.type, "X-Fern-Runtime-Version": core.RUNTIME.version }, requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.headers),
+                contentType: "application/json",
+                requestType: "json",
+                body: serializers.AccountReconnectEmailRequest.jsonOrThrow(request, { unrecognizedObjectKeys: "strip" }),
+                timeoutMs: (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeoutInSeconds) != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+                maxRetries: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.maxRetries,
+                withCredentials: true,
+                abortSignal: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.abortSignal,
+            });
+            if (_response.ok) {
+                return {
+                    data: serializers.AccountReconnectEmailResponse.parseOrThrow(_response.body, {
+                        unrecognizedObjectKeys: "passthrough",
+                        allowUnrecognizedUnionMembers: true,
+                        allowUnrecognizedEnumValues: true,
+                        breadcrumbsPrefix: ["response"],
+                    }),
+                    rawResponse: _response.rawResponse,
+                };
+            }
+            if (_response.error.reason === "status-code") {
+                switch (_response.error.statusCode) {
+                    case 401:
+                        throw new UnlimitedMessagingApi.UnauthorizedError(_response.error.body, _response.rawResponse);
+                    case 403:
+                        throw new UnlimitedMessagingApi.ForbiddenError(_response.error.body, _response.rawResponse);
+                    case 404:
+                        throw new UnlimitedMessagingApi.NotFoundError(_response.error.body, _response.rawResponse);
+                    case 422:
+                        throw new UnlimitedMessagingApi.UnprocessableEntityError(_response.error.body, _response.rawResponse);
+                    case 503:
+                        throw new UnlimitedMessagingApi.ServiceUnavailableError(_response.error.body, _response.rawResponse);
+                    default:
+                        throw new errors.UnlimitedMessagingApiError({
+                            statusCode: _response.error.statusCode,
+                            body: _response.error.body,
+                            rawResponse: _response.rawResponse,
+                        });
+                }
+            }
+            switch (_response.error.reason) {
+                case "non-json":
+                    throw new errors.UnlimitedMessagingApiError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.rawBody,
+                        rawResponse: _response.rawResponse,
+                    });
+                case "timeout":
+                    throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling PUT /account/{accountId}/email.");
                 case "unknown":
                     throw new errors.UnlimitedMessagingApiError({
                         message: _response.error.errorMessage,

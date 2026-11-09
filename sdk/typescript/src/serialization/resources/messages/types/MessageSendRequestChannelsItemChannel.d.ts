@@ -6,5 +6,5 @@ import * as UnlimitedMessagingApi from "../../../../api/index";
 import * as core from "../../../../core";
 export declare const MessageSendRequestChannelsItemChannel: core.serialization.Schema<serializers.MessageSendRequestChannelsItemChannel.Raw, UnlimitedMessagingApi.MessageSendRequestChannelsItemChannel>;
 export declare namespace MessageSendRequestChannelsItemChannel {
-    type Raw = "WHATSAPP" | "EMAIL";
+    type Raw = "WHATSAPP" | "EMAIL" | "SMS";
 }

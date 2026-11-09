@@ -7,4 +7,5 @@ exports.MessageSendRequestChannelsItemChannel = void 0;
 exports.MessageSendRequestChannelsItemChannel = {
     Whatsapp: "WHATSAPP",
     Email: "EMAIL",
+    Sms: "SMS",
 };

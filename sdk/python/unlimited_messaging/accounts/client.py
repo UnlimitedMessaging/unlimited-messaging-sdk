@@ -12,14 +12,24 @@ from ..core.api_error import ApiError
 from .types.account_link_account_request_mode import AccountLinkAccountRequestMode
 from .types.account_link_account_response import AccountLinkAccountResponse
 from ..errors.service_unavailable_error import ServiceUnavailableError
-from .types.account_get_challenge_response import AccountGetChallengeResponse
+from .types.account_email_autoconfig_response import AccountEmailAutoconfigResponse
+from ..errors.bad_request_error import BadRequestError
+from .types.account_test_email_request_imap import AccountTestEmailRequestImap
+from .types.account_test_email_request_smtp import AccountTestEmailRequestSmtp
+from .types.account_test_email_response import AccountTestEmailResponse
+from ..errors.unprocessable_entity_error import UnprocessableEntityError
+from .types.account_connect_email_request_imap import AccountConnectEmailRequestImap
+from .types.account_connect_email_request_smtp import AccountConnectEmailRequestSmtp
+from .types.account_connect_email_response import AccountConnectEmailResponse
+from ..errors.conflict_error import ConflictError
+from .types.account_reconnect_email_request_imap import AccountReconnectEmailRequestImap
+from .types.account_reconnect_email_request_smtp import AccountReconnectEmailRequestSmtp
+from .types.account_reconnect_email_response import AccountReconnectEmailResponse
 from ..core.jsonable_encoder import jsonable_encoder
 from ..errors.not_found_error import NotFoundError
+from .types.account_get_challenge_response import AccountGetChallengeResponse
 from .types.account_get_qr_code_response import AccountGetQrCodeResponse
 from .types.account_request_history_response import AccountRequestHistoryResponse
-from ..errors.bad_request_error import BadRequestError
-from ..errors.conflict_error import ConflictError
-from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from .types.account_list_groups_response import AccountListGroupsResponse
 from .types.account_get_group_response import AccountGetGroupResponse
 from .types.account_get_account_response import AccountGetAccountResponse
@@ -112,7 +122,7 @@ class AccountsClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
+        Creates a new WHATSAPP account in LINKING status and starts a WhatsApp session. Poll GET /account/{accountId}/challenge every second: it returns `{ kind: "qr", data }`, the string to render as a QR code. The user scans it in WhatsApp > Settings > Linked devices > Link a device. The QR rotates about every 20 seconds, keep polling and re-rendering it. Once scanned the challenge becomes null and GET /account/{accountId} shows status ACTIVE (an `account.status_changed` webhook is also sent). If the attempt expires before it is scanned, call this endpoint again: the pending attempt is resumed. `mode` is kept for backwards compatibility, `stable` and `beta` now use the same connection. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
 
         Parameters
         ----------
@@ -173,6 +183,527 @@ class AccountsClient:
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 503:
+                raise ServiceUnavailableError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def account_email_autoconfig(
+        self, *, email: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> AccountEmailAutoconfigResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        First step of connecting a mailbox: looks up the IMAP and SMTP servers for an address (provider autoconfig, Mozilla ISP database, DNS, probing). Pass the result to POST /account/email/test or POST /account/email along with the password. When `oauthRequired` is true (Outlook.com, Hotmail, Microsoft 365) the mailbox cannot be connected yet.
+
+        Parameters
+        ----------
+        email : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountEmailAutoconfigResponse
+
+
+        Examples
+        --------
+        from unlimited_messaging import UnlimitedMessagingApi
+
+        client = UnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+        client.accounts.account_email_autoconfig(
+            email="email",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "account/email/autoconfig",
+            method="GET",
+            params={
+                "email": email,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountEmailAutoconfigResponse,
+                    parse_obj_as(
+                        type_=AccountEmailAutoconfigResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 503:
+                raise ServiceUnavailableError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def account_test_email(
+        self,
+        *,
+        address: str,
+        password: str,
+        imap: AccountTestEmailRequestImap,
+        smtp: AccountTestEmailRequestSmtp,
+        username: typing.Optional[str] = OMIT,
+        append_sent: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountTestEmailResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Logs in to the IMAP and SMTP servers and saves nothing. Optional: POST /account/email runs the same test before connecting. Errors (422) carry `context.code`: AUTH_FAILED (wrong password, or an app password is required), OAUTH_REQUIRED (Microsoft 365 / Outlook.com), HOST_UNREACHABLE, TLS_ERROR.
+
+        Parameters
+        ----------
+        address : str
+            The mailbox address. It identifies the account and cannot change later.
+
+        password : str
+            Mailbox password. For Gmail, iCloud and Yahoo this must be an app password, not the account password. It is stored encrypted by the mail service and never returned.
+
+        imap : AccountTestEmailRequestImap
+            Incoming mail server (IMAP).
+
+        smtp : AccountTestEmailRequestSmtp
+            Outgoing mail server (SMTP).
+
+        username : typing.Optional[str]
+            Login for the IMAP and SMTP servers. Defaults to the address.
+
+        append_sent : typing.Optional[bool]
+            Copy each sent email into the Sent folder over IMAP. Defaults to true, except for providers that file sent mail themselves (Gmail).
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountTestEmailResponse
+
+
+        Examples
+        --------
+        from unlimited_messaging import UnlimitedMessagingApi
+        from unlimited_messaging.accounts import (
+            AccountTestEmailRequestImap,
+            AccountTestEmailRequestSmtp,
+        )
+
+        client = UnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+        client.accounts.account_test_email(
+            address="address",
+            password="password",
+            imap=AccountTestEmailRequestImap(
+                host="host",
+                port=1,
+                security="tls",
+            ),
+            smtp=AccountTestEmailRequestSmtp(
+                host="host",
+                port=1,
+                security="tls",
+            ),
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "account/email/test",
+            method="POST",
+            json={
+                "address": address,
+                "username": username,
+                "password": password,
+                "imap": imap,
+                "smtp": smtp,
+                "appendSent": append_sent,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountTestEmailResponse,
+                    parse_obj_as(
+                        type_=AccountTestEmailResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 503:
+                raise ServiceUnavailableError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def account_connect_email(
+        self,
+        *,
+        address: str,
+        password: str,
+        imap: AccountConnectEmailRequestImap,
+        smtp: AccountConnectEmailRequestSmtp,
+        username: typing.Optional[str] = OMIT,
+        append_sent: typing.Optional[bool] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        external_ref: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountConnectEmailResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Tests the credentials and connects the mailbox as an EMAIL account. There is no QR code or challenge: the account is ACTIVE as soon as this returns. Its id is then the `accountId` to send email from with POST /message, and incoming email arrives as `message.received` webhooks. Gmail, iCloud and Yahoo require an app password. Same error codes as POST /account/email/test, plus EMAIL_ALREADY_CONNECTED (409, with `context.accountId` when the mailbox is already yours: update its password with PUT /account/{accountId}/email instead).
+
+        Parameters
+        ----------
+        address : str
+            The mailbox address. It identifies the account and cannot change later.
+
+        password : str
+            Mailbox password. For Gmail, iCloud and Yahoo this must be an app password, not the account password. It is stored encrypted by the mail service and never returned.
+
+        imap : AccountConnectEmailRequestImap
+            Incoming mail server (IMAP).
+
+        smtp : AccountConnectEmailRequestSmtp
+            Outgoing mail server (SMTP).
+
+        username : typing.Optional[str]
+            Login for the IMAP and SMTP servers. Defaults to the address.
+
+        append_sent : typing.Optional[bool]
+            Copy each sent email into the Sent folder over IMAP. Defaults to true, except for providers that file sent mail themselves (Gmail).
+
+        name : typing.Optional[str]
+            Display name of the account. Defaults to the address.
+
+        external_ref : typing.Optional[str]
+            Your own reference for this account (e.g. your customer id), stored on it and returned with it. Can be changed later with PATCH /account/{accountId}.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountConnectEmailResponse
+
+
+        Examples
+        --------
+        from unlimited_messaging import UnlimitedMessagingApi
+        from unlimited_messaging.accounts import (
+            AccountConnectEmailRequestImap,
+            AccountConnectEmailRequestSmtp,
+        )
+
+        client = UnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+        client.accounts.account_connect_email(
+            address="address",
+            password="password",
+            imap=AccountConnectEmailRequestImap(
+                host="host",
+                port=1,
+                security="tls",
+            ),
+            smtp=AccountConnectEmailRequestSmtp(
+                host="host",
+                port=1,
+                security="tls",
+            ),
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "account/email",
+            method="POST",
+            json={
+                "address": address,
+                "username": username,
+                "password": password,
+                "imap": imap,
+                "smtp": smtp,
+                "appendSent": append_sent,
+                "name": name,
+                "externalRef": external_ref,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountConnectEmailResponse,
+                    parse_obj_as(
+                        type_=AccountConnectEmailResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 503:
+                raise ServiceUnavailableError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def account_reconnect_email(
+        self,
+        account_id: str,
+        *,
+        password: str,
+        username: typing.Optional[str] = OMIT,
+        imap: typing.Optional[AccountReconnectEmailRequestImap] = OMIT,
+        smtp: typing.Optional[AccountReconnectEmailRequestSmtp] = OMIT,
+        append_sent: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountReconnectEmailResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        For a changed password, or an account whose credentials the mail server refused (status INACTIVE, see the `account.status_changed` webhook). Servers default to the stored ones. The address cannot change: connect a new mailbox instead.
+
+        Parameters
+        ----------
+        account_id : str
+
+        password : str
+            The new password (or app password).
+
+        username : typing.Optional[str]
+            New login. Defaults to the stored one.
+
+        imap : typing.Optional[AccountReconnectEmailRequestImap]
+            New IMAP server. Defaults to the stored one.
+
+        smtp : typing.Optional[AccountReconnectEmailRequestSmtp]
+            New SMTP server. Defaults to the stored one.
+
+        append_sent : typing.Optional[bool]
+            Defaults to the stored setting.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountReconnectEmailResponse
+
+
+        Examples
+        --------
+        from unlimited_messaging import UnlimitedMessagingApi
+
+        client = UnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+        client.accounts.account_reconnect_email(
+            account_id="accountId",
+            password="password",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"account/{jsonable_encoder(account_id)}/email",
+            method="PUT",
+            json={
+                "username": username,
+                "password": password,
+                "imap": imap,
+                "smtp": smtp,
+                "appendSent": append_sent,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountReconnectEmailResponse,
+                    parse_obj_as(
+                        type_=AccountReconnectEmailResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(
@@ -1071,7 +1602,7 @@ class AsyncAccountsClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
 
-        Creates a new account in Linking status and starts a WhatsApp session. Poll GET /account/:accountId/challenge every second to get the QR code to scan. `mode` picks the connection method: `stable` (default) is the long-standing one, `beta` is newer and keeps the connection alive noticeably better. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
+        Creates a new WHATSAPP account in LINKING status and starts a WhatsApp session. Poll GET /account/{accountId}/challenge every second: it returns `{ kind: "qr", data }`, the string to render as a QR code. The user scans it in WhatsApp > Settings > Linked devices > Link a device. The QR rotates about every 20 seconds, keep polling and re-rendering it. Once scanned the challenge becomes null and GET /account/{accountId} shows status ACTIVE (an `account.status_changed` webhook is also sent). If the attempt expires before it is scanned, call this endpoint again: the pending attempt is resumed. `mode` is kept for backwards compatibility, `stable` and `beta` now use the same connection. A pending attempt is resumed rather than duplicated. When you link numbers on behalf of several customers, pass `externalRef` (your own id for the customer, stored on the account and returned with it) so only that customer's pending attempt is resumed, or `new=true` to always start a fresh one.
 
         Parameters
         ----------
@@ -1140,6 +1671,559 @@ class AsyncAccountsClient:
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 503:
+                raise ServiceUnavailableError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def account_email_autoconfig(
+        self, *, email: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> AccountEmailAutoconfigResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        First step of connecting a mailbox: looks up the IMAP and SMTP servers for an address (provider autoconfig, Mozilla ISP database, DNS, probing). Pass the result to POST /account/email/test or POST /account/email along with the password. When `oauthRequired` is true (Outlook.com, Hotmail, Microsoft 365) the mailbox cannot be connected yet.
+
+        Parameters
+        ----------
+        email : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountEmailAutoconfigResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from unlimited_messaging import AsyncUnlimitedMessagingApi
+
+        client = AsyncUnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.accounts.account_email_autoconfig(
+                email="email",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "account/email/autoconfig",
+            method="GET",
+            params={
+                "email": email,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountEmailAutoconfigResponse,
+                    parse_obj_as(
+                        type_=AccountEmailAutoconfigResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 503:
+                raise ServiceUnavailableError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def account_test_email(
+        self,
+        *,
+        address: str,
+        password: str,
+        imap: AccountTestEmailRequestImap,
+        smtp: AccountTestEmailRequestSmtp,
+        username: typing.Optional[str] = OMIT,
+        append_sent: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountTestEmailResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Logs in to the IMAP and SMTP servers and saves nothing. Optional: POST /account/email runs the same test before connecting. Errors (422) carry `context.code`: AUTH_FAILED (wrong password, or an app password is required), OAUTH_REQUIRED (Microsoft 365 / Outlook.com), HOST_UNREACHABLE, TLS_ERROR.
+
+        Parameters
+        ----------
+        address : str
+            The mailbox address. It identifies the account and cannot change later.
+
+        password : str
+            Mailbox password. For Gmail, iCloud and Yahoo this must be an app password, not the account password. It is stored encrypted by the mail service and never returned.
+
+        imap : AccountTestEmailRequestImap
+            Incoming mail server (IMAP).
+
+        smtp : AccountTestEmailRequestSmtp
+            Outgoing mail server (SMTP).
+
+        username : typing.Optional[str]
+            Login for the IMAP and SMTP servers. Defaults to the address.
+
+        append_sent : typing.Optional[bool]
+            Copy each sent email into the Sent folder over IMAP. Defaults to true, except for providers that file sent mail themselves (Gmail).
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountTestEmailResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from unlimited_messaging import AsyncUnlimitedMessagingApi
+        from unlimited_messaging.accounts import (
+            AccountTestEmailRequestImap,
+            AccountTestEmailRequestSmtp,
+        )
+
+        client = AsyncUnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.accounts.account_test_email(
+                address="address",
+                password="password",
+                imap=AccountTestEmailRequestImap(
+                    host="host",
+                    port=1,
+                    security="tls",
+                ),
+                smtp=AccountTestEmailRequestSmtp(
+                    host="host",
+                    port=1,
+                    security="tls",
+                ),
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "account/email/test",
+            method="POST",
+            json={
+                "address": address,
+                "username": username,
+                "password": password,
+                "imap": imap,
+                "smtp": smtp,
+                "appendSent": append_sent,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountTestEmailResponse,
+                    parse_obj_as(
+                        type_=AccountTestEmailResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 503:
+                raise ServiceUnavailableError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def account_connect_email(
+        self,
+        *,
+        address: str,
+        password: str,
+        imap: AccountConnectEmailRequestImap,
+        smtp: AccountConnectEmailRequestSmtp,
+        username: typing.Optional[str] = OMIT,
+        append_sent: typing.Optional[bool] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        external_ref: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountConnectEmailResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        Tests the credentials and connects the mailbox as an EMAIL account. There is no QR code or challenge: the account is ACTIVE as soon as this returns. Its id is then the `accountId` to send email from with POST /message, and incoming email arrives as `message.received` webhooks. Gmail, iCloud and Yahoo require an app password. Same error codes as POST /account/email/test, plus EMAIL_ALREADY_CONNECTED (409, with `context.accountId` when the mailbox is already yours: update its password with PUT /account/{accountId}/email instead).
+
+        Parameters
+        ----------
+        address : str
+            The mailbox address. It identifies the account and cannot change later.
+
+        password : str
+            Mailbox password. For Gmail, iCloud and Yahoo this must be an app password, not the account password. It is stored encrypted by the mail service and never returned.
+
+        imap : AccountConnectEmailRequestImap
+            Incoming mail server (IMAP).
+
+        smtp : AccountConnectEmailRequestSmtp
+            Outgoing mail server (SMTP).
+
+        username : typing.Optional[str]
+            Login for the IMAP and SMTP servers. Defaults to the address.
+
+        append_sent : typing.Optional[bool]
+            Copy each sent email into the Sent folder over IMAP. Defaults to true, except for providers that file sent mail themselves (Gmail).
+
+        name : typing.Optional[str]
+            Display name of the account. Defaults to the address.
+
+        external_ref : typing.Optional[str]
+            Your own reference for this account (e.g. your customer id), stored on it and returned with it. Can be changed later with PATCH /account/{accountId}.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountConnectEmailResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from unlimited_messaging import AsyncUnlimitedMessagingApi
+        from unlimited_messaging.accounts import (
+            AccountConnectEmailRequestImap,
+            AccountConnectEmailRequestSmtp,
+        )
+
+        client = AsyncUnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.accounts.account_connect_email(
+                address="address",
+                password="password",
+                imap=AccountConnectEmailRequestImap(
+                    host="host",
+                    port=1,
+                    security="tls",
+                ),
+                smtp=AccountConnectEmailRequestSmtp(
+                    host="host",
+                    port=1,
+                    security="tls",
+                ),
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "account/email",
+            method="POST",
+            json={
+                "address": address,
+                "username": username,
+                "password": password,
+                "imap": imap,
+                "smtp": smtp,
+                "appendSent": append_sent,
+                "name": name,
+                "externalRef": external_ref,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountConnectEmailResponse,
+                    parse_obj_as(
+                        type_=AccountConnectEmailResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 503:
+                raise ServiceUnavailableError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def account_reconnect_email(
+        self,
+        account_id: str,
+        *,
+        password: str,
+        username: typing.Optional[str] = OMIT,
+        imap: typing.Optional[AccountReconnectEmailRequestImap] = OMIT,
+        smtp: typing.Optional[AccountReconnectEmailRequestSmtp] = OMIT,
+        append_sent: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AccountReconnectEmailResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
+
+        For a changed password, or an account whose credentials the mail server refused (status INACTIVE, see the `account.status_changed` webhook). Servers default to the stored ones. The address cannot change: connect a new mailbox instead.
+
+        Parameters
+        ----------
+        account_id : str
+
+        password : str
+            The new password (or app password).
+
+        username : typing.Optional[str]
+            New login. Defaults to the stored one.
+
+        imap : typing.Optional[AccountReconnectEmailRequestImap]
+            New IMAP server. Defaults to the stored one.
+
+        smtp : typing.Optional[AccountReconnectEmailRequestSmtp]
+            New SMTP server. Defaults to the stored one.
+
+        append_sent : typing.Optional[bool]
+            Defaults to the stored setting.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AccountReconnectEmailResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from unlimited_messaging import AsyncUnlimitedMessagingApi
+
+        client = AsyncUnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.accounts.account_reconnect_email(
+                account_id="accountId",
+                password="password",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"account/{jsonable_encoder(account_id)}/email",
+            method="PUT",
+            json={
+                "username": username,
+                "password": password,
+                "imap": imap,
+                "smtp": smtp,
+                "appendSent": append_sent,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AccountReconnectEmailResponse,
+                    parse_obj_as(
+                        type_=AccountReconnectEmailResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(

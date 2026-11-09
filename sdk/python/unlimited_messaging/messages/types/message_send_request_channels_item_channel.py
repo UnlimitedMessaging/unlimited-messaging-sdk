@@ -3,5 +3,5 @@
 import typing
 
 MessageSendRequestChannelsItemChannel = typing.Union[
-    typing.Literal["WHATSAPP", "EMAIL"], typing.Any
+    typing.Literal["WHATSAPP", "EMAIL", "SMS"], typing.Any
 ]

@@ -23,7 +23,7 @@ export declare namespace Messages {
     }
 }
 /**
- * Send and retrieve WhatsApp messages.
+ * Send and retrieve messages by WhatsApp, email or SMS.
  */
 export declare class Messages {
     protected readonly _options: Messages.Options;

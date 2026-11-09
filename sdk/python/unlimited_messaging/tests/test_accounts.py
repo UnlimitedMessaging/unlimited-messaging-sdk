@@ -4,6 +4,10 @@ from unlimited_messaging import UnlimitedMessagingApi
 from unlimited_messaging import AsyncUnlimitedMessagingApi
 import typing
 from .utilities import validate_response
+from unlimited_messaging.accounts import AccountTestEmailRequestImap
+from unlimited_messaging.accounts import AccountTestEmailRequestSmtp
+from unlimited_messaging.accounts import AccountConnectEmailRequestImap
+from unlimited_messaging.accounts import AccountConnectEmailRequestSmtp
 
 
 async def test_account_list_accounts(
@@ -64,6 +68,152 @@ async def test_account_link_account(
     validate_response(response, expected_response, expected_types)
 
     async_response = await async_client.accounts.account_link_account()
+    validate_response(async_response, expected_response, expected_types)
+
+
+async def test_account_email_autoconfig(
+    client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
+) -> None:
+    expected_response: typing.Any = {
+        "source": "source",
+        "imap": {"host": "host", "port": 1, "security": "tls"},
+        "smtp": {"host": "host", "port": 1, "security": "tls"},
+        "username": "username",
+        "appendSent": True,
+        "oauthRequired": True,
+    }
+    expected_types: typing.Any = {
+        "source": None,
+        "imap": {"host": None, "port": "integer", "security": None},
+        "smtp": {"host": None, "port": "integer", "security": None},
+        "username": None,
+        "appendSent": None,
+        "oauthRequired": None,
+    }
+    response = client.accounts.account_email_autoconfig(email="email")
+    validate_response(response, expected_response, expected_types)
+
+    async_response = await async_client.accounts.account_email_autoconfig(email="email")
+    validate_response(async_response, expected_response, expected_types)
+
+
+async def test_account_test_email(
+    client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
+) -> None:
+    expected_response: typing.Any = {"ok": True, "sentFolder": "sentFolder"}
+    expected_types: typing.Any = {"ok": None, "sentFolder": None}
+    response = client.accounts.account_test_email(
+        address="address",
+        password="password",
+        imap=AccountTestEmailRequestImap(host="host", port=1, security="tls"),
+        smtp=AccountTestEmailRequestSmtp(host="host", port=1, security="tls"),
+    )
+    validate_response(response, expected_response, expected_types)
+
+    async_response = await async_client.accounts.account_test_email(
+        address="address",
+        password="password",
+        imap=AccountTestEmailRequestImap(host="host", port=1, security="tls"),
+        smtp=AccountTestEmailRequestSmtp(host="host", port=1, security="tls"),
+    )
+    validate_response(async_response, expected_response, expected_types)
+
+
+async def test_account_connect_email(
+    client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
+) -> None:
+    expected_response: typing.Any = {
+        "id": "id",
+        "channel": "WHATSAPP_BAILYES",
+        "owner": "USER",
+        "isSystem": True,
+        "status": "PENDING",
+        "phone": "phone",
+        "name": "name",
+        "externalRef": "externalRef",
+        "blockedUntil": "2024-01-15T09:30:00Z",
+        "mediaUrlRequiresAuth": True,
+        "syncHistory": True,
+        "sendIntervalSeconds": 1.1,
+        "createdAt": "2024-01-15T09:30:00Z",
+        "updatedAt": "2024-01-15T09:30:00Z",
+    }
+    expected_types: typing.Any = {
+        "id": None,
+        "channel": None,
+        "owner": None,
+        "isSystem": None,
+        "status": None,
+        "phone": None,
+        "name": None,
+        "externalRef": None,
+        "blockedUntil": "datetime",
+        "mediaUrlRequiresAuth": None,
+        "syncHistory": None,
+        "sendIntervalSeconds": None,
+        "createdAt": "datetime",
+        "updatedAt": "datetime",
+    }
+    response = client.accounts.account_connect_email(
+        address="address",
+        password="password",
+        imap=AccountConnectEmailRequestImap(host="host", port=1, security="tls"),
+        smtp=AccountConnectEmailRequestSmtp(host="host", port=1, security="tls"),
+    )
+    validate_response(response, expected_response, expected_types)
+
+    async_response = await async_client.accounts.account_connect_email(
+        address="address",
+        password="password",
+        imap=AccountConnectEmailRequestImap(host="host", port=1, security="tls"),
+        smtp=AccountConnectEmailRequestSmtp(host="host", port=1, security="tls"),
+    )
+    validate_response(async_response, expected_response, expected_types)
+
+
+async def test_account_reconnect_email(
+    client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
+) -> None:
+    expected_response: typing.Any = {
+        "id": "id",
+        "channel": "WHATSAPP_BAILYES",
+        "owner": "USER",
+        "isSystem": True,
+        "status": "PENDING",
+        "phone": "phone",
+        "name": "name",
+        "externalRef": "externalRef",
+        "blockedUntil": "2024-01-15T09:30:00Z",
+        "mediaUrlRequiresAuth": True,
+        "syncHistory": True,
+        "sendIntervalSeconds": 1.1,
+        "createdAt": "2024-01-15T09:30:00Z",
+        "updatedAt": "2024-01-15T09:30:00Z",
+    }
+    expected_types: typing.Any = {
+        "id": None,
+        "channel": None,
+        "owner": None,
+        "isSystem": None,
+        "status": None,
+        "phone": None,
+        "name": None,
+        "externalRef": None,
+        "blockedUntil": "datetime",
+        "mediaUrlRequiresAuth": None,
+        "syncHistory": None,
+        "sendIntervalSeconds": None,
+        "createdAt": "datetime",
+        "updatedAt": "datetime",
+    }
+    response = client.accounts.account_reconnect_email(
+        account_id="accountId", password="password"
+    )
+    validate_response(response, expected_response, expected_types)
+
+    async_response = await async_client.accounts.account_reconnect_email(
+        account_id="accountId", password="password"
+    )
     validate_response(async_response, expected_response, expected_types)
 
 

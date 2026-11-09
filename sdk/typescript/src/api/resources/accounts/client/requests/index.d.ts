@@ -1,4 +1,8 @@
 export { type AccountLinkAccountRequest } from "./AccountLinkAccountRequest";
+export { type AccountEmailAutoconfigRequest } from "./AccountEmailAutoconfigRequest";
+export { type AccountTestEmailRequest } from "./AccountTestEmailRequest";
+export { type AccountConnectEmailRequest } from "./AccountConnectEmailRequest";
+export { type AccountReconnectEmailRequest } from "./AccountReconnectEmailRequest";
 export { type AccountGetChallengeRequest } from "./AccountGetChallengeRequest";
 export { type AccountGetQrCodeRequest } from "./AccountGetQrCodeRequest";
 export { type AccountRequestHistoryRequest } from "./AccountRequestHistoryRequest";

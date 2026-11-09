@@ -56,7 +56,7 @@ const serializers = __importStar(require("../../../../serialization/index"));
 const url_join_1 = __importDefault(require("url-join"));
 const errors = __importStar(require("../../../../errors/index"));
 /**
- * Send and retrieve WhatsApp messages.
+ * Send and retrieve messages by WhatsApp, email or SMS.
  */
 class Messages {
     constructor(_options) {
