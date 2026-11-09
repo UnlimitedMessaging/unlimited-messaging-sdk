@@ -116,7 +116,7 @@ const errors = __importStar(require("../../../../errors/index"));
  * ```
  *
  * Failures answer `422` with `context.code`: `AUTH_FAILED` (wrong password, or an app password is
- * required), `OAUTH_REQUIRED`, `HOST_UNREACHABLE`, `TLS_ERROR`; and `409` `EMAIL_ALREADY_CONNECTED`.
+ * required), `OAUTH_REQUIRED`, `HOST_UNREACHABLE`, `TLS_ERROR`.
  * When the password changes, or the server starts refusing it (status `INACTIVE`), send the new one
  * with `PUT /account/{accountId}/email`.
  *
@@ -481,7 +481,7 @@ class Accounts {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ, OTHER:WRITE
      *
-     * Tests the credentials and connects the mailbox as an EMAIL account. There is no QR code or challenge: the account is ACTIVE as soon as this returns. Its id is then the `accountId` to send email from with POST /message, and incoming email arrives as `message.received` webhooks. Gmail, iCloud and Yahoo require an app password. Same error codes as POST /account/email/test, plus EMAIL_ALREADY_CONNECTED (409, with `context.accountId` when the mailbox is already yours: update its password with PUT /account/{accountId}/email instead).
+     * Tests the credentials and connects the mailbox as an EMAIL account. There is no QR code or challenge: the account is ACTIVE as soon as this returns. Its id is then the `accountId` to send email from with POST /message, and incoming email arrives as `message.received` webhooks. Gmail, iCloud and Yahoo require an app password. Same error codes as POST /account/email/test. A mailbox already connected elsewhere (on another of your accounts or on another user) connects anyway as its own account; connecting an address you already have reuses that account with the new credentials.
      *
      * @param {UnlimitedMessagingApi.AccountConnectEmailRequest} request
      * @param {Accounts.RequestOptions} requestOptions - Request-specific configuration.
