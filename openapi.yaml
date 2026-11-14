@@ -145,6 +145,9 @@ paths:
                         fromMe:
                           type: boolean
                           description: True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe.
+                        sentViaUm:
+                          type: boolean
+                          description: True when Unlimited Messaging sent this message (through the API, the dashboard, MCP or the SDK). False for a received message, and for one written on the account's own device (the phone, a mail client) that Unlimited Messaging only mirrored.
                         externalId:
                           anyOf:
                             - type: string
@@ -311,6 +314,7 @@ paths:
                         - content
                         - direction
                         - fromMe
+                        - sentViaUm
                         - externalId
                         - error
                         - interlocutor
@@ -582,6 +586,9 @@ paths:
                   fromMe:
                     type: boolean
                     description: True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe.
+                  sentViaUm:
+                    type: boolean
+                    description: True when Unlimited Messaging sent this message (through the API, the dashboard, MCP or the SDK). False for a received message, and for one written on the account's own device (the phone, a mail client) that Unlimited Messaging only mirrored.
                   externalId:
                     anyOf:
                       - type: string
@@ -759,6 +766,9 @@ paths:
                         fromMe:
                           type: boolean
                           description: True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe.
+                        sentViaUm:
+                          type: boolean
+                          description: True when Unlimited Messaging sent this message (through the API, the dashboard, MCP or the SDK). False for a received message, and for one written on the account's own device (the phone, a mail client) that Unlimited Messaging only mirrored.
                         externalId:
                           anyOf:
                             - type: string
@@ -925,6 +935,7 @@ paths:
                         - content
                         - direction
                         - fromMe
+                        - sentViaUm
                         - externalId
                         - error
                         - interlocutor
@@ -959,6 +970,7 @@ paths:
                   - content
                   - direction
                   - fromMe
+                  - sentViaUm
                   - externalId
                   - error
                   - interlocutor
@@ -1040,6 +1052,9 @@ paths:
                   fromMe:
                     type: boolean
                     description: True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe.
+                  sentViaUm:
+                    type: boolean
+                    description: True when Unlimited Messaging sent this message (through the API, the dashboard, MCP or the SDK). False for a received message, and for one written on the account's own device (the phone, a mail client) that Unlimited Messaging only mirrored.
                   externalId:
                     anyOf:
                       - type: string
@@ -1206,6 +1221,7 @@ paths:
                   - content
                   - direction
                   - fromMe
+                  - sentViaUm
                   - externalId
                   - error
                   - interlocutor
