@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.29] - 2026-11-15
+
+*   **New Response Fields:**
+    *   The `Message` object now includes `sentViaUm` (boolean), indicating if Unlimited Messaging sent the message.
+    *   The `Message` object now includes `replyToMessageId` (string or null), providing the ID of the message being quoted if stored by Unlimited Messaging.
+    *   The `Message` object now includes `replyToContent` (string or null), providing the text content of the message being quoted.
+    *   The `Message` object now includes `reactions` (array of objects), listing all reactions on the message, ordered oldest first. Each reaction object contains:
+        *   `emoji` (string)
+        *   `sender` (string or null): The address of the reactor.
+        *   `senderId` (string): The channel's internal ID for the reactor.
+        *   `senderName` (string or null): The display name of the reactor.
+        *   `fromMe` (boolean): True if the account holder reacted.
+        *   `sentAt` (string, date-time): When the reaction occurred per the channel.
+    *   The `replyTo` object (nested within `Message`) now includes `content` (string or null), representing the quoted message's text.
+
 ## [0.1.28] - 2026-11-09
 
 null
