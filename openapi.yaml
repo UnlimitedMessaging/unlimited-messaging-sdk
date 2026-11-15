@@ -175,6 +175,16 @@ paths:
                             - type: string
                             - type: "null"
                           description: For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case.
+                        replyToMessageId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: The id of the message this one quotes, when Unlimited Messaging has it stored. Null when this is not a reply, or when the quoted message is not stored (older than the account link, or past the retention period).
+                        replyToContent:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: "The text of the message this one quotes: that stored message's content when it is stored, otherwise the quoted text the channel delivered with the reply. Null when this is not a reply, or when the quoted message has no text (a photo without a caption, a voice note)."
                         retryCount:
                           type: integer
                           minimum: 0
@@ -251,6 +261,43 @@ paths:
                               - size
                               - contentId
                             additionalProperties: false
+                        reactions:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              emoji:
+                                type: string
+                              sender:
+                                anyOf:
+                                  - type: string
+                                  - type: "null"
+                                description: Who reacted, as an address (+E164 phone number) when known.
+                              senderId:
+                                type: string
+                                description: "Who reacted, as the channel's own id: always set, even when the number is hidden."
+                              senderName:
+                                anyOf:
+                                  - type: string
+                                  - type: "null"
+                                description: The display name they chose. Null for a reaction of the account holder.
+                              fromMe:
+                                type: boolean
+                                description: True when the account holder reacted.
+                              sentAt:
+                                type: string
+                                format: date-time
+                                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                                description: When they reacted, per the channel.
+                            required:
+                              - emoji
+                              - sender
+                              - senderId
+                              - senderName
+                              - fromMe
+                              - sentAt
+                            additionalProperties: false
+                          description: The reactions on this message, one per person (a new reaction replaces theirs, a removed one is gone), oldest first. Empty when there are none.
                         mediaUrl:
                           anyOf:
                             - type: string
@@ -322,6 +369,8 @@ paths:
                         - isGroup
                         - replyToExternalId
                         - replyToParticipant
+                        - replyToMessageId
+                        - replyToContent
                         - retryCount
                         - messagingAccountId
                         - status
@@ -332,6 +381,7 @@ paths:
                         - contentHtml
                         - dispatchId
                         - attachments
+                        - reactions
                         - mediaUrl
                         - mediaType
                         - mimeType
@@ -616,6 +666,16 @@ paths:
                       - type: string
                       - type: "null"
                     description: For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case.
+                  replyToMessageId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: The id of the message this one quotes, when Unlimited Messaging has it stored. Null when this is not a reply, or when the quoted message is not stored (older than the account link, or past the retention period).
+                  replyToContent:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: "The text of the message this one quotes: that stored message's content when it is stored, otherwise the quoted text the channel delivered with the reply. Null when this is not a reply, or when the quoted message has no text (a photo without a caption, a voice note)."
                   retryCount:
                     type: integer
                     minimum: 0
@@ -689,6 +749,43 @@ paths:
                         - size
                         - contentId
                       additionalProperties: false
+                  reactions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        emoji:
+                          type: string
+                        sender:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: Who reacted, as an address (+E164 phone number) when known.
+                        senderId:
+                          type: string
+                          description: "Who reacted, as the channel's own id: always set, even when the number is hidden."
+                        senderName:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: The display name they chose. Null for a reaction of the account holder.
+                        fromMe:
+                          type: boolean
+                          description: True when the account holder reacted.
+                        sentAt:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                          description: When they reacted, per the channel.
+                      required:
+                        - emoji
+                        - sender
+                        - senderId
+                        - senderName
+                        - fromMe
+                        - sentAt
+                      additionalProperties: false
+                    description: The reactions on this message, one per person (a new reaction replaces theirs, a removed one is gone), oldest first. Empty when there are none.
                   mediaUrl:
                     anyOf:
                       - type: string
@@ -796,6 +893,16 @@ paths:
                             - type: string
                             - type: "null"
                           description: For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case.
+                        replyToMessageId:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: The id of the message this one quotes, when Unlimited Messaging has it stored. Null when this is not a reply, or when the quoted message is not stored (older than the account link, or past the retention period).
+                        replyToContent:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: "The text of the message this one quotes: that stored message's content when it is stored, otherwise the quoted text the channel delivered with the reply. Null when this is not a reply, or when the quoted message has no text (a photo without a caption, a voice note)."
                         retryCount:
                           type: integer
                           minimum: 0
@@ -872,6 +979,43 @@ paths:
                               - size
                               - contentId
                             additionalProperties: false
+                        reactions:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              emoji:
+                                type: string
+                              sender:
+                                anyOf:
+                                  - type: string
+                                  - type: "null"
+                                description: Who reacted, as an address (+E164 phone number) when known.
+                              senderId:
+                                type: string
+                                description: "Who reacted, as the channel's own id: always set, even when the number is hidden."
+                              senderName:
+                                anyOf:
+                                  - type: string
+                                  - type: "null"
+                                description: The display name they chose. Null for a reaction of the account holder.
+                              fromMe:
+                                type: boolean
+                                description: True when the account holder reacted.
+                              sentAt:
+                                type: string
+                                format: date-time
+                                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                                description: When they reacted, per the channel.
+                            required:
+                              - emoji
+                              - sender
+                              - senderId
+                              - senderName
+                              - fromMe
+                              - sentAt
+                            additionalProperties: false
+                          description: The reactions on this message, one per person (a new reaction replaces theirs, a removed one is gone), oldest first. Empty when there are none.
                         mediaUrl:
                           anyOf:
                             - type: string
@@ -943,6 +1087,8 @@ paths:
                         - isGroup
                         - replyToExternalId
                         - replyToParticipant
+                        - replyToMessageId
+                        - replyToContent
                         - retryCount
                         - messagingAccountId
                         - status
@@ -953,6 +1099,7 @@ paths:
                         - contentHtml
                         - dispatchId
                         - attachments
+                        - reactions
                         - mediaUrl
                         - mediaType
                         - mimeType
@@ -978,6 +1125,8 @@ paths:
                   - isGroup
                   - replyToExternalId
                   - replyToParticipant
+                  - replyToMessageId
+                  - replyToContent
                   - retryCount
                   - messagingAccountId
                   - status
@@ -988,6 +1137,7 @@ paths:
                   - contentHtml
                   - dispatchId
                   - attachments
+                  - reactions
                   - mediaUrl
                   - mediaType
                   - mimeType
@@ -1082,6 +1232,16 @@ paths:
                       - type: string
                       - type: "null"
                     description: For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case.
+                  replyToMessageId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: The id of the message this one quotes, when Unlimited Messaging has it stored. Null when this is not a reply, or when the quoted message is not stored (older than the account link, or past the retention period).
+                  replyToContent:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: "The text of the message this one quotes: that stored message's content when it is stored, otherwise the quoted text the channel delivered with the reply. Null when this is not a reply, or when the quoted message has no text (a photo without a caption, a voice note)."
                   retryCount:
                     type: integer
                     minimum: 0
@@ -1158,6 +1318,43 @@ paths:
                         - size
                         - contentId
                       additionalProperties: false
+                  reactions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        emoji:
+                          type: string
+                        sender:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: Who reacted, as an address (+E164 phone number) when known.
+                        senderId:
+                          type: string
+                          description: "Who reacted, as the channel's own id: always set, even when the number is hidden."
+                        senderName:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: The display name they chose. Null for a reaction of the account holder.
+                        fromMe:
+                          type: boolean
+                          description: True when the account holder reacted.
+                        sentAt:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                          description: When they reacted, per the channel.
+                      required:
+                        - emoji
+                        - sender
+                        - senderId
+                        - senderName
+                        - fromMe
+                        - sentAt
+                      additionalProperties: false
+                    description: The reactions on this message, one per person (a new reaction replaces theirs, a removed one is gone), oldest first. Empty when there are none.
                   mediaUrl:
                     anyOf:
                       - type: string
@@ -1229,6 +1426,8 @@ paths:
                   - isGroup
                   - replyToExternalId
                   - replyToParticipant
+                  - replyToMessageId
+                  - replyToContent
                   - retryCount
                   - messagingAccountId
                   - status
@@ -1239,6 +1438,7 @@ paths:
                   - contentHtml
                   - dispatchId
                   - attachments
+                  - reactions
                   - mediaUrl
                   - mediaType
                   - mimeType
@@ -3953,7 +4153,8 @@ tags:
       the same message object (`data.message`, or each item of `data.messages`): `id` (UnlimitedMessaging),
       `externalId` (WhatsApp), `direction` (`IN` or `OUT`), `fromMe`, `content`, `sentAt` (the channel's
       timestamp), `receivedAt` (when UnlimitedMessaging recorded it), `sender`, `senderId`, `senderName`,
-      `participant`, `replyTo`, `transcript`, the media fields described below, and for email `subject`,
+      `participant`, `replyTo` (`externalId`, `participant`, and `content`, the quoted message's text, for
+      a reply; null otherwise), `transcript`, the media fields described below, and for email `subject`,
       `html` and `attachments`. Message events also carry `data.channel`: `type` (`WHATSAPP`, `EMAIL`),
       `account` (`id`, `name`) and `conversation` (`id`, `isGroup`, `address`, and `participants` for a
       group).
@@ -4008,8 +4209,10 @@ tags:
       Someone reacted to a message, or took their reaction back (`removed: true`, empty `emoji`). The
       account's own reactions are included, with `fromMe: true`. `data.reaction` holds `emoji`, `removed`,
       `reactedToExternalId`, `reactedToMessageId` (null when that message is not stored, see below),
-      `sender`, `senderId`, `senderName`, `participant` (in a group), `fromMe` and `sentAt`. Nothing is
-      stored: a reaction is not a message.
+      `sender`, `senderId`, `senderName`, `participant` (in a group), `fromMe` and `sentAt`. When
+      that message is stored, the reaction is kept with it and listed in its `reactions` (`GET /message`),
+      one per person: a new reaction replaces theirs, a removed one disappears. A reaction is not a
+      message and is never counted as one.
 
       #### message.edited
 
@@ -4182,9 +4385,13 @@ components:
                     participant:
                       nullable: true
                       type: string
+                    content:
+                      nullable: true
+                      type: string
                   required:
                     - externalId
                     - participant
+                    - content
                 mediaUrl:
                   type: string
                 mediaType:
@@ -4368,9 +4575,13 @@ components:
                     participant:
                       nullable: true
                       type: string
+                    content:
+                      nullable: true
+                      type: string
                   required:
                     - externalId
                     - participant
+                    - content
                 mediaUrl:
                   type: string
                 mediaType:
@@ -4554,9 +4765,13 @@ components:
                     participant:
                       nullable: true
                       type: string
+                    content:
+                      nullable: true
+                      type: string
                   required:
                     - externalId
                     - participant
+                    - content
                 mediaUrl:
                   type: string
                 mediaType:
@@ -5211,9 +5426,13 @@ components:
                       participant:
                         nullable: true
                         type: string
+                      content:
+                        nullable: true
+                        type: string
                     required:
                       - externalId
                       - participant
+                      - content
                   mediaUrl:
                     type: string
                   mediaType:
