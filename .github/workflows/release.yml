@@ -29,7 +29,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          # Full history and tags: the release notes diff the spec against the
+          # last release, not against the previous commit.
+          fetch-depth: 0
 
       - name: Detect what changed
         id: detect
@@ -58,7 +60,11 @@ jobs:
 
       - name: Capture OpenAPI diff (for release notes)
         run: |
-          DIFF=$(git diff HEAD~1 -- openapi.yaml 2>/dev/null || echo "")
+          # Against the last release tag rather than HEAD~1: when a release
+          # fails, the next one ships several spec syncs at once, and its notes
+          # must cover all of them.
+          BASE=$(git describe --tags --abbrev=0 2>/dev/null || echo HEAD~1)
+          DIFF=$(git diff "$BASE" -- openapi.yaml 2>/dev/null || echo "")
           {
             echo "OPENAPI_DIFF<<EOFMARKER"
             echo "$DIFF"
@@ -66,10 +72,17 @@ jobs:
           } >> $GITHUB_ENV
 
       - name: Install Fern & regenerate SDKs
-        if: steps.detect.outputs.openapi_changed == 'true'
+        # Also on a manual run, so re-running a failed release regenerates
+        # the SDKs from the current spec instead of publishing stale code.
+        if: steps.detect.outputs.openapi_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          npm install -g fern-api
-          fern generate --group sdk --local --log-level debug
+          # The CLI pinned in fern.config.json, never the latest: an unpinned
+          # install broke every release on 2026-11-14, when Fern 5.215.0 began
+          # refusing projects pinned to an older CLI.
+          npm install -g "fern-api@$(jq -r '.version' fern/fern.config.json)"
+          # --force: the output folders already hold the previous generation,
+          # and the CLI asks before overwriting them unless told not to.
+          fern generate --group sdk --local --force --log-level debug
 
       - name: Setup npm auth
         env:
