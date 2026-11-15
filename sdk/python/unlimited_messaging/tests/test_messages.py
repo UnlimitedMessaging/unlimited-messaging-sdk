@@ -16,6 +16,7 @@ async def test_message_find_all(
                 "content": "content",
                 "direction": "IN",
                 "fromMe": True,
+                "sentViaUm": True,
                 "externalId": "externalId",
                 "error": "error",
                 "interlocutor": "interlocutor",
@@ -23,6 +24,8 @@ async def test_message_find_all(
                 "isGroup": True,
                 "replyToExternalId": "replyToExternalId",
                 "replyToParticipant": "replyToParticipant",
+                "replyToMessageId": "replyToMessageId",
+                "replyToContent": "replyToContent",
                 "retryCount": 1,
                 "messagingAccountId": "messagingAccountId",
                 "status": "PENDING",
@@ -39,6 +42,16 @@ async def test_message_find_all(
                         "mimeType": "mimeType",
                         "size": 1,
                         "contentId": None,
+                    }
+                ],
+                "reactions": [
+                    {
+                        "emoji": "emoji",
+                        "sender": None,
+                        "senderId": "senderId",
+                        "senderName": None,
+                        "fromMe": True,
+                        "sentAt": "2024-01-15T09:30:00Z",
                     }
                 ],
                 "mediaUrl": "mediaUrl",
@@ -67,6 +80,7 @@ async def test_message_find_all(
                     "content": None,
                     "direction": None,
                     "fromMe": None,
+                    "sentViaUm": None,
                     "externalId": None,
                     "error": None,
                     "interlocutor": None,
@@ -74,6 +88,8 @@ async def test_message_find_all(
                     "isGroup": None,
                     "replyToExternalId": None,
                     "replyToParticipant": None,
+                    "replyToMessageId": None,
+                    "replyToContent": None,
                     "retryCount": "integer",
                     "messagingAccountId": None,
                     "status": None,
@@ -92,6 +108,19 @@ async def test_message_find_all(
                                 "mimeType": None,
                                 "size": "integer",
                                 "contentId": None,
+                            }
+                        },
+                    ),
+                    "reactions": (
+                        "list",
+                        {
+                            0: {
+                                "emoji": None,
+                                "sender": None,
+                                "senderId": None,
+                                "senderName": None,
+                                "fromMe": None,
+                                "sentAt": "datetime",
                             }
                         },
                     ),
@@ -128,6 +157,7 @@ async def test_message_send(
         "content": "content",
         "direction": "IN",
         "fromMe": True,
+        "sentViaUm": True,
         "externalId": "externalId",
         "error": "error",
         "interlocutor": "interlocutor",
@@ -135,6 +165,8 @@ async def test_message_send(
         "isGroup": True,
         "replyToExternalId": "replyToExternalId",
         "replyToParticipant": "replyToParticipant",
+        "replyToMessageId": "replyToMessageId",
+        "replyToContent": "replyToContent",
         "retryCount": 1,
         "messagingAccountId": "messagingAccountId",
         "status": "PENDING",
@@ -153,6 +185,16 @@ async def test_message_send(
                 "contentId": "contentId",
             }
         ],
+        "reactions": [
+            {
+                "emoji": "emoji",
+                "sender": "sender",
+                "senderId": "senderId",
+                "senderName": "senderName",
+                "fromMe": True,
+                "sentAt": "2024-01-15T09:30:00Z",
+            }
+        ],
         "mediaUrl": "mediaUrl",
         "mediaType": "mediaType",
         "mimeType": "mimeType",
@@ -169,6 +211,7 @@ async def test_message_send(
                 "content": "content",
                 "direction": "IN",
                 "fromMe": True,
+                "sentViaUm": True,
                 "externalId": "externalId",
                 "error": "error",
                 "interlocutor": "interlocutor",
@@ -176,6 +219,8 @@ async def test_message_send(
                 "isGroup": True,
                 "replyToExternalId": "replyToExternalId",
                 "replyToParticipant": "replyToParticipant",
+                "replyToMessageId": "replyToMessageId",
+                "replyToContent": "replyToContent",
                 "retryCount": 1,
                 "messagingAccountId": "messagingAccountId",
                 "status": "PENDING",
@@ -192,6 +237,16 @@ async def test_message_send(
                         "mimeType": "mimeType",
                         "size": 1,
                         "contentId": None,
+                    }
+                ],
+                "reactions": [
+                    {
+                        "emoji": "emoji",
+                        "sender": None,
+                        "senderId": "senderId",
+                        "senderName": None,
+                        "fromMe": True,
+                        "sentAt": "2024-01-15T09:30:00Z",
                     }
                 ],
                 "mediaUrl": "mediaUrl",
@@ -212,6 +267,7 @@ async def test_message_send(
         "content": None,
         "direction": None,
         "fromMe": None,
+        "sentViaUm": None,
         "externalId": None,
         "error": None,
         "interlocutor": None,
@@ -219,6 +275,8 @@ async def test_message_send(
         "isGroup": None,
         "replyToExternalId": None,
         "replyToParticipant": None,
+        "replyToMessageId": None,
+        "replyToContent": None,
         "retryCount": "integer",
         "messagingAccountId": None,
         "status": None,
@@ -240,6 +298,19 @@ async def test_message_send(
                 }
             },
         ),
+        "reactions": (
+            "list",
+            {
+                0: {
+                    "emoji": None,
+                    "sender": None,
+                    "senderId": None,
+                    "senderName": None,
+                    "fromMe": None,
+                    "sentAt": "datetime",
+                }
+            },
+        ),
         "mediaUrl": None,
         "mediaType": None,
         "mimeType": None,
@@ -258,6 +329,7 @@ async def test_message_send(
                     "content": None,
                     "direction": None,
                     "fromMe": None,
+                    "sentViaUm": None,
                     "externalId": None,
                     "error": None,
                     "interlocutor": None,
@@ -265,6 +337,8 @@ async def test_message_send(
                     "isGroup": None,
                     "replyToExternalId": None,
                     "replyToParticipant": None,
+                    "replyToMessageId": None,
+                    "replyToContent": None,
                     "retryCount": "integer",
                     "messagingAccountId": None,
                     "status": None,
@@ -283,6 +357,19 @@ async def test_message_send(
                                 "mimeType": None,
                                 "size": "integer",
                                 "contentId": None,
+                            }
+                        },
+                    ),
+                    "reactions": (
+                        "list",
+                        {
+                            0: {
+                                "emoji": None,
+                                "sender": None,
+                                "senderId": None,
+                                "senderName": None,
+                                "fromMe": None,
+                                "sentAt": "datetime",
                             }
                         },
                     ),
@@ -315,6 +402,7 @@ async def test_message_find_one(
         "content": "content",
         "direction": "IN",
         "fromMe": True,
+        "sentViaUm": True,
         "externalId": "externalId",
         "error": "error",
         "interlocutor": "interlocutor",
@@ -322,6 +410,8 @@ async def test_message_find_one(
         "isGroup": True,
         "replyToExternalId": "replyToExternalId",
         "replyToParticipant": "replyToParticipant",
+        "replyToMessageId": "replyToMessageId",
+        "replyToContent": "replyToContent",
         "retryCount": 1,
         "messagingAccountId": "messagingAccountId",
         "status": "PENDING",
@@ -340,6 +430,16 @@ async def test_message_find_one(
                 "contentId": "contentId",
             }
         ],
+        "reactions": [
+            {
+                "emoji": "emoji",
+                "sender": "sender",
+                "senderId": "senderId",
+                "senderName": "senderName",
+                "fromMe": True,
+                "sentAt": "2024-01-15T09:30:00Z",
+            }
+        ],
         "mediaUrl": "mediaUrl",
         "mediaType": "mediaType",
         "mimeType": "mimeType",
@@ -356,6 +456,7 @@ async def test_message_find_one(
         "content": None,
         "direction": None,
         "fromMe": None,
+        "sentViaUm": None,
         "externalId": None,
         "error": None,
         "interlocutor": None,
@@ -363,6 +464,8 @@ async def test_message_find_one(
         "isGroup": None,
         "replyToExternalId": None,
         "replyToParticipant": None,
+        "replyToMessageId": None,
+        "replyToContent": None,
         "retryCount": "integer",
         "messagingAccountId": None,
         "status": None,
@@ -381,6 +484,19 @@ async def test_message_find_one(
                     "mimeType": None,
                     "size": "integer",
                     "contentId": None,
+                }
+            },
+        ),
+        "reactions": (
+            "list",
+            {
+                0: {
+                    "emoji": None,
+                    "sender": None,
+                    "senderId": None,
+                    "senderName": None,
+                    "fromMe": None,
+                    "sentAt": "datetime",
                 }
             },
         ),

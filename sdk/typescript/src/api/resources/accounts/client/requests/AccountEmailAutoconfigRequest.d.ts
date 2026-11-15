@@ -8,5 +8,8 @@
  *     }
  */
 export interface AccountEmailAutoconfigRequest {
+    /**
+     * The address to look up settings for.
+     */
     email: string;
 }

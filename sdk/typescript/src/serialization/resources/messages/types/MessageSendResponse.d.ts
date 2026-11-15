@@ -9,6 +9,7 @@ import { MessageSendResponseStatus } from "./MessageSendResponseStatus";
 import { MessageSendResponseChannel } from "./MessageSendResponseChannel";
 import { MessageSendResponseAccountChannel } from "./MessageSendResponseAccountChannel";
 import { MessageSendResponseAttachmentsItem } from "./MessageSendResponseAttachmentsItem";
+import { MessageSendResponseReactionsItem } from "./MessageSendResponseReactionsItem";
 import { MessageSendResponseMessagesItem } from "./MessageSendResponseMessagesItem";
 export declare const MessageSendResponse: core.serialization.ObjectSchema<serializers.MessageSendResponse.Raw, UnlimitedMessagingApi.MessageSendResponse>;
 export declare namespace MessageSendResponse {
@@ -17,6 +18,7 @@ export declare namespace MessageSendResponse {
         content: string | null;
         direction: MessageSendResponseDirection.Raw;
         fromMe: boolean;
+        sentViaUm: boolean;
         externalId: string | null;
         error: string | null;
         interlocutor: string;
@@ -24,6 +26,8 @@ export declare namespace MessageSendResponse {
         isGroup: boolean;
         replyToExternalId: string | null;
         replyToParticipant: string | null;
+        replyToMessageId: string | null;
+        replyToContent: string | null;
         retryCount: number;
         messagingAccountId: string;
         status: MessageSendResponseStatus.Raw;
@@ -34,6 +38,7 @@ export declare namespace MessageSendResponse {
         contentHtml: string | null;
         dispatchId: string;
         attachments: MessageSendResponseAttachmentsItem.Raw[];
+        reactions: MessageSendResponseReactionsItem.Raw[];
         mediaUrl: string | null;
         mediaType: string | null;
         mimeType: string | null;

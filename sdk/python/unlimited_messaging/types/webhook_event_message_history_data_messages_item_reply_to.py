@@ -9,6 +9,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 class WebhookEventMessageHistoryDataMessagesItemReplyTo(UniversalBaseModel):
     external_id: str = pydantic.Field(alias="externalId")
     participant: typing.Optional[str] = None
+    content: typing.Optional[str] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(

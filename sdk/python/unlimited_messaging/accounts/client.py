@@ -127,12 +127,16 @@ class AccountsClient:
         Parameters
         ----------
         mode : typing.Optional[AccountLinkAccountRequestMode]
+            Connection method. Both "stable" and "beta" use the same underlying transport (whatsmeow). The two values are kept for backwards compatibility. Defaults to "stable".
 
         new : typing.Optional[bool]
+            Always start a new linking attempt, even if one is already pending. Other pending attempts are left alone.
 
         sync_history : typing.Optional[bool]
+            Receive the account's message history: its past conversations are stored and announced as `message.history` webhook batches once the number is linked. Beta (whatsmeow) accounts only. Defaults to false.
 
         external_ref : typing.Optional[str]
+            Your own reference for this account (e.g. your customer organization id), stored on it. Only a pending attempt made with the same reference is resumed, so two of your customers linking at the same time each get their own account.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -217,6 +221,7 @@ class AccountsClient:
         Parameters
         ----------
         email : str
+            The address to look up settings for.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1607,12 +1612,16 @@ class AsyncAccountsClient:
         Parameters
         ----------
         mode : typing.Optional[AccountLinkAccountRequestMode]
+            Connection method. Both "stable" and "beta" use the same underlying transport (whatsmeow). The two values are kept for backwards compatibility. Defaults to "stable".
 
         new : typing.Optional[bool]
+            Always start a new linking attempt, even if one is already pending. Other pending attempts are left alone.
 
         sync_history : typing.Optional[bool]
+            Receive the account's message history: its past conversations are stored and announced as `message.history` webhook batches once the number is linked. Beta (whatsmeow) accounts only. Defaults to false.
 
         external_ref : typing.Optional[str]
+            Your own reference for this account (e.g. your customer organization id), stored on it. Only a pending attempt made with the same reference is resumed, so two of your customers linking at the same time each get their own account.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1705,6 +1714,7 @@ class AsyncAccountsClient:
         Parameters
         ----------
         email : str
+            The address to look up settings for.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.

@@ -8,6 +8,8 @@ export interface MessageFindAllResponseDataItem {
     direction: UnlimitedMessagingApi.MessageFindAllResponseDataItemDirection;
     /** True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe. */
     fromMe: boolean;
+    /** True when Unlimited Messaging sent this message (through the API, the dashboard, MCP or the SDK). False for a received message, and for one written on the account's own device (the phone, a mail client) that Unlimited Messaging only mirrored. */
+    sentViaUm: boolean;
     externalId: string | null;
     error: string | null;
     /** Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead. */
@@ -18,6 +20,10 @@ export interface MessageFindAllResponseDataItem {
     replyToExternalId: string | null;
     /** For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case. */
     replyToParticipant: string | null;
+    /** The id of the message this one quotes, when Unlimited Messaging has it stored. Null when this is not a reply, or when the quoted message is not stored (older than the account link, or past the retention period). */
+    replyToMessageId: string | null;
+    /** The text of the message this one quotes: that stored message's content when it is stored, otherwise the quoted text the channel delivered with the reply. Null when this is not a reply, or when the quoted message has no text (a photo without a caption, a voice note). */
+    replyToContent: string | null;
     retryCount: number;
     messagingAccountId: string;
     status: UnlimitedMessagingApi.MessageFindAllResponseDataItemStatus;
@@ -32,6 +38,8 @@ export interface MessageFindAllResponseDataItem {
     /** Ties together the messages one send request created, one per channel. Null for inbound messages. */
     dispatchId: string | null;
     attachments: UnlimitedMessagingApi.MessageFindAllResponseDataItemAttachmentsItem[];
+    /** The reactions on this message, one per person (a new reaction replaces theirs, a removed one is gone), oldest first. Empty when there are none. */
+    reactions: UnlimitedMessagingApi.MessageFindAllResponseDataItemReactionsItem[];
     /** Deprecated: use `attachments` instead (this is the first one). */
     mediaUrl: string | null;
     /** Deprecated: use `attachments` instead (this is the first one). */

@@ -43,11 +43,13 @@ const MessageSendResponseMessagesItemStatus_1 = require("./MessageSendResponseMe
 const MessageSendResponseMessagesItemChannel_1 = require("./MessageSendResponseMessagesItemChannel");
 const MessageSendResponseMessagesItemAccountChannel_1 = require("./MessageSendResponseMessagesItemAccountChannel");
 const MessageSendResponseMessagesItemAttachmentsItem_1 = require("./MessageSendResponseMessagesItemAttachmentsItem");
+const MessageSendResponseMessagesItemReactionsItem_1 = require("./MessageSendResponseMessagesItemReactionsItem");
 exports.MessageSendResponseMessagesItem = core.serialization.object({
     id: core.serialization.string(),
     content: core.serialization.string().nullable(),
     direction: MessageSendResponseMessagesItemDirection_1.MessageSendResponseMessagesItemDirection,
     fromMe: core.serialization.boolean(),
+    sentViaUm: core.serialization.boolean(),
     externalId: core.serialization.string().nullable(),
     error: core.serialization.string().nullable(),
     interlocutor: core.serialization.string(),
@@ -55,6 +57,8 @@ exports.MessageSendResponseMessagesItem = core.serialization.object({
     isGroup: core.serialization.boolean(),
     replyToExternalId: core.serialization.string().nullable(),
     replyToParticipant: core.serialization.string().nullable(),
+    replyToMessageId: core.serialization.string().nullable(),
+    replyToContent: core.serialization.string().nullable(),
     retryCount: core.serialization.number(),
     messagingAccountId: core.serialization.string(),
     status: MessageSendResponseMessagesItemStatus_1.MessageSendResponseMessagesItemStatus,
@@ -65,6 +69,7 @@ exports.MessageSendResponseMessagesItem = core.serialization.object({
     contentHtml: core.serialization.string().nullable(),
     dispatchId: core.serialization.string().nullable(),
     attachments: core.serialization.list(MessageSendResponseMessagesItemAttachmentsItem_1.MessageSendResponseMessagesItemAttachmentsItem),
+    reactions: core.serialization.list(MessageSendResponseMessagesItemReactionsItem_1.MessageSendResponseMessagesItemReactionsItem),
     mediaUrl: core.serialization.string().nullable(),
     mediaType: core.serialization.string().nullable(),
     mimeType: core.serialization.string().nullable(),

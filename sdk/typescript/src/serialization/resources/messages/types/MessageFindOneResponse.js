@@ -43,11 +43,13 @@ const MessageFindOneResponseStatus_1 = require("./MessageFindOneResponseStatus")
 const MessageFindOneResponseChannel_1 = require("./MessageFindOneResponseChannel");
 const MessageFindOneResponseAccountChannel_1 = require("./MessageFindOneResponseAccountChannel");
 const MessageFindOneResponseAttachmentsItem_1 = require("./MessageFindOneResponseAttachmentsItem");
+const MessageFindOneResponseReactionsItem_1 = require("./MessageFindOneResponseReactionsItem");
 exports.MessageFindOneResponse = core.serialization.object({
     id: core.serialization.string(),
     content: core.serialization.string().nullable(),
     direction: MessageFindOneResponseDirection_1.MessageFindOneResponseDirection,
     fromMe: core.serialization.boolean(),
+    sentViaUm: core.serialization.boolean(),
     externalId: core.serialization.string().nullable(),
     error: core.serialization.string().nullable(),
     interlocutor: core.serialization.string(),
@@ -55,6 +57,8 @@ exports.MessageFindOneResponse = core.serialization.object({
     isGroup: core.serialization.boolean(),
     replyToExternalId: core.serialization.string().nullable(),
     replyToParticipant: core.serialization.string().nullable(),
+    replyToMessageId: core.serialization.string().nullable(),
+    replyToContent: core.serialization.string().nullable(),
     retryCount: core.serialization.number(),
     messagingAccountId: core.serialization.string(),
     status: MessageFindOneResponseStatus_1.MessageFindOneResponseStatus,
@@ -65,6 +69,7 @@ exports.MessageFindOneResponse = core.serialization.object({
     contentHtml: core.serialization.string().nullable(),
     dispatchId: core.serialization.string().nullable(),
     attachments: core.serialization.list(MessageFindOneResponseAttachmentsItem_1.MessageFindOneResponseAttachmentsItem),
+    reactions: core.serialization.list(MessageFindOneResponseReactionsItem_1.MessageFindOneResponseReactionsItem),
     mediaUrl: core.serialization.string().nullable(),
     mediaType: core.serialization.string().nullable(),
     mimeType: core.serialization.string().nullable(),

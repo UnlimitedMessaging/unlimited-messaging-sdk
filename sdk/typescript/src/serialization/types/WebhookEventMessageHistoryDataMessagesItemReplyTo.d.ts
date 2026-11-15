@@ -9,5 +9,6 @@ export declare namespace WebhookEventMessageHistoryDataMessagesItemReplyTo {
     interface Raw {
         externalId: string;
         participant: string | null;
+        content: string | null;
     }
 }

@@ -120,7 +120,8 @@ export declare namespace Webhooks {
  * the same message object (`data.message`, or each item of `data.messages`): `id` (UnlimitedMessaging),
  * `externalId` (WhatsApp), `direction` (`IN` or `OUT`), `fromMe`, `content`, `sentAt` (the channel's
  * timestamp), `receivedAt` (when UnlimitedMessaging recorded it), `sender`, `senderId`, `senderName`,
- * `participant`, `replyTo`, `transcript`, the media fields described below, and for email `subject`,
+ * `participant`, `replyTo` (`externalId`, `participant`, and `content`, the quoted message's text, for
+ * a reply; null otherwise), `transcript`, the media fields described below, and for email `subject`,
  * `html` and `attachments`. Message events also carry `data.channel`: `type` (`WHATSAPP`, `EMAIL`),
  * `account` (`id`, `name`) and `conversation` (`id`, `isGroup`, `address`, and `participants` for a
  * group).
@@ -175,8 +176,10 @@ export declare namespace Webhooks {
  * Someone reacted to a message, or took their reaction back (`removed: true`, empty `emoji`). The
  * account's own reactions are included, with `fromMe: true`. `data.reaction` holds `emoji`, `removed`,
  * `reactedToExternalId`, `reactedToMessageId` (null when that message is not stored, see below),
- * `sender`, `senderId`, `senderName`, `participant` (in a group), `fromMe` and `sentAt`. Nothing is
- * stored: a reaction is not a message.
+ * `sender`, `senderId`, `senderName`, `participant` (in a group), `fromMe` and `sentAt`. When
+ * that message is stored, the reaction is kept with it and listed in its `reactions` (`GET /message`),
+ * one per person: a new reaction replaces theirs, a removed one disappears. A reaction is not a
+ * message and is never counted as one.
  *
  * #### message.edited
  *

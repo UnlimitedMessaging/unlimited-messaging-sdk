@@ -18,6 +18,9 @@ from .message_send_response_messages_item_account_channel import (
 from .message_send_response_messages_item_attachments_item import (
     MessageSendResponseMessagesItemAttachmentsItem,
 )
+from .message_send_response_messages_item_reactions_item import (
+    MessageSendResponseMessagesItemReactionsItem,
+)
 import datetime as dt
 from ...core.pydantic_utilities import IS_PYDANTIC_V2
 
@@ -29,6 +32,11 @@ class MessageSendResponseMessagesItem(UniversalBaseModel):
     from_me: bool = pydantic.Field(alias="fromMe")
     """
     True when the account holder sent this message (direction OUT), false when they received it (direction IN). Redundant with direction, but spares the client from having to know which enum value means "we sent it" - the same convention as WhatsApp's own fromMe.
+    """
+
+    sent_via_um: bool = pydantic.Field(alias="sentViaUm")
+    """
+    True when Unlimited Messaging sent this message (through the API, the dashboard, MCP or the SDK). False for a received message, and for one written on the account's own device (the phone, a mail client) that Unlimited Messaging only mirrored.
     """
 
     external_id: typing.Optional[str] = pydantic.Field(alias="externalId", default=None)
@@ -54,6 +62,20 @@ class MessageSendResponseMessagesItem(UniversalBaseModel):
     )
     """
     For a reply to a group message, the phone number of whoever posted the message being replied to - not necessarily the same as interlocutor. Null outside that case.
+    """
+
+    reply_to_message_id: typing.Optional[str] = pydantic.Field(
+        alias="replyToMessageId", default=None
+    )
+    """
+    The id of the message this one quotes, when Unlimited Messaging has it stored. Null when this is not a reply, or when the quoted message is not stored (older than the account link, or past the retention period).
+    """
+
+    reply_to_content: typing.Optional[str] = pydantic.Field(
+        alias="replyToContent", default=None
+    )
+    """
+    The text of the message this one quotes: that stored message's content when it is stored, otherwise the quoted text the channel delivered with the reply. Null when this is not a reply, or when the quoted message has no text (a photo without a caption, a voice note).
     """
 
     retry_count: int = pydantic.Field(alias="retryCount")
@@ -86,6 +108,13 @@ class MessageSendResponseMessagesItem(UniversalBaseModel):
     """
 
     attachments: typing.List[MessageSendResponseMessagesItemAttachmentsItem]
+    reactions: typing.List[MessageSendResponseMessagesItemReactionsItem] = (
+        pydantic.Field()
+    )
+    """
+    The reactions on this message, one per person (a new reaction replaces theirs, a removed one is gone), oldest first. Empty when there are none.
+    """
+
     media_url: typing.Optional[str] = pydantic.Field(alias="mediaUrl", default=None)
     """
     Deprecated: use `attachments` instead (this is the first one).

@@ -41,4 +41,5 @@ const core = __importStar(require("../../core"));
 exports.WebhookEventMessageSentDataMessageReplyTo = core.serialization.object({
     externalId: core.serialization.string(),
     participant: core.serialization.string().nullable(),
+    content: core.serialization.string().nullable(),
 });

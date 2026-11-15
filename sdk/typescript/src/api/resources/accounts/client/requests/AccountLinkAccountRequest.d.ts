@@ -7,8 +7,20 @@ import * as UnlimitedMessagingApi from "../../../../index";
  *     {}
  */
 export interface AccountLinkAccountRequest {
+    /**
+     * Connection method. Both "stable" and "beta" use the same underlying transport (whatsmeow). The two values are kept for backwards compatibility. Defaults to "stable".
+     */
     mode?: UnlimitedMessagingApi.AccountLinkAccountRequestMode;
+    /**
+     * Always start a new linking attempt, even if one is already pending. Other pending attempts are left alone.
+     */
     new?: boolean;
+    /**
+     * Receive the account's message history: its past conversations are stored and announced as `message.history` webhook batches once the number is linked. Beta (whatsmeow) accounts only. Defaults to false.
+     */
     syncHistory?: boolean;
+    /**
+     * Your own reference for this account (e.g. your customer organization id), stored on it. Only a pending attempt made with the same reference is resumed, so two of your customers linking at the same time each get their own account.
+     */
     externalRef?: string;
 }

@@ -9,6 +9,7 @@ import { MessageFindOneResponseStatus } from "./MessageFindOneResponseStatus";
 import { MessageFindOneResponseChannel } from "./MessageFindOneResponseChannel";
 import { MessageFindOneResponseAccountChannel } from "./MessageFindOneResponseAccountChannel";
 import { MessageFindOneResponseAttachmentsItem } from "./MessageFindOneResponseAttachmentsItem";
+import { MessageFindOneResponseReactionsItem } from "./MessageFindOneResponseReactionsItem";
 export declare const MessageFindOneResponse: core.serialization.ObjectSchema<serializers.MessageFindOneResponse.Raw, UnlimitedMessagingApi.MessageFindOneResponse>;
 export declare namespace MessageFindOneResponse {
     interface Raw {
@@ -16,6 +17,7 @@ export declare namespace MessageFindOneResponse {
         content: string | null;
         direction: MessageFindOneResponseDirection.Raw;
         fromMe: boolean;
+        sentViaUm: boolean;
         externalId: string | null;
         error: string | null;
         interlocutor: string;
@@ -23,6 +25,8 @@ export declare namespace MessageFindOneResponse {
         isGroup: boolean;
         replyToExternalId: string | null;
         replyToParticipant: string | null;
+        replyToMessageId: string | null;
+        replyToContent: string | null;
         retryCount: number;
         messagingAccountId: string;
         status: MessageFindOneResponseStatus.Raw;
@@ -33,6 +37,7 @@ export declare namespace MessageFindOneResponse {
         contentHtml: string | null;
         dispatchId: string | null;
         attachments: MessageFindOneResponseAttachmentsItem.Raw[];
+        reactions: MessageFindOneResponseReactionsItem.Raw[];
         mediaUrl: string | null;
         mediaType: string | null;
         mimeType: string | null;

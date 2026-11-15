@@ -4,4 +4,5 @@
 export interface WebhookEventMessageHistoryDataMessagesItemReplyTo {
     externalId: string;
     participant: string | null;
+    content: string | null;
 }

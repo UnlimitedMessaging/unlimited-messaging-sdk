@@ -43,11 +43,13 @@ const MessageFindAllResponseDataItemStatus_1 = require("./MessageFindAllResponse
 const MessageFindAllResponseDataItemChannel_1 = require("./MessageFindAllResponseDataItemChannel");
 const MessageFindAllResponseDataItemAccountChannel_1 = require("./MessageFindAllResponseDataItemAccountChannel");
 const MessageFindAllResponseDataItemAttachmentsItem_1 = require("./MessageFindAllResponseDataItemAttachmentsItem");
+const MessageFindAllResponseDataItemReactionsItem_1 = require("./MessageFindAllResponseDataItemReactionsItem");
 exports.MessageFindAllResponseDataItem = core.serialization.object({
     id: core.serialization.string(),
     content: core.serialization.string().nullable(),
     direction: MessageFindAllResponseDataItemDirection_1.MessageFindAllResponseDataItemDirection,
     fromMe: core.serialization.boolean(),
+    sentViaUm: core.serialization.boolean(),
     externalId: core.serialization.string().nullable(),
     error: core.serialization.string().nullable(),
     interlocutor: core.serialization.string(),
@@ -55,6 +57,8 @@ exports.MessageFindAllResponseDataItem = core.serialization.object({
     isGroup: core.serialization.boolean(),
     replyToExternalId: core.serialization.string().nullable(),
     replyToParticipant: core.serialization.string().nullable(),
+    replyToMessageId: core.serialization.string().nullable(),
+    replyToContent: core.serialization.string().nullable(),
     retryCount: core.serialization.number(),
     messagingAccountId: core.serialization.string(),
     status: MessageFindAllResponseDataItemStatus_1.MessageFindAllResponseDataItemStatus,
@@ -65,6 +69,7 @@ exports.MessageFindAllResponseDataItem = core.serialization.object({
     contentHtml: core.serialization.string().nullable(),
     dispatchId: core.serialization.string().nullable(),
     attachments: core.serialization.list(MessageFindAllResponseDataItemAttachmentsItem_1.MessageFindAllResponseDataItemAttachmentsItem),
+    reactions: core.serialization.list(MessageFindAllResponseDataItemReactionsItem_1.MessageFindAllResponseDataItemReactionsItem),
     mediaUrl: core.serialization.string().nullable(),
     mediaType: core.serialization.string().nullable(),
     mimeType: core.serialization.string().nullable(),

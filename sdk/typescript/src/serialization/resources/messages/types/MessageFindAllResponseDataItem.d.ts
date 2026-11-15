@@ -9,6 +9,7 @@ import { MessageFindAllResponseDataItemStatus } from "./MessageFindAllResponseDa
 import { MessageFindAllResponseDataItemChannel } from "./MessageFindAllResponseDataItemChannel";
 import { MessageFindAllResponseDataItemAccountChannel } from "./MessageFindAllResponseDataItemAccountChannel";
 import { MessageFindAllResponseDataItemAttachmentsItem } from "./MessageFindAllResponseDataItemAttachmentsItem";
+import { MessageFindAllResponseDataItemReactionsItem } from "./MessageFindAllResponseDataItemReactionsItem";
 export declare const MessageFindAllResponseDataItem: core.serialization.ObjectSchema<serializers.MessageFindAllResponseDataItem.Raw, UnlimitedMessagingApi.MessageFindAllResponseDataItem>;
 export declare namespace MessageFindAllResponseDataItem {
     interface Raw {
@@ -16,6 +17,7 @@ export declare namespace MessageFindAllResponseDataItem {
         content: string | null;
         direction: MessageFindAllResponseDataItemDirection.Raw;
         fromMe: boolean;
+        sentViaUm: boolean;
         externalId: string | null;
         error: string | null;
         interlocutor: string;
@@ -23,6 +25,8 @@ export declare namespace MessageFindAllResponseDataItem {
         isGroup: boolean;
         replyToExternalId: string | null;
         replyToParticipant: string | null;
+        replyToMessageId: string | null;
+        replyToContent: string | null;
         retryCount: number;
         messagingAccountId: string;
         status: MessageFindAllResponseDataItemStatus.Raw;
@@ -33,6 +37,7 @@ export declare namespace MessageFindAllResponseDataItem {
         contentHtml: string | null;
         dispatchId: string | null;
         attachments: MessageFindAllResponseDataItemAttachmentsItem.Raw[];
+        reactions: MessageFindAllResponseDataItemReactionsItem.Raw[];
         mediaUrl: string | null;
         mediaType: string | null;
         mimeType: string | null;
