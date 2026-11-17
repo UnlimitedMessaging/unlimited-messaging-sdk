@@ -216,7 +216,7 @@ paths:
                             - WHATSAPP_WHATSMEOW
                         watermarked:
                           type: boolean
-                          description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
+                          description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only. When true, the line is already part of `content` (and `contentHtml`), as sent.
                         subject:
                           anyOf:
                             - type: string
@@ -444,7 +444,7 @@ paths:
 
         WhatsApp text is limited to 1 600 characters. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
 
-        Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message (WhatsApp) or an email ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
+        Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message (WhatsApp, SMS) or an email ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. The line is part of the stored message: `content` (and an email's `contentHtml`) is exactly what was sent, and `watermarked` says whether it was added.
       operationId: Message_send
       parameters: []
       requestBody:
@@ -707,7 +707,7 @@ paths:
                       - WHATSAPP_WHATSMEOW
                   watermarked:
                     type: boolean
-                    description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
+                    description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only. When true, the line is already part of `content` (and `contentHtml`), as sent.
                   subject:
                     anyOf:
                       - type: string
@@ -934,7 +934,7 @@ paths:
                             - WHATSAPP_WHATSMEOW
                         watermarked:
                           type: boolean
-                          description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
+                          description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only. When true, the line is already part of `content` (and `contentHtml`), as sent.
                         subject:
                           anyOf:
                             - type: string
@@ -1273,7 +1273,7 @@ paths:
                       - WHATSAPP_WHATSMEOW
                   watermarked:
                     type: boolean
-                    description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
+                    description: Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only. When true, the line is already part of `content` (and `contentHtml`), as sent.
                   subject:
                     anyOf:
                       - type: string
@@ -3406,6 +3406,18 @@ paths:
                     type: string
                   enabled:
                     type: boolean
+                  autoDisabledAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                  failingSince:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
                   eventTypes:
                     type: array
                     items:
@@ -3441,6 +3453,8 @@ paths:
                   - description
                   - secretPrefix
                   - enabled
+                  - autoDisabledAt
+                  - failingSince
                   - eventTypes
                   - accountIds
                   - createdAt
@@ -3493,6 +3507,18 @@ paths:
                           type: string
                         enabled:
                           type: boolean
+                        autoDisabledAt:
+                          anyOf:
+                            - type: string
+                              format: date-time
+                              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                            - type: "null"
+                        failingSince:
+                          anyOf:
+                            - type: string
+                              format: date-time
+                              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                            - type: "null"
                         eventTypes:
                           type: array
                           items:
@@ -3526,6 +3552,8 @@ paths:
                         - description
                         - secretPrefix
                         - enabled
+                        - autoDisabledAt
+                        - failingSince
                         - eventTypes
                         - accountIds
                         - createdAt
@@ -3576,6 +3604,18 @@ paths:
                     type: string
                   enabled:
                     type: boolean
+                  autoDisabledAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                  failingSince:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
                   eventTypes:
                     type: array
                     items:
@@ -3609,6 +3649,8 @@ paths:
                   - description
                   - secretPrefix
                   - enabled
+                  - autoDisabledAt
+                  - failingSince
                   - eventTypes
                   - accountIds
                   - createdAt
@@ -3698,6 +3740,18 @@ paths:
                     type: string
                   enabled:
                     type: boolean
+                  autoDisabledAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
+                  failingSince:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                        pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                      - type: "null"
                   eventTypes:
                     type: array
                     items:
@@ -3731,6 +3785,8 @@ paths:
                   - description
                   - secretPrefix
                   - enabled
+                  - autoDisabledAt
+                  - failingSince
                   - eventTypes
                   - accountIds
                   - createdAt
@@ -4096,6 +4152,12 @@ tags:
       A `2xx` marks the delivery done. A `429`, a `5xx`, a timeout or a network error is retried
       after 30 s, 2 min, 10 min, 1 h, 6 h, 1 day, 2 days: 8 attempts in all, over a little more than 3 days. Any other
       `4xx` is final and never retried. Delivery attempts are kept for 30 days.
+
+      When every delivery to an endpoint keeps failing, each event is retried less: 2 retries after 1 day, 1 retry after 2 days, no retry after 3 days
+      without a single successful delivery. After 7 days the endpoint is turned off
+      (`enabled: false`, with `autoDisabledAt` set) and its owner is emailed; events that happen while it
+      is off are not sent. `failingSince` on the endpoint shows since when nothing has gone through. Any
+      successful delivery, or turning the endpoint back on, starts over with the full schedule.
 
       ### Ordering and duplicates
 
