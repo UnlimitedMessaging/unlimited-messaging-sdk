@@ -191,7 +191,7 @@ class MessagesClient:
 
         WhatsApp text is limited to 1 600 characters. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
 
-        Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message (WhatsApp) or an email ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
+        Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message (WhatsApp, SMS) or an email ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. The line is part of the stored message: `content` (and an email's `contentHtml`) is exactly what was sent, and `watermarked` says whether it was added.
 
         Parameters
         ----------
@@ -678,7 +678,7 @@ class AsyncMessagesClient:
 
         WhatsApp text is limited to 1 600 characters. `simId` is a deprecated alias for `accountId`, removed 2026-12-16.
 
-        Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message (WhatsApp) or an email ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. `watermarked` on the message says whether it was added.
+        Watermark: on the paid plans (Medium, Max) nothing is ever added to your messages. On the Free plan, a text message (WhatsApp, SMS) or an email ends with a "Sent with UnlimitedMessaging.app" line; media and product messages never do. The line is part of the stored message: `content` (and an email's `contentHtml`) is exactly what was sent, and `watermarked` says whether it was added.
 
         Parameters
         ----------

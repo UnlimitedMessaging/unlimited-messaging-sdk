@@ -97,6 +97,12 @@ const errors = __importStar(require("../../../../errors/index"));
  * after 30 s, 2 min, 10 min, 1 h, 6 h, 1 day, 2 days: 8 attempts in all, over a little more than 3 days. Any other
  * `4xx` is final and never retried. Delivery attempts are kept for 30 days.
  *
+ * When every delivery to an endpoint keeps failing, each event is retried less: 2 retries after 1 day, 1 retry after 2 days, no retry after 3 days
+ * without a single successful delivery. After 7 days the endpoint is turned off
+ * (`enabled: false`, with `autoDisabledAt` set) and its owner is emailed; events that happen while it
+ * is off are not sent. `failingSince` on the endpoint shows since when nothing has gone through. Any
+ * successful delivery, or turning the endpoint back on, starts over with the full schedule.
+ *
  * ### Ordering and duplicates
  *
  * Delivery is at least once: the same event can arrive twice, so deduplicate on `eventId` (equal to

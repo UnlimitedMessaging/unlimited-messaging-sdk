@@ -3,10 +3,10 @@
 from ...core.pydantic_utilities import UniversalBaseModel
 import typing
 import pydantic
+import datetime as dt
 from .webhook_endpoint_list_response_data_item_event_types_item import (
     WebhookEndpointListResponseDataItemEventTypesItem,
 )
-import datetime as dt
 from ...core.pydantic_utilities import IS_PYDANTIC_V2
 
 
@@ -16,6 +16,12 @@ class WebhookEndpointListResponseDataItem(UniversalBaseModel):
     description: typing.Optional[str] = None
     secret_prefix: str = pydantic.Field(alias="secretPrefix")
     enabled: bool
+    auto_disabled_at: typing.Optional[dt.datetime] = pydantic.Field(
+        alias="autoDisabledAt", default=None
+    )
+    failing_since: typing.Optional[dt.datetime] = pydantic.Field(
+        alias="failingSince", default=None
+    )
     event_types: typing.List[WebhookEndpointListResponseDataItemEventTypesItem] = (
         pydantic.Field(alias="eventTypes")
     )

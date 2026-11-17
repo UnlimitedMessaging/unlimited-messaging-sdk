@@ -87,7 +87,7 @@ class MessageSendResponseMessagesItem(UniversalBaseModel):
     )
     watermarked: bool = pydantic.Field()
     """
-    Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only.
+    Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only. When true, the line is already part of `content` (and `contentHtml`), as sent.
     """
 
     subject: typing.Optional[str] = pydantic.Field(default=None)

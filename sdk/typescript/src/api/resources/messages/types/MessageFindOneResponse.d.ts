@@ -29,7 +29,7 @@ export interface MessageFindOneResponse {
     status: UnlimitedMessagingApi.MessageFindOneResponseStatus;
     channel: UnlimitedMessagingApi.MessageFindOneResponseChannel;
     accountChannel: UnlimitedMessagingApi.MessageFindOneResponseAccountChannel;
-    /** Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only. */
+    /** Whether the "Sent with UnlimitedMessaging.app" line was appended. Never on the paid plans (Medium, Max), nor on media and product messages; on the Free plan, text messages and emails only. When true, the line is already part of `content` (and `contentHtml`), as sent. */
     watermarked: boolean;
     /** The email subject. Null on channels without one. */
     subject: string | null;

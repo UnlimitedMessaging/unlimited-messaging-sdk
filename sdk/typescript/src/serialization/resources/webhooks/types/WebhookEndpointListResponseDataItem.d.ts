@@ -13,6 +13,8 @@ export declare namespace WebhookEndpointListResponseDataItem {
         description: string | null;
         secretPrefix: string;
         enabled: boolean;
+        autoDisabledAt: string | null;
+        failingSince: string | null;
         eventTypes: WebhookEndpointListResponseDataItemEventTypesItem.Raw[];
         accountIds: string[];
         createdAt: string;

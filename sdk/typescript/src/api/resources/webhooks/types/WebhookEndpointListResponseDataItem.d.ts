@@ -8,6 +8,8 @@ export interface WebhookEndpointListResponseDataItem {
     description: string | null;
     secretPrefix: string;
     enabled: boolean;
+    autoDisabledAt: Date | null;
+    failingSince: Date | null;
     eventTypes: UnlimitedMessagingApi.WebhookEndpointListResponseDataItemEventTypesItem[];
     accountIds: string[];
     createdAt: Date;

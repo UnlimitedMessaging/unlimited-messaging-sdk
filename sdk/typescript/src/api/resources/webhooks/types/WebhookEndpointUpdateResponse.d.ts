@@ -8,6 +8,8 @@ export interface WebhookEndpointUpdateResponse {
     description: string | null;
     secretPrefix: string;
     enabled: boolean;
+    autoDisabledAt: Date | null;
+    failingSince: Date | null;
     eventTypes: UnlimitedMessagingApi.WebhookEndpointUpdateResponseEventTypesItem[];
     accountIds: string[];
     createdAt: Date;
