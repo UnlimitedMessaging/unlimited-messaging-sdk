@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.30] - 2026-11-17
+
+*   **Changed parameters**
+    *   Request bodies for `PUT /webhooks/{webhookId}` and `PATCH /webhooks/{webhookId}` now support `autoDisabledAt` and `failingSince` fields. Both are of type `string` (date-time format) or `null`.
+
+*   **New response fields**
+    *   Webhook objects returned by `GET /webhooks` and `GET /webhooks/{webhookId}` now include:
+        *   `autoDisabledAt`: A date-time string or null, indicating when the webhook was automatically disabled.
+        *   `failingSince`: A date-time string or null, indicating the timestamp from which the webhook deliveries started consistently failing.
+
+*   **Changed response fields**
+    *   The `watermarked` field's description on Message objects (returned across `GET /message/{messageId}`, `GET /messages`, `GET /conversations/{conversationId}/messages`, and `POST /messages/batch` responses) has been updated to clarify that when `true`, the watermark is already part of the `content` (and `contentHtml`) fields, as sent.
+
 ## [0.1.29] - 2026-11-15
 
 *   **New Response Fields:**
