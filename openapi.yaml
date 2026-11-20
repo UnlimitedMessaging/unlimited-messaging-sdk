@@ -96,6 +96,7 @@ paths:
               - READ
               - FAILED
               - UNDELIVERABLE
+              - CANCELLED
         - name: direction
           required: false
           in: query
@@ -201,6 +202,7 @@ paths:
                             - READ
                             - FAILED
                             - UNDELIVERABLE
+                            - CANCELLED
                         channel:
                           type: string
                           enum:
@@ -692,6 +694,7 @@ paths:
                       - READ
                       - FAILED
                       - UNDELIVERABLE
+                      - CANCELLED
                   channel:
                     type: string
                     enum:
@@ -919,6 +922,7 @@ paths:
                             - READ
                             - FAILED
                             - UNDELIVERABLE
+                            - CANCELLED
                         channel:
                           type: string
                           enum:
@@ -1258,6 +1262,7 @@ paths:
                       - READ
                       - FAILED
                       - UNDELIVERABLE
+                      - CANCELLED
                   channel:
                     type: string
                     enum:
@@ -1518,6 +1523,7 @@ paths:
                                   - READ
                                   - FAILED
                                   - UNDELIVERABLE
+                                  - CANCELLED
                               createdAt:
                                 type: string
                                 format: date-time
@@ -4989,6 +4995,7 @@ components:
                     - READ
                     - FAILED
                     - UNDELIVERABLE
+                    - CANCELLED
                 previousStatus:
                   type: string
                   enum:
@@ -4999,6 +5006,7 @@ components:
                     - READ
                     - FAILED
                     - UNDELIVERABLE
+                    - CANCELLED
                 error:
                   nullable: true
                   type: string
