@@ -12,4 +12,5 @@ exports.MessageFindAllRequestStatus = {
     Read: "READ",
     Failed: "FAILED",
     Undeliverable: "UNDELIVERABLE",
+    Cancelled: "CANCELLED",
 };

@@ -6,5 +6,5 @@ import * as UnlimitedMessagingApi from "../../../../api/index";
 import * as core from "../../../../core";
 export declare const MessageSendResponseMessagesItemStatus: core.serialization.Schema<serializers.MessageSendResponseMessagesItemStatus.Raw, UnlimitedMessagingApi.MessageSendResponseMessagesItemStatus>;
 export declare namespace MessageSendResponseMessagesItemStatus {
-    type Raw = "PENDING" | "SENDING" | "SENT" | "DELIVERED" | "READ" | "FAILED" | "UNDELIVERABLE";
+    type Raw = "PENDING" | "SENDING" | "SENT" | "DELIVERED" | "READ" | "FAILED" | "UNDELIVERABLE" | "CANCELLED";
 }

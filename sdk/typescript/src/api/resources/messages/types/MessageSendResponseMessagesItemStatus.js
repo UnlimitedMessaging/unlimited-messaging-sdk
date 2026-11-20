@@ -12,4 +12,5 @@ exports.MessageSendResponseMessagesItemStatus = {
     Read: "READ",
     Failed: "FAILED",
     Undeliverable: "UNDELIVERABLE",
+    Cancelled: "CANCELLED",
 };

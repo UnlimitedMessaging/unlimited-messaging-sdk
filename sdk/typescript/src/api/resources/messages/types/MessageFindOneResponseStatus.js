@@ -12,4 +12,5 @@ exports.MessageFindOneResponseStatus = {
     Read: "READ",
     Failed: "FAILED",
     Undeliverable: "UNDELIVERABLE",
+    Cancelled: "CANCELLED",
 };

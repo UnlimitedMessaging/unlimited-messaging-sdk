@@ -38,4 +38,13 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebhookEventMessageStatusDataMessagePreviousStatus = void 0;
 const core = __importStar(require("../../core"));
-exports.WebhookEventMessageStatusDataMessagePreviousStatus = core.serialization.enum_(["PENDING", "SENDING", "SENT", "DELIVERED", "READ", "FAILED", "UNDELIVERABLE"]);
+exports.WebhookEventMessageStatusDataMessagePreviousStatus = core.serialization.enum_([
+    "PENDING",
+    "SENDING",
+    "SENT",
+    "DELIVERED",
+    "READ",
+    "FAILED",
+    "UNDELIVERABLE",
+    "CANCELLED",
+]);

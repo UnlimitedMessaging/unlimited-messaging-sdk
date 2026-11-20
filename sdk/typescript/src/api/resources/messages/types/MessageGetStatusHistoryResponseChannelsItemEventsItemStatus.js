@@ -12,4 +12,5 @@ exports.MessageGetStatusHistoryResponseChannelsItemEventsItemStatus = {
     Read: "READ",
     Failed: "FAILED",
     Undeliverable: "UNDELIVERABLE",
+    Cancelled: "CANCELLED",
 };

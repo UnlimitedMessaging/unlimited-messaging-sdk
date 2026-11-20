@@ -6,5 +6,5 @@ import * as UnlimitedMessagingApi from "../../../../api/index";
 import * as core from "../../../../core";
 export declare const MessageFindAllRequestStatus: core.serialization.Schema<serializers.MessageFindAllRequestStatus.Raw, UnlimitedMessagingApi.MessageFindAllRequestStatus>;
 export declare namespace MessageFindAllRequestStatus {
-    type Raw = "PENDING" | "SENDING" | "SENT" | "DELIVERED" | "READ" | "FAILED" | "UNDELIVERABLE";
+    type Raw = "PENDING" | "SENDING" | "SENT" | "DELIVERED" | "READ" | "FAILED" | "UNDELIVERABLE" | "CANCELLED";
 }

@@ -6,5 +6,5 @@ import * as UnlimitedMessagingApi from "../../../../api/index";
 import * as core from "../../../../core";
 export declare const MessageGetStatusHistoryResponseChannelsItemEventsItemStatus: core.serialization.Schema<serializers.MessageGetStatusHistoryResponseChannelsItemEventsItemStatus.Raw, UnlimitedMessagingApi.MessageGetStatusHistoryResponseChannelsItemEventsItemStatus>;
 export declare namespace MessageGetStatusHistoryResponseChannelsItemEventsItemStatus {
-    type Raw = "PENDING" | "SENDING" | "SENT" | "DELIVERED" | "READ" | "FAILED" | "UNDELIVERABLE";
+    type Raw = "PENDING" | "SENDING" | "SENT" | "DELIVERED" | "READ" | "FAILED" | "UNDELIVERABLE" | "CANCELLED";
 }

@@ -12,4 +12,5 @@ exports.WebhookEventMessageStatusDataMessageStatus = {
     Read: "READ",
     Failed: "FAILED",
     Undeliverable: "UNDELIVERABLE",
+    Cancelled: "CANCELLED",
 };

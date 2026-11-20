@@ -4,7 +4,14 @@ import typing
 
 MessageSendResponseStatus = typing.Union[
     typing.Literal[
-        "PENDING", "SENDING", "SENT", "DELIVERED", "READ", "FAILED", "UNDELIVERABLE"
+        "PENDING",
+        "SENDING",
+        "SENT",
+        "DELIVERED",
+        "READ",
+        "FAILED",
+        "UNDELIVERABLE",
+        "CANCELLED",
     ],
     typing.Any,
 ]
