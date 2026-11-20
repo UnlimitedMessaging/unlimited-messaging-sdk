@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.32] - 2026-11-20
+
+*   **New Webhook Event**
+    *   `message.transcribed` webhook event is now available, fired when the transcription of an audio message (voice note or audio file) is ready for accounts on the Max plan. The webhook payload includes `message.id`, `externalId`, `mediaType`, `transcript`, and `transcriptLanguage`.
+
+*   **Changed Parameters**
+    *   `PATCH /account/{accountId}`:
+        *   New request body parameter `audioTranscription` (string, enum `NONE`, `RECEIVED`, `SENT`, `ALL`) to configure which audios for this account are transcribed (Max plan).
+        *   New request body parameter `forwardTranscripts` (boolean) to control whether transcripts of received audios are also sent to the account holder's "message yourself" chat (Max plan).
+
+*   **New Response Fields**
+    *   All message objects (e.g., responses from `GET /account/{accountId}/message/{messageId}`, `GET /account/{accountId}/messages`, and various webhook message payloads) now include a new field:
+        *   `transcriptLanguage` (string, nullable): ISO 639-1 code of the language the transcript is in, detected automatically. Null without a transcript or if too short to determine.
+    *   Account objects (e.g., responses from `GET /account/{accountId}`, `PUT /account/{accountId}`) now include two new fields:
+        *   `audioTranscription` (string, enum `NONE`, `RECEIVED`, `SENT`, `ALL`): Indicates which audios of this account are transcribed (Max plan).
+        *   `forwardTranscripts` (boolean): Indicates whether received audio transcripts are also sent to the account holder from this account to its own number (Max plan).
+
+*   **Changed Response Field Descriptions**
+    *   The `transcript` field's description in message objects has been updated to clarify that it now holds the transcription of audios on the Max plan, is written in the background, and is carried by the new `message.transcribed` webhook event.
+
 ## [0.1.31] - 2026-11-20
 
 *   **Changed parameters**
