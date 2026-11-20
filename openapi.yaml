@@ -328,7 +328,12 @@ paths:
                           anyOf:
                             - type: string
                             - type: "null"
-                          description: "Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now."
+                          description: "Text extracted from the media. Today: the transcription of an audio (voice note or audio file), on the Max plan, written in the background a few seconds to a few minutes after the message arrives (webhook message.transcribed). Null until then, for audios over 5 minutes, and for every other kind of media for now."
+                        transcriptLanguage:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: ISO 639-1 code of the language the transcript is in ("fr", "en"...), detected automatically. Null without a transcript, or when it is too short to tell.
                         productData:
                           anyOf:
                             - type: object
@@ -389,6 +394,7 @@ paths:
                         - mimeType
                         - mediaFilename
                         - transcript
+                        - transcriptLanguage
                         - productData
                         - sentAt
                         - deletedAt
@@ -817,7 +823,12 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
-                    description: "Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now."
+                    description: "Text extracted from the media. Today: the transcription of an audio (voice note or audio file), on the Max plan, written in the background a few seconds to a few minutes after the message arrives (webhook message.transcribed). Null until then, for audios over 5 minutes, and for every other kind of media for now."
+                  transcriptLanguage:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: ISO 639-1 code of the language the transcript is in ("fr", "en"...), detected automatically. Null without a transcript, or when it is too short to tell.
                   productData:
                     anyOf:
                       - type: object
@@ -1048,7 +1059,12 @@ paths:
                           anyOf:
                             - type: string
                             - type: "null"
-                          description: "Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now."
+                          description: "Text extracted from the media. Today: the transcription of an audio (voice note or audio file), on the Max plan, written in the background a few seconds to a few minutes after the message arrives (webhook message.transcribed). Null until then, for audios over 5 minutes, and for every other kind of media for now."
+                        transcriptLanguage:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: ISO 639-1 code of the language the transcript is in ("fr", "en"...), detected automatically. Null without a transcript, or when it is too short to tell.
                         productData:
                           anyOf:
                             - type: object
@@ -1109,6 +1125,7 @@ paths:
                         - mimeType
                         - mediaFilename
                         - transcript
+                        - transcriptLanguage
                         - productData
                         - sentAt
                         - deletedAt
@@ -1147,6 +1164,7 @@ paths:
                   - mimeType
                   - mediaFilename
                   - transcript
+                  - transcriptLanguage
                   - productData
                   - sentAt
                   - deletedAt
@@ -1388,7 +1406,12 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
-                    description: "Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now."
+                    description: "Text extracted from the media. Today: the transcription of an audio (voice note or audio file), on the Max plan, written in the background a few seconds to a few minutes after the message arrives (webhook message.transcribed). Null until then, for audios over 5 minutes, and for every other kind of media for now."
+                  transcriptLanguage:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: ISO 639-1 code of the language the transcript is in ("fr", "en"...), detected automatically. Null without a transcript, or when it is too short to tell.
                   productData:
                     anyOf:
                       - type: object
@@ -1449,6 +1472,7 @@ paths:
                   - mimeType
                   - mediaFilename
                   - transcript
+                  - transcriptLanguage
                   - productData
                   - sentAt
                   - deletedAt
@@ -1628,6 +1652,17 @@ paths:
                     sendIntervalSeconds:
                       type: number
                       description: The pause this account keeps between two sends, in seconds.
+                    audioTranscription:
+                      type: string
+                      enum:
+                        - NONE
+                        - RECEIVED
+                        - SENT
+                        - ALL
+                      description: "Which audios of this account are transcribed (Max plan): RECEIVED, SENT, ALL or NONE. Has no effect on other plans."
+                    forwardTranscripts:
+                      type: boolean
+                      description: Whether the transcript of each received audio is also sent to the account holder, from this account to its own number (WhatsApp's "message yourself" chat). Max plan.
                     createdAt:
                       type: string
                       format: date-time
@@ -1649,6 +1684,8 @@ paths:
                     - mediaUrlRequiresAuth
                     - syncHistory
                     - sendIntervalSeconds
+                    - audioTranscription
+                    - forwardTranscripts
                     - createdAt
                     - updatedAt
                   additionalProperties: false
@@ -2103,6 +2140,17 @@ paths:
                   sendIntervalSeconds:
                     type: number
                     description: The pause this account keeps between two sends, in seconds.
+                  audioTranscription:
+                    type: string
+                    enum:
+                      - NONE
+                      - RECEIVED
+                      - SENT
+                      - ALL
+                    description: "Which audios of this account are transcribed (Max plan): RECEIVED, SENT, ALL or NONE. Has no effect on other plans."
+                  forwardTranscripts:
+                    type: boolean
+                    description: Whether the transcript of each received audio is also sent to the account holder, from this account to its own number (WhatsApp's "message yourself" chat). Max plan.
                   createdAt:
                     type: string
                     format: date-time
@@ -2124,6 +2172,8 @@ paths:
                   - mediaUrlRequiresAuth
                   - syncHistory
                   - sendIntervalSeconds
+                  - audioTranscription
+                  - forwardTranscripts
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -2287,6 +2337,17 @@ paths:
                   sendIntervalSeconds:
                     type: number
                     description: The pause this account keeps between two sends, in seconds.
+                  audioTranscription:
+                    type: string
+                    enum:
+                      - NONE
+                      - RECEIVED
+                      - SENT
+                      - ALL
+                    description: "Which audios of this account are transcribed (Max plan): RECEIVED, SENT, ALL or NONE. Has no effect on other plans."
+                  forwardTranscripts:
+                    type: boolean
+                    description: Whether the transcript of each received audio is also sent to the account holder, from this account to its own number (WhatsApp's "message yourself" chat). Max plan.
                   createdAt:
                     type: string
                     format: date-time
@@ -2308,6 +2369,8 @@ paths:
                   - mediaUrlRequiresAuth
                   - syncHistory
                   - sendIntervalSeconds
+                  - audioTranscription
+                  - forwardTranscripts
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -2744,6 +2807,17 @@ paths:
                   sendIntervalSeconds:
                     type: number
                     description: The pause this account keeps between two sends, in seconds.
+                  audioTranscription:
+                    type: string
+                    enum:
+                      - NONE
+                      - RECEIVED
+                      - SENT
+                      - ALL
+                    description: "Which audios of this account are transcribed (Max plan): RECEIVED, SENT, ALL or NONE. Has no effect on other plans."
+                  forwardTranscripts:
+                    type: boolean
+                    description: Whether the transcript of each received audio is also sent to the account holder, from this account to its own number (WhatsApp's "message yourself" chat). Max plan.
                   createdAt:
                     type: string
                     format: date-time
@@ -2765,6 +2839,8 @@ paths:
                   - mediaUrlRequiresAuth
                   - syncHistory
                   - sendIntervalSeconds
+                  - audioTranscription
+                  - forwardTranscripts
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -2823,6 +2899,17 @@ paths:
                       minimum: 2
                       maximum: 120
                     - type: "null"
+                audioTranscription:
+                  description: "Which audios to transcribe (Max plan): RECEIVED, SENT (from the phone or through Unlimited Messaging), ALL (default) or NONE. Audios over 5 minutes are never transcribed."
+                  type: string
+                  enum:
+                    - NONE
+                    - RECEIVED
+                    - SENT
+                    - ALL
+                forwardTranscripts:
+                  description: Also send the transcript of each received audio to yourself, from this account to its own number (WhatsApp accounts, Max plan). Off by default.
+                  type: boolean
       responses:
         "200":
           content:
@@ -2886,6 +2973,17 @@ paths:
                   sendIntervalSeconds:
                     type: number
                     description: The pause this account keeps between two sends, in seconds.
+                  audioTranscription:
+                    type: string
+                    enum:
+                      - NONE
+                      - RECEIVED
+                      - SENT
+                      - ALL
+                    description: "Which audios of this account are transcribed (Max plan): RECEIVED, SENT, ALL or NONE. Has no effect on other plans."
+                  forwardTranscripts:
+                    type: boolean
+                    description: Whether the transcript of each received audio is also sent to the account holder, from this account to its own number (WhatsApp's "message yourself" chat). Max plan.
                   createdAt:
                     type: string
                     format: date-time
@@ -2907,6 +3005,8 @@ paths:
                   - mediaUrlRequiresAuth
                   - syncHistory
                   - sendIntervalSeconds
+                  - audioTranscription
+                  - forwardTranscripts
                   - createdAt
                   - updatedAt
                 additionalProperties: false
@@ -3384,6 +3484,7 @@ paths:
                       - group.updated
                       - message.deleted
                       - message.sent
+                      - message.transcribed
                 accountIds:
                   maxItems: 100
                   type: array
@@ -3439,6 +3540,7 @@ paths:
                         - group.updated
                         - message.deleted
                         - message.sent
+                        - message.transcribed
                   accountIds:
                     type: array
                     items:
@@ -3540,6 +3642,7 @@ paths:
                               - group.updated
                               - message.deleted
                               - message.sent
+                              - message.transcribed
                         accountIds:
                           type: array
                           items:
@@ -3637,6 +3740,7 @@ paths:
                         - group.updated
                         - message.deleted
                         - message.sent
+                        - message.transcribed
                   accountIds:
                     type: array
                     items:
@@ -3719,6 +3823,7 @@ paths:
                       - group.updated
                       - message.deleted
                       - message.sent
+                      - message.transcribed
                 accountIds:
                   anyOf:
                     - maxItems: 100
@@ -3773,6 +3878,7 @@ paths:
                         - group.updated
                         - message.deleted
                         - message.sent
+                        - message.transcribed
                   accountIds:
                     type: array
                     items:
@@ -4326,8 +4432,13 @@ tags:
 
       #### message.transcribed
 
-      Reserved for the text extracted from media (OCR, PDF text, voice transcription). It is not fired yet
-      and cannot be subscribed to; `transcript` is `null` on messages until it is.
+      The text of an audio message (voice note or audio file) is ready. Max plan only. `data.message` holds
+      `id`, `externalId`, `mediaType`, `transcript` and `transcriptLanguage` (ISO 639-1 code such as
+      `fr` or `en`, detected automatically; `null` when the text is too short to tell). Transcription
+      runs in the background after the message is stored, so this event follows `message.received`,
+      `message.self_sent` or `message.sent` by a few seconds to a few minutes. It fires once per
+      message. Audios longer than 5 minutes are not transcribed. Which audios are transcribed (received,
+      sent, both or none) is set per account with `audioTranscription` on `PATCH /account/{accountId}`.
 
       The schema of each payload is published with this reference, under `WebhookEvent*`.
 
@@ -4349,8 +4460,9 @@ tags:
       `mediaUrlRequiresAuth` with `PATCH /account/{accountId}`: the URL then also requires
       `Authorization: Bearer ak_...` of a user the message belongs to (or their dashboard session),
       and answers `401` otherwise.
-      `transcript` will hold the text extracted from the media (OCR, PDF text, voice transcription);
-      it is `null` for now.
+      `transcript` holds the text extracted from the media: today the transcription of an audio, on
+      the Max plan. It is written in the background, so it is usually `null` on the message event
+      itself: `message.transcribed` carries it once ready, and `GET /message` returns it from then on.
 
       ### History
 
@@ -4485,6 +4597,9 @@ components:
                 locationName:
                   type: string
                 transcript:
+                  nullable: true
+                  type: string
+                transcriptLanguage:
                   nullable: true
                   type: string
                 subject:
@@ -4677,6 +4792,9 @@ components:
                 transcript:
                   nullable: true
                   type: string
+                transcriptLanguage:
+                  nullable: true
+                  type: string
                 subject:
                   type: string
                 html:
@@ -4865,6 +4983,9 @@ components:
                 locationName:
                   type: string
                 transcript:
+                  nullable: true
+                  type: string
+                transcriptLanguage:
                   nullable: true
                   type: string
                 subject:
@@ -5530,6 +5651,9 @@ components:
                   transcript:
                     nullable: true
                     type: string
+                  transcriptLanguage:
+                    nullable: true
+                    type: string
                   subject:
                     type: string
                   html:
@@ -5772,6 +5896,94 @@ components:
         - eventId
         - occurredAt
         - data
+    WebhookEventMessageTranscribed:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - message.transcribed
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            message:
+              type: object
+              properties:
+                id:
+                  type: string
+                externalId:
+                  nullable: true
+                  type: string
+                mediaType:
+                  type: string
+                transcript:
+                  type: string
+                transcriptLanguage:
+                  nullable: true
+                  type: string
+              required:
+                - id
+                - externalId
+                - mediaType
+                - transcript
+                - transcriptLanguage
+            channel:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - WHATSAPP
+                    - SMS
+                    - EMAIL
+                account:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      nullable: true
+                      type: string
+                  required:
+                    - id
+                    - name
+                conversation:
+                  type: object
+                  properties:
+                    id:
+                      nullable: true
+                      type: string
+                    isGroup:
+                      type: boolean
+                    address:
+                      nullable: true
+                      type: string
+                    participants:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - id
+                    - isGroup
+                    - address
+              required:
+                - type
+                - account
+                - conversation
+          required:
+            - message
+            - channel
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
 externalDocs:
   description: Documentation
   url: https://docs.unlimitedmessaging.app
@@ -5913,6 +6125,20 @@ x-webhooks:
           application/json:
             schema:
               $ref: "#/components/schemas/WebhookEventGroupUpdated"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  message.transcribed:
+    post:
+      tags:
+        - Webhook Events
+      summary: The text of an audio message is ready (Max plan).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventMessageTranscribed"
       responses:
         "200":
           description: Return any 2xx to acknowledge the delivery.
