@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.31] - 2026-11-20
+
+*   **Changed parameters**
+    *   The `status` query parameter for `GET /v1/messages/{messageId}` now accepts `CANCELLED`.
+    *   The `status` field in the request body for `PUT /v1/messages/{messageId}` now accepts `CANCELLED`.
+
+*   **New or removed response fields**
+    *   The `status` field in responses for `GET /v1/messages`, `POST /v1/messages`, and `PUT /v1/messages/{messageId}` can now include `CANCELLED`.
+    *   The `status` field in webhook event payloads (for `POST /v1/webhooks`) can now include `CANCELLED`.
+    *   The `currentStatus` and `previousStatus` fields within the `StatusUpdate` schema now support `CANCELLED`.
+
 ## [0.1.30] - 2026-11-17
 
 *   **Changed parameters**
