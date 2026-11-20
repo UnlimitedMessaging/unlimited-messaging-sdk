@@ -7,6 +7,7 @@ import * as core from "../../../../core";
 import { AccountConnectEmailResponseChannel } from "./AccountConnectEmailResponseChannel";
 import { AccountConnectEmailResponseOwner } from "./AccountConnectEmailResponseOwner";
 import { AccountConnectEmailResponseStatus } from "./AccountConnectEmailResponseStatus";
+import { AccountConnectEmailResponseAudioTranscription } from "./AccountConnectEmailResponseAudioTranscription";
 export declare const AccountConnectEmailResponse: core.serialization.ObjectSchema<serializers.AccountConnectEmailResponse.Raw, UnlimitedMessagingApi.AccountConnectEmailResponse>;
 export declare namespace AccountConnectEmailResponse {
     interface Raw {
@@ -22,6 +23,8 @@ export declare namespace AccountConnectEmailResponse {
         mediaUrlRequiresAuth: boolean;
         syncHistory: boolean;
         sendIntervalSeconds: number;
+        audioTranscription: AccountConnectEmailResponseAudioTranscription.Raw;
+        forwardTranscripts: boolean;
         createdAt: string;
         updatedAt: string;
     }

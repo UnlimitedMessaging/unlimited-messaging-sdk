@@ -49,4 +49,5 @@ exports.WebhookEndpointListResponseDataItemEventTypesItem = core.serialization.e
     "group.updated",
     "message.deleted",
     "message.sent",
+    "message.transcribed",
 ]);

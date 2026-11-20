@@ -41,6 +41,7 @@ const core = __importStar(require("../../../../core"));
 const AccountConnectEmailResponseChannel_1 = require("./AccountConnectEmailResponseChannel");
 const AccountConnectEmailResponseOwner_1 = require("./AccountConnectEmailResponseOwner");
 const AccountConnectEmailResponseStatus_1 = require("./AccountConnectEmailResponseStatus");
+const AccountConnectEmailResponseAudioTranscription_1 = require("./AccountConnectEmailResponseAudioTranscription");
 exports.AccountConnectEmailResponse = core.serialization.object({
     id: core.serialization.string(),
     channel: AccountConnectEmailResponseChannel_1.AccountConnectEmailResponseChannel,
@@ -54,6 +55,8 @@ exports.AccountConnectEmailResponse = core.serialization.object({
     mediaUrlRequiresAuth: core.serialization.boolean(),
     syncHistory: core.serialization.boolean(),
     sendIntervalSeconds: core.serialization.number(),
+    audioTranscription: AccountConnectEmailResponseAudioTranscription_1.AccountConnectEmailResponseAudioTranscription,
+    forwardTranscripts: core.serialization.boolean(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

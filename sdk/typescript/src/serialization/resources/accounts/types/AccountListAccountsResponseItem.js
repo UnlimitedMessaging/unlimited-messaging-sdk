@@ -41,6 +41,7 @@ const core = __importStar(require("../../../../core"));
 const AccountListAccountsResponseItemChannel_1 = require("./AccountListAccountsResponseItemChannel");
 const AccountListAccountsResponseItemOwner_1 = require("./AccountListAccountsResponseItemOwner");
 const AccountListAccountsResponseItemStatus_1 = require("./AccountListAccountsResponseItemStatus");
+const AccountListAccountsResponseItemAudioTranscription_1 = require("./AccountListAccountsResponseItemAudioTranscription");
 exports.AccountListAccountsResponseItem = core.serialization.object({
     id: core.serialization.string(),
     channel: AccountListAccountsResponseItemChannel_1.AccountListAccountsResponseItemChannel,
@@ -54,6 +55,8 @@ exports.AccountListAccountsResponseItem = core.serialization.object({
     mediaUrlRequiresAuth: core.serialization.boolean(),
     syncHistory: core.serialization.boolean(),
     sendIntervalSeconds: core.serialization.number(),
+    audioTranscription: AccountListAccountsResponseItemAudioTranscription_1.AccountListAccountsResponseItemAudioTranscription,
+    forwardTranscripts: core.serialization.boolean(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

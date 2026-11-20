@@ -49,4 +49,5 @@ exports.WebhookEndpointUpdateRequestEventTypesItem = core.serialization.enum_([
     "group.updated",
     "message.deleted",
     "message.sent",
+    "message.transcribed",
 ]);

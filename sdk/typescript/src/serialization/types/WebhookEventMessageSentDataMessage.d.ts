@@ -33,6 +33,7 @@ export declare namespace WebhookEventMessageSentDataMessage {
         longitude?: number | null;
         locationName?: string | null;
         transcript: string | null;
+        transcriptLanguage?: (string | null) | null;
         subject?: string | null;
         html?: string | null;
         attachments?: WebhookEventMessageSentDataMessageAttachmentsItem.Raw[] | null;

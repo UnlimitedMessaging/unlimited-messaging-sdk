@@ -38,10 +38,13 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AccountUpdateAccountRequest = void 0;
 const core = __importStar(require("../../../../../core"));
+const AccountUpdateAccountRequestAudioTranscription_1 = require("../../types/AccountUpdateAccountRequestAudioTranscription");
 exports.AccountUpdateAccountRequest = core.serialization.object({
     name: core.serialization.string().optional(),
     externalRef: core.serialization.string().optionalNullable(),
     syncHistory: core.serialization.boolean().optional(),
     mediaUrlRequiresAuth: core.serialization.boolean().optional(),
     sendIntervalSeconds: core.serialization.number().optionalNullable(),
+    audioTranscription: AccountUpdateAccountRequestAudioTranscription_1.AccountUpdateAccountRequestAudioTranscription.optional(),
+    forwardTranscripts: core.serialization.boolean().optional(),
 });

@@ -9,6 +9,9 @@ from .account_connect_email_request_smtp_security import (
     AccountConnectEmailRequestSmtpSecurity,
 )
 from .account_connect_email_response import AccountConnectEmailResponse
+from .account_connect_email_response_audio_transcription import (
+    AccountConnectEmailResponseAudioTranscription,
+)
 from .account_connect_email_response_channel import AccountConnectEmailResponseChannel
 from .account_connect_email_response_owner import AccountConnectEmailResponseOwner
 from .account_connect_email_response_status import AccountConnectEmailResponseStatus
@@ -22,6 +25,9 @@ from .account_email_autoconfig_response_smtp_security import (
     AccountEmailAutoconfigResponseSmtpSecurity,
 )
 from .account_get_account_response import AccountGetAccountResponse
+from .account_get_account_response_audio_transcription import (
+    AccountGetAccountResponseAudioTranscription,
+)
 from .account_get_account_response_channel import AccountGetAccountResponseChannel
 from .account_get_account_response_owner import AccountGetAccountResponseOwner
 from .account_get_account_response_status import AccountGetAccountResponseStatus
@@ -51,6 +57,9 @@ from .account_get_qr_code_response import AccountGetQrCodeResponse
 from .account_link_account_request_mode import AccountLinkAccountRequestMode
 from .account_link_account_response import AccountLinkAccountResponse
 from .account_list_accounts_response_item import AccountListAccountsResponseItem
+from .account_list_accounts_response_item_audio_transcription import (
+    AccountListAccountsResponseItemAudioTranscription,
+)
 from .account_list_accounts_response_item_channel import (
     AccountListAccountsResponseItemChannel,
 )
@@ -71,6 +80,9 @@ from .account_reconnect_email_request_smtp_security import (
     AccountReconnectEmailRequestSmtpSecurity,
 )
 from .account_reconnect_email_response import AccountReconnectEmailResponse
+from .account_reconnect_email_response_audio_transcription import (
+    AccountReconnectEmailResponseAudioTranscription,
+)
 from .account_reconnect_email_response_channel import (
     AccountReconnectEmailResponseChannel,
 )
@@ -86,7 +98,13 @@ from .account_test_email_request_smtp_security import (
     AccountTestEmailRequestSmtpSecurity,
 )
 from .account_test_email_response import AccountTestEmailResponse
+from .account_update_account_request_audio_transcription import (
+    AccountUpdateAccountRequestAudioTranscription,
+)
 from .account_update_account_response import AccountUpdateAccountResponse
+from .account_update_account_response_audio_transcription import (
+    AccountUpdateAccountResponseAudioTranscription,
+)
 from .account_update_account_response_channel import AccountUpdateAccountResponseChannel
 from .account_update_account_response_owner import AccountUpdateAccountResponseOwner
 from .account_update_account_response_status import AccountUpdateAccountResponseStatus
@@ -97,6 +115,7 @@ __all__ = [
     "AccountConnectEmailRequestSmtp",
     "AccountConnectEmailRequestSmtpSecurity",
     "AccountConnectEmailResponse",
+    "AccountConnectEmailResponseAudioTranscription",
     "AccountConnectEmailResponseChannel",
     "AccountConnectEmailResponseOwner",
     "AccountConnectEmailResponseStatus",
@@ -106,6 +125,7 @@ __all__ = [
     "AccountEmailAutoconfigResponseSmtp",
     "AccountEmailAutoconfigResponseSmtpSecurity",
     "AccountGetAccountResponse",
+    "AccountGetAccountResponseAudioTranscription",
     "AccountGetAccountResponseChannel",
     "AccountGetAccountResponseOwner",
     "AccountGetAccountResponseStatus",
@@ -125,6 +145,7 @@ __all__ = [
     "AccountLinkAccountRequestMode",
     "AccountLinkAccountResponse",
     "AccountListAccountsResponseItem",
+    "AccountListAccountsResponseItemAudioTranscription",
     "AccountListAccountsResponseItemChannel",
     "AccountListAccountsResponseItemOwner",
     "AccountListAccountsResponseItemStatus",
@@ -135,6 +156,7 @@ __all__ = [
     "AccountReconnectEmailRequestSmtp",
     "AccountReconnectEmailRequestSmtpSecurity",
     "AccountReconnectEmailResponse",
+    "AccountReconnectEmailResponseAudioTranscription",
     "AccountReconnectEmailResponseChannel",
     "AccountReconnectEmailResponseOwner",
     "AccountReconnectEmailResponseStatus",
@@ -144,7 +166,9 @@ __all__ = [
     "AccountTestEmailRequestSmtp",
     "AccountTestEmailRequestSmtpSecurity",
     "AccountTestEmailResponse",
+    "AccountUpdateAccountRequestAudioTranscription",
     "AccountUpdateAccountResponse",
+    "AccountUpdateAccountResponseAudioTranscription",
     "AccountUpdateAccountResponseChannel",
     "AccountUpdateAccountResponseOwner",
     "AccountUpdateAccountResponseStatus",

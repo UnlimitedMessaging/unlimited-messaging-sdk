@@ -7,6 +7,7 @@ import * as core from "../../../../core";
 import { AccountListAccountsResponseItemChannel } from "./AccountListAccountsResponseItemChannel";
 import { AccountListAccountsResponseItemOwner } from "./AccountListAccountsResponseItemOwner";
 import { AccountListAccountsResponseItemStatus } from "./AccountListAccountsResponseItemStatus";
+import { AccountListAccountsResponseItemAudioTranscription } from "./AccountListAccountsResponseItemAudioTranscription";
 export declare const AccountListAccountsResponseItem: core.serialization.ObjectSchema<serializers.AccountListAccountsResponseItem.Raw, UnlimitedMessagingApi.AccountListAccountsResponseItem>;
 export declare namespace AccountListAccountsResponseItem {
     interface Raw {
@@ -22,6 +23,8 @@ export declare namespace AccountListAccountsResponseItem {
         mediaUrlRequiresAuth: boolean;
         syncHistory: boolean;
         sendIntervalSeconds: number;
+        audioTranscription: AccountListAccountsResponseItemAudioTranscription.Raw;
+        forwardTranscripts: boolean;
         createdAt: string;
         updatedAt: string;
     }

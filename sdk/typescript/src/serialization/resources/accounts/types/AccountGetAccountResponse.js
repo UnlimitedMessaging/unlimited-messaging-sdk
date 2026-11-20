@@ -41,6 +41,7 @@ const core = __importStar(require("../../../../core"));
 const AccountGetAccountResponseChannel_1 = require("./AccountGetAccountResponseChannel");
 const AccountGetAccountResponseOwner_1 = require("./AccountGetAccountResponseOwner");
 const AccountGetAccountResponseStatus_1 = require("./AccountGetAccountResponseStatus");
+const AccountGetAccountResponseAudioTranscription_1 = require("./AccountGetAccountResponseAudioTranscription");
 exports.AccountGetAccountResponse = core.serialization.object({
     id: core.serialization.string(),
     channel: AccountGetAccountResponseChannel_1.AccountGetAccountResponseChannel,
@@ -54,6 +55,8 @@ exports.AccountGetAccountResponse = core.serialization.object({
     mediaUrlRequiresAuth: core.serialization.boolean(),
     syncHistory: core.serialization.boolean(),
     sendIntervalSeconds: core.serialization.number(),
+    audioTranscription: AccountGetAccountResponseAudioTranscription_1.AccountGetAccountResponseAudioTranscription,
+    forwardTranscripts: core.serialization.boolean(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

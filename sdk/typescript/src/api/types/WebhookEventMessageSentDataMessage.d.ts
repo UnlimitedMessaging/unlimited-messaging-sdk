@@ -26,6 +26,7 @@ export interface WebhookEventMessageSentDataMessage {
     longitude?: number;
     locationName?: string;
     transcript: string | null;
+    transcriptLanguage?: string | null;
     subject?: string;
     html?: string;
     attachments?: UnlimitedMessagingApi.WebhookEventMessageSentDataMessageAttachmentsItem[];

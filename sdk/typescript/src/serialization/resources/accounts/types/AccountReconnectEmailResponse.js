@@ -41,6 +41,7 @@ const core = __importStar(require("../../../../core"));
 const AccountReconnectEmailResponseChannel_1 = require("./AccountReconnectEmailResponseChannel");
 const AccountReconnectEmailResponseOwner_1 = require("./AccountReconnectEmailResponseOwner");
 const AccountReconnectEmailResponseStatus_1 = require("./AccountReconnectEmailResponseStatus");
+const AccountReconnectEmailResponseAudioTranscription_1 = require("./AccountReconnectEmailResponseAudioTranscription");
 exports.AccountReconnectEmailResponse = core.serialization.object({
     id: core.serialization.string(),
     channel: AccountReconnectEmailResponseChannel_1.AccountReconnectEmailResponseChannel,
@@ -54,6 +55,8 @@ exports.AccountReconnectEmailResponse = core.serialization.object({
     mediaUrlRequiresAuth: core.serialization.boolean(),
     syncHistory: core.serialization.boolean(),
     sendIntervalSeconds: core.serialization.number(),
+    audioTranscription: AccountReconnectEmailResponseAudioTranscription_1.AccountReconnectEmailResponseAudioTranscription,
+    forwardTranscripts: core.serialization.boolean(),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

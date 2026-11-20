@@ -21,6 +21,10 @@ export interface AccountUpdateAccountResponse {
     syncHistory: boolean;
     /** The pause this account keeps between two sends, in seconds. */
     sendIntervalSeconds: number;
+    /** Which audios of this account are transcribed (Max plan): RECEIVED, SENT, ALL or NONE. Has no effect on other plans. */
+    audioTranscription: UnlimitedMessagingApi.AccountUpdateAccountResponseAudioTranscription;
+    /** Whether the transcript of each received audio is also sent to the account holder, from this account to its own number (WhatsApp's "message yourself" chat). Max plan. */
+    forwardTranscripts: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

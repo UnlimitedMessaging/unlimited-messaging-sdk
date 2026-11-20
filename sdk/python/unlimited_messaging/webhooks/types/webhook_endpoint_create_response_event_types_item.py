@@ -14,6 +14,7 @@ WebhookEndpointCreateResponseEventTypesItem = typing.Union[
         "group.updated",
         "message.deleted",
         "message.sent",
+        "message.transcribed",
     ],
     typing.Any,
 ]

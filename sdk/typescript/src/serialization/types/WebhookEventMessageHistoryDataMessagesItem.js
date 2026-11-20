@@ -66,6 +66,7 @@ exports.WebhookEventMessageHistoryDataMessagesItem = core.serialization.object({
     longitude: core.serialization.number().optional(),
     locationName: core.serialization.string().optional(),
     transcript: core.serialization.string().nullable(),
+    transcriptLanguage: core.serialization.string().optionalNullable(),
     subject: core.serialization.string().optional(),
     html: core.serialization.string().optional(),
     attachments: core.serialization.list(WebhookEventMessageHistoryDataMessagesItemAttachmentsItem_1.WebhookEventMessageHistoryDataMessagesItemAttachmentsItem).optional(),

@@ -27,6 +27,8 @@ async def test_account_list_accounts(
             "mediaUrlRequiresAuth": True,
             "syncHistory": True,
             "sendIntervalSeconds": 1.1,
+            "audioTranscription": "NONE",
+            "forwardTranscripts": True,
             "createdAt": "2024-01-15T09:30:00Z",
             "updatedAt": "2024-01-15T09:30:00Z",
         }
@@ -47,6 +49,8 @@ async def test_account_list_accounts(
                 "mediaUrlRequiresAuth": None,
                 "syncHistory": None,
                 "sendIntervalSeconds": None,
+                "audioTranscription": None,
+                "forwardTranscripts": None,
                 "createdAt": "datetime",
                 "updatedAt": "datetime",
             }
@@ -135,6 +139,8 @@ async def test_account_connect_email(
         "mediaUrlRequiresAuth": True,
         "syncHistory": True,
         "sendIntervalSeconds": 1.1,
+        "audioTranscription": "NONE",
+        "forwardTranscripts": True,
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -151,6 +157,8 @@ async def test_account_connect_email(
         "mediaUrlRequiresAuth": None,
         "syncHistory": None,
         "sendIntervalSeconds": None,
+        "audioTranscription": None,
+        "forwardTranscripts": None,
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
@@ -187,6 +195,8 @@ async def test_account_reconnect_email(
         "mediaUrlRequiresAuth": True,
         "syncHistory": True,
         "sendIntervalSeconds": 1.1,
+        "audioTranscription": "NONE",
+        "forwardTranscripts": True,
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -203,6 +213,8 @@ async def test_account_reconnect_email(
         "mediaUrlRequiresAuth": None,
         "syncHistory": None,
         "sendIntervalSeconds": None,
+        "audioTranscription": None,
+        "forwardTranscripts": None,
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
@@ -346,6 +358,8 @@ async def test_account_get_account(
         "mediaUrlRequiresAuth": True,
         "syncHistory": True,
         "sendIntervalSeconds": 1.1,
+        "audioTranscription": "NONE",
+        "forwardTranscripts": True,
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -362,6 +376,8 @@ async def test_account_get_account(
         "mediaUrlRequiresAuth": None,
         "syncHistory": None,
         "sendIntervalSeconds": None,
+        "audioTranscription": None,
+        "forwardTranscripts": None,
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
@@ -405,6 +421,8 @@ async def test_account_update_account(
         "mediaUrlRequiresAuth": True,
         "syncHistory": True,
         "sendIntervalSeconds": 1.1,
+        "audioTranscription": "NONE",
+        "forwardTranscripts": True,
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -421,6 +439,8 @@ async def test_account_update_account(
         "mediaUrlRequiresAuth": None,
         "syncHistory": None,
         "sendIntervalSeconds": None,
+        "audioTranscription": None,
+        "forwardTranscripts": None,
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }

@@ -4,6 +4,7 @@
 import * as serializers from "../../../../index";
 import * as UnlimitedMessagingApi from "../../../../../api/index";
 import * as core from "../../../../../core";
+import { AccountUpdateAccountRequestAudioTranscription } from "../../types/AccountUpdateAccountRequestAudioTranscription";
 export declare const AccountUpdateAccountRequest: core.serialization.Schema<serializers.AccountUpdateAccountRequest.Raw, UnlimitedMessagingApi.AccountUpdateAccountRequest>;
 export declare namespace AccountUpdateAccountRequest {
     interface Raw {
@@ -12,5 +13,7 @@ export declare namespace AccountUpdateAccountRequest {
         syncHistory?: boolean | null;
         mediaUrlRequiresAuth?: boolean | null;
         sendIntervalSeconds?: (number | null) | null;
+        audioTranscription?: AccountUpdateAccountRequestAudioTranscription.Raw | null;
+        forwardTranscripts?: boolean | null;
     }
 }

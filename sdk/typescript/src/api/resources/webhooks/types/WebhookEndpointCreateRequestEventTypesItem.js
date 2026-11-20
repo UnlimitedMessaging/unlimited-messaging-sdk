@@ -15,4 +15,5 @@ exports.WebhookEndpointCreateRequestEventTypesItem = {
     GroupUpdated: "group.updated",
     MessageDeleted: "message.deleted",
     MessageSent: "message.sent",
+    MessageTranscribed: "message.transcribed",
 };

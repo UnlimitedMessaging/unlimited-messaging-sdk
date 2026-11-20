@@ -44,6 +44,7 @@ export declare namespace MessageSendResponse {
         mimeType: string | null;
         mediaFilename: string | null;
         transcript: string | null;
+        transcriptLanguage: string | null;
         productData: Record<string, unknown> | null;
         sentAt: string | null;
         deletedAt: string | null;

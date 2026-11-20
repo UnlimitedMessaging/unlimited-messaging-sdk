@@ -7,6 +7,7 @@ import * as core from "../../../../core";
 import { AccountUpdateAccountResponseChannel } from "./AccountUpdateAccountResponseChannel";
 import { AccountUpdateAccountResponseOwner } from "./AccountUpdateAccountResponseOwner";
 import { AccountUpdateAccountResponseStatus } from "./AccountUpdateAccountResponseStatus";
+import { AccountUpdateAccountResponseAudioTranscription } from "./AccountUpdateAccountResponseAudioTranscription";
 export declare const AccountUpdateAccountResponse: core.serialization.ObjectSchema<serializers.AccountUpdateAccountResponse.Raw, UnlimitedMessagingApi.AccountUpdateAccountResponse>;
 export declare namespace AccountUpdateAccountResponse {
     interface Raw {
@@ -22,6 +23,8 @@ export declare namespace AccountUpdateAccountResponse {
         mediaUrlRequiresAuth: boolean;
         syncHistory: boolean;
         sendIntervalSeconds: number;
+        audioTranscription: AccountUpdateAccountResponseAudioTranscription.Raw;
+        forwardTranscripts: boolean;
         createdAt: string;
         updatedAt: string;
     }

@@ -75,6 +75,7 @@ exports.MessageSendResponseMessagesItem = core.serialization.object({
     mimeType: core.serialization.string().nullable(),
     mediaFilename: core.serialization.string().nullable(),
     transcript: core.serialization.string().nullable(),
+    transcriptLanguage: core.serialization.string().nullable(),
     productData: core.serialization.record(core.serialization.string(), core.serialization.unknown()).nullable(),
     sentAt: core.serialization.date().nullable(),
     deletedAt: core.serialization.date().nullable(),

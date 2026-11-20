@@ -47,8 +47,10 @@ export interface MessageSendResponse {
     mimeType: string | null;
     /** Deprecated: use `attachments` instead (this is the first one). */
     mediaFilename: string | null;
-    /** Text extracted from the media: OCR of an image or a scanned PDF, the text of a PDF, a voice note's transcription. Not produced yet: always null for now. */
+    /** Text extracted from the media. Today: the transcription of an audio (voice note or audio file), on the Max plan, written in the background a few seconds to a few minutes after the message arrives (webhook message.transcribed). Null until then, for audios over 5 minutes, and for every other kind of media for now. */
     transcript: string | null;
+    /** ISO 639-1 code of the language the transcript is in ("fr", "en"...), detected automatically. Null without a transcript, or when it is too short to tell. */
+    transcriptLanguage: string | null;
     productData: Record<string, unknown> | null;
     /** When the message was sent, per the channel: WhatsApp's own timestamp for a received message or one typed on the phone, the moment it went out for one sent through the API. Order conversations on this rather than createdAt. Null until an API send goes out. */
     sentAt: Date | null;

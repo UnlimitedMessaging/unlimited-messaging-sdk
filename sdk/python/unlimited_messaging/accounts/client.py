@@ -33,6 +33,9 @@ from .types.account_request_history_response import AccountRequestHistoryRespons
 from .types.account_list_groups_response import AccountListGroupsResponse
 from .types.account_get_group_response import AccountGetGroupResponse
 from .types.account_get_account_response import AccountGetAccountResponse
+from .types.account_update_account_request_audio_transcription import (
+    AccountUpdateAccountRequestAudioTranscription,
+)
 from .types.account_update_account_response import AccountUpdateAccountResponse
 from ..core.client_wrapper import AsyncClientWrapper
 
@@ -1405,6 +1408,10 @@ class AccountsClient:
         sync_history: typing.Optional[bool] = OMIT,
         media_url_requires_auth: typing.Optional[bool] = OMIT,
         send_interval_seconds: typing.Optional[int] = OMIT,
+        audio_transcription: typing.Optional[
+            AccountUpdateAccountRequestAudioTranscription
+        ] = OMIT,
+        forward_transcripts: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AccountUpdateAccountResponse:
         """
@@ -1429,6 +1436,12 @@ class AccountsClient:
 
         send_interval_seconds : typing.Optional[int]
             Pause between two sends of this account, in seconds (2 to 120). Spacing sends protects the number from being flagged by WhatsApp: lower it with care. `null` restores the default (5 s).
+
+        audio_transcription : typing.Optional[AccountUpdateAccountRequestAudioTranscription]
+            Which audios to transcribe (Max plan): RECEIVED, SENT (from the phone or through Unlimited Messaging), ALL (default) or NONE. Audios over 5 minutes are never transcribed.
+
+        forward_transcripts : typing.Optional[bool]
+            Also send the transcript of each received audio to yourself, from this account to its own number (WhatsApp accounts, Max plan). Off by default.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1458,6 +1471,8 @@ class AccountsClient:
                 "syncHistory": sync_history,
                 "mediaUrlRequiresAuth": media_url_requires_auth,
                 "sendIntervalSeconds": send_interval_seconds,
+                "audioTranscription": audio_transcription,
+                "forwardTranscripts": forward_transcripts,
             },
             request_options=request_options,
             omit=OMIT,
@@ -2986,6 +3001,10 @@ class AsyncAccountsClient:
         sync_history: typing.Optional[bool] = OMIT,
         media_url_requires_auth: typing.Optional[bool] = OMIT,
         send_interval_seconds: typing.Optional[int] = OMIT,
+        audio_transcription: typing.Optional[
+            AccountUpdateAccountRequestAudioTranscription
+        ] = OMIT,
+        forward_transcripts: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AccountUpdateAccountResponse:
         """
@@ -3010,6 +3029,12 @@ class AsyncAccountsClient:
 
         send_interval_seconds : typing.Optional[int]
             Pause between two sends of this account, in seconds (2 to 120). Spacing sends protects the number from being flagged by WhatsApp: lower it with care. `null` restores the default (5 s).
+
+        audio_transcription : typing.Optional[AccountUpdateAccountRequestAudioTranscription]
+            Which audios to transcribe (Max plan): RECEIVED, SENT (from the phone or through Unlimited Messaging), ALL (default) or NONE. Audios over 5 minutes are never transcribed.
+
+        forward_transcripts : typing.Optional[bool]
+            Also send the transcript of each received audio to yourself, from this account to its own number (WhatsApp accounts, Max plan). Off by default.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -3047,6 +3072,8 @@ class AsyncAccountsClient:
                 "syncHistory": sync_history,
                 "mediaUrlRequiresAuth": media_url_requires_auth,
                 "sendIntervalSeconds": send_interval_seconds,
+                "audioTranscription": audio_transcription,
+                "forwardTranscripts": forward_transcripts,
             },
             request_options=request_options,
             omit=OMIT,

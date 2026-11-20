@@ -215,6 +215,24 @@ from .webhook_event_message_status_data_message_status import (
     WebhookEventMessageStatusDataMessageStatus,
 )
 from .webhook_event_message_status_type import WebhookEventMessageStatusType
+from .webhook_event_message_transcribed import WebhookEventMessageTranscribed
+from .webhook_event_message_transcribed_data import WebhookEventMessageTranscribedData
+from .webhook_event_message_transcribed_data_channel import (
+    WebhookEventMessageTranscribedDataChannel,
+)
+from .webhook_event_message_transcribed_data_channel_account import (
+    WebhookEventMessageTranscribedDataChannelAccount,
+)
+from .webhook_event_message_transcribed_data_channel_conversation import (
+    WebhookEventMessageTranscribedDataChannelConversation,
+)
+from .webhook_event_message_transcribed_data_channel_type import (
+    WebhookEventMessageTranscribedDataChannelType,
+)
+from .webhook_event_message_transcribed_data_message import (
+    WebhookEventMessageTranscribedDataMessage,
+)
+from .webhook_event_message_transcribed_type import WebhookEventMessageTranscribedType
 
 __all__ = [
     "WebhookEventAccountStatusChanged",
@@ -310,4 +328,12 @@ __all__ = [
     "WebhookEventMessageStatusDataMessagePreviousStatus",
     "WebhookEventMessageStatusDataMessageStatus",
     "WebhookEventMessageStatusType",
+    "WebhookEventMessageTranscribed",
+    "WebhookEventMessageTranscribedData",
+    "WebhookEventMessageTranscribedDataChannel",
+    "WebhookEventMessageTranscribedDataChannelAccount",
+    "WebhookEventMessageTranscribedDataChannelConversation",
+    "WebhookEventMessageTranscribedDataChannelType",
+    "WebhookEventMessageTranscribedDataMessage",
+    "WebhookEventMessageTranscribedType",
 ]

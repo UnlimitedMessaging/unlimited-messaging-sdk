@@ -48,6 +48,9 @@ class WebhookEventMessageReceivedDataMessage(UniversalBaseModel):
         alias="locationName", default=None
     )
     transcript: typing.Optional[str] = None
+    transcript_language: typing.Optional[str] = pydantic.Field(
+        alias="transcriptLanguage", default=None
+    )
     subject: typing.Optional[str] = None
     html: typing.Optional[str] = None
     attachments: typing.Optional[

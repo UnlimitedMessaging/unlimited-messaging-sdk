@@ -231,8 +231,13 @@ export declare namespace Webhooks {
  *
  * #### message.transcribed
  *
- * Reserved for the text extracted from media (OCR, PDF text, voice transcription). It is not fired yet
- * and cannot be subscribed to; `transcript` is `null` on messages until it is.
+ * The text of an audio message (voice note or audio file) is ready. Max plan only. `data.message` holds
+ * `id`, `externalId`, `mediaType`, `transcript` and `transcriptLanguage` (ISO 639-1 code such as
+ * `fr` or `en`, detected automatically; `null` when the text is too short to tell). Transcription
+ * runs in the background after the message is stored, so this event follows `message.received`,
+ * `message.self_sent` or `message.sent` by a few seconds to a few minutes. It fires once per
+ * message. Audios longer than 5 minutes are not transcribed. Which audios are transcribed (received,
+ * sent, both or none) is set per account with `audioTranscription` on `PATCH /account/{accountId}`.
  *
  * The schema of each payload is published with this reference, under `WebhookEvent*`.
  *
@@ -254,8 +259,9 @@ export declare namespace Webhooks {
  * `mediaUrlRequiresAuth` with `PATCH /account/{accountId}`: the URL then also requires
  * `Authorization: Bearer ak_...` of a user the message belongs to (or their dashboard session),
  * and answers `401` otherwise.
- * `transcript` will hold the text extracted from the media (OCR, PDF text, voice transcription);
- * it is `null` for now.
+ * `transcript` holds the text extracted from the media: today the transcription of an audio, on
+ * the Max plan. It is written in the background, so it is usually `null` on the message event
+ * itself: `message.transcribed` carries it once ready, and `GET /message` returns it from then on.
  *
  * ### History
  *

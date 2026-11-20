@@ -9,6 +9,9 @@ import pydantic
 from .account_reconnect_email_response_status import AccountReconnectEmailResponseStatus
 import typing
 import datetime as dt
+from .account_reconnect_email_response_audio_transcription import (
+    AccountReconnectEmailResponseAudioTranscription,
+)
 from ...core.pydantic_utilities import IS_PYDANTIC_V2
 
 
@@ -51,6 +54,18 @@ class AccountReconnectEmailResponse(UniversalBaseModel):
     send_interval_seconds: float = pydantic.Field(alias="sendIntervalSeconds")
     """
     The pause this account keeps between two sends, in seconds.
+    """
+
+    audio_transcription: AccountReconnectEmailResponseAudioTranscription = (
+        pydantic.Field(alias="audioTranscription")
+    )
+    """
+    Which audios of this account are transcribed (Max plan): RECEIVED, SENT, ALL or NONE. Has no effect on other plans.
+    """
+
+    forward_transcripts: bool = pydantic.Field(alias="forwardTranscripts")
+    """
+    Whether the transcript of each received audio is also sent to the account holder, from this account to its own number (WhatsApp's "message yourself" chat). Max plan.
     """
 
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
