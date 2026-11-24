@@ -3485,6 +3485,7 @@ paths:
                       - message.deleted
                       - message.sent
                       - message.transcribed
+                      - message.retrying
                 accountIds:
                   maxItems: 100
                   type: array
@@ -3541,6 +3542,7 @@ paths:
                         - message.deleted
                         - message.sent
                         - message.transcribed
+                        - message.retrying
                   accountIds:
                     type: array
                     items:
@@ -3643,6 +3645,7 @@ paths:
                               - message.deleted
                               - message.sent
                               - message.transcribed
+                              - message.retrying
                         accountIds:
                           type: array
                           items:
@@ -3741,6 +3744,7 @@ paths:
                         - message.deleted
                         - message.sent
                         - message.transcribed
+                        - message.retrying
                   accountIds:
                     type: array
                     items:
@@ -3824,6 +3828,7 @@ paths:
                       - message.deleted
                       - message.sent
                       - message.transcribed
+                      - message.retrying
                 accountIds:
                   anyOf:
                     - maxItems: 100
@@ -3879,6 +3884,7 @@ paths:
                         - message.deleted
                         - message.sent
                         - message.transcribed
+                        - message.retrying
                   accountIds:
                     type: array
                     items:
@@ -4289,6 +4295,7 @@ tags:
       | ----- | -------- |
       | `message.received`, `message.self_sent`, `message.sent` | `data.message.sentAt` (WhatsApp's timestamp) |
       | `message.status` | `data.message.at`, and `previousStatus` to ignore a stale one |
+      | `message.retrying` | `data.message.at` (or `attempt`) |
       | `message.reaction` | `data.reaction.sentAt` |
       | `message.edited` | `data.edit.editedAt` |
       | `message.deleted` | `data.deletion.deletedAt` |
@@ -4311,7 +4318,8 @@ tags:
       | `message.received` | A message arrived. |
       | `message.self_sent` | The account's own phone sent a message by hand, outside the API. |
       | `message.sent` | A message you sent through the API reached the channel. Carries its content. |
-      | `message.status` | A message you sent changed status: `SENT`, `DELIVERED`, `READ`, `FAILED` or `UNDELIVERABLE`. |
+      | `message.status` | A message you sent changed status: `SENT`, `DELIVERED`, `READ`, `FAILED` or `UNDELIVERABLE`. `FAILED` and `UNDELIVERABLE` are final. |
+      | `message.retrying` | An attempt to send a message failed and another one is scheduled. |
       | `message.reaction` | Someone reacted to a message, or took their reaction back. |
       | `message.edited` | A message was edited. |
       | `message.deleted` | A message was deleted for everyone. |
@@ -4377,6 +4385,32 @@ tags:
       `DELIVERED` after a `READ`) changes nothing and fires nothing. A failed message that is retried goes
       through `SENT` again from `SENDING`. Receipts WhatsApp reports for a message typed on the phone
       (stored as `SENT`) fire it too.
+
+      `FAILED` and `UNDELIVERABLE` are final: UnlimitedMessaging will not try again on its own.
+      `UNDELIVERABLE` is about the recipient (not on WhatsApp, address rejected, media too large), so
+      sending the same message again will fail the same way. `FAILED` is anything else, reported once every
+      attempt is spent. An attempt that failed and will be retried is `message.retrying`, not a status.
+
+      Together, the two events tell where a message stands:
+
+      | You receive | It means |
+      | ----------- | -------- |
+      | `message.status` `SENT` | It reached the channel. |
+      | `message.status` `DELIVERED` / `READ` | It reached the recipient's device / was read. |
+      | `message.retrying` | An attempt failed, the message is `PENDING` and will be tried again at `nextAttemptAt`. |
+      | `message.status` `FAILED` | It will not go out: every attempt failed, or the channel refused it. |
+      | `message.status` `UNDELIVERABLE` | It cannot reach this recipient. |
+
+      #### message.retrying
+
+      An attempt to send a message failed for a reason that may clear up (the account offline or
+      reconnecting, the channel busy, slow or out of reach) and another attempt is scheduled. The message is
+      `PENDING` until then. `data.message` holds `id`, `externalId` (null until an attempt reached the
+      channel), `status` (`PENDING`), `error` (why the attempt failed), `attempt` (the attempt that just
+      failed, from 1), `maxAttempts` (every attempt the message gets, the first included), `nextAttemptAt`
+      and `at` (when the attempt failed), plus `data.channel`. Fired once per failed attempt that will be
+      retried, never for the last one: if it fails too, `message.status` reports `FAILED`. A retry cannot
+      deliver the message twice. WhatsApp only for now: a failed email or SMS goes straight to `FAILED`.
 
       #### message.reaction
 
@@ -5148,6 +5182,119 @@ components:
                 - error
                 - at
                 - sentAt
+            channel:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - WHATSAPP
+                    - SMS
+                    - EMAIL
+                account:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      nullable: true
+                      type: string
+                  required:
+                    - id
+                    - name
+                conversation:
+                  type: object
+                  properties:
+                    id:
+                      nullable: true
+                      type: string
+                    isGroup:
+                      type: boolean
+                    address:
+                      nullable: true
+                      type: string
+                    participants:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                    - id
+                    - isGroup
+                    - address
+              required:
+                - type
+                - account
+                - conversation
+          required:
+            - message
+            - channel
+      required:
+        - type
+        - eventId
+        - occurredAt
+        - data
+    WebhookEventMessageRetrying:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - message.retrying
+        eventId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        data:
+          type: object
+          properties:
+            message:
+              type: object
+              properties:
+                id:
+                  type: string
+                externalId:
+                  nullable: true
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - PENDING
+                    - SENDING
+                    - SENT
+                    - DELIVERED
+                    - READ
+                    - FAILED
+                    - UNDELIVERABLE
+                    - CANCELLED
+                error:
+                  type: string
+                attempt:
+                  type: integer
+                  exclusiveMinimum: true
+                  maximum: 9007199254740991
+                maxAttempts:
+                  type: integer
+                  exclusiveMinimum: true
+                  maximum: 9007199254740991
+                nextAttemptAt:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                at:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+              required:
+                - id
+                - externalId
+                - status
+                - error
+                - attempt
+                - maxAttempts
+                - nextAttemptAt
+                - at
             channel:
               type: object
               properties:
@@ -6041,6 +6188,20 @@ x-webhooks:
           application/json:
             schema:
               $ref: "#/components/schemas/WebhookEventMessageStatus"
+      responses:
+        "200":
+          description: Return any 2xx to acknowledge the delivery.
+  message.retrying:
+    post:
+      tags:
+        - Webhook Events
+      summary: A send attempt failed and another one is scheduled.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEventMessageRetrying"
       responses:
         "200":
           description: Return any 2xx to acknowledge the delivery.
