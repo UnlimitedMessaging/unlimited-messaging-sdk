@@ -50,4 +50,5 @@ exports.WebhookEndpointListResponseDataItemEventTypesItem = core.serialization.e
     "message.deleted",
     "message.sent",
     "message.transcribed",
+    "message.retrying",
 ]);

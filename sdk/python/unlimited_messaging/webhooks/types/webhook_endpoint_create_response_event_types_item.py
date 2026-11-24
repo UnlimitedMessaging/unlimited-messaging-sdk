@@ -15,6 +15,7 @@ WebhookEndpointCreateResponseEventTypesItem = typing.Union[
         "message.deleted",
         "message.sent",
         "message.transcribed",
+        "message.retrying",
     ],
     typing.Any,
 ]

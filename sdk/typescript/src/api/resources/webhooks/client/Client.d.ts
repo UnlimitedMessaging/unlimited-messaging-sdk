@@ -88,6 +88,7 @@ export declare namespace Webhooks {
  * | ----- | -------- |
  * | `message.received`, `message.self_sent`, `message.sent` | `data.message.sentAt` (WhatsApp's timestamp) |
  * | `message.status` | `data.message.at`, and `previousStatus` to ignore a stale one |
+ * | `message.retrying` | `data.message.at` (or `attempt`) |
  * | `message.reaction` | `data.reaction.sentAt` |
  * | `message.edited` | `data.edit.editedAt` |
  * | `message.deleted` | `data.deletion.deletedAt` |
@@ -110,7 +111,8 @@ export declare namespace Webhooks {
  * | `message.received` | A message arrived. |
  * | `message.self_sent` | The account's own phone sent a message by hand, outside the API. |
  * | `message.sent` | A message you sent through the API reached the channel. Carries its content. |
- * | `message.status` | A message you sent changed status: `SENT`, `DELIVERED`, `READ`, `FAILED` or `UNDELIVERABLE`. |
+ * | `message.status` | A message you sent changed status: `SENT`, `DELIVERED`, `READ`, `FAILED` or `UNDELIVERABLE`. `FAILED` and `UNDELIVERABLE` are final. |
+ * | `message.retrying` | An attempt to send a message failed and another one is scheduled. |
  * | `message.reaction` | Someone reacted to a message, or took their reaction back. |
  * | `message.edited` | A message was edited. |
  * | `message.deleted` | A message was deleted for everyone. |
@@ -176,6 +178,32 @@ export declare namespace Webhooks {
  * `DELIVERED` after a `READ`) changes nothing and fires nothing. A failed message that is retried goes
  * through `SENT` again from `SENDING`. Receipts WhatsApp reports for a message typed on the phone
  * (stored as `SENT`) fire it too.
+ *
+ * `FAILED` and `UNDELIVERABLE` are final: UnlimitedMessaging will not try again on its own.
+ * `UNDELIVERABLE` is about the recipient (not on WhatsApp, address rejected, media too large), so
+ * sending the same message again will fail the same way. `FAILED` is anything else, reported once every
+ * attempt is spent. An attempt that failed and will be retried is `message.retrying`, not a status.
+ *
+ * Together, the two events tell where a message stands:
+ *
+ * | You receive | It means |
+ * | ----------- | -------- |
+ * | `message.status` `SENT` | It reached the channel. |
+ * | `message.status` `DELIVERED` / `READ` | It reached the recipient's device / was read. |
+ * | `message.retrying` | An attempt failed, the message is `PENDING` and will be tried again at `nextAttemptAt`. |
+ * | `message.status` `FAILED` | It will not go out: every attempt failed, or the channel refused it. |
+ * | `message.status` `UNDELIVERABLE` | It cannot reach this recipient. |
+ *
+ * #### message.retrying
+ *
+ * An attempt to send a message failed for a reason that may clear up (the account offline or
+ * reconnecting, the channel busy, slow or out of reach) and another attempt is scheduled. The message is
+ * `PENDING` until then. `data.message` holds `id`, `externalId` (null until an attempt reached the
+ * channel), `status` (`PENDING`), `error` (why the attempt failed), `attempt` (the attempt that just
+ * failed, from 1), `maxAttempts` (every attempt the message gets, the first included), `nextAttemptAt`
+ * and `at` (when the attempt failed), plus `data.channel`. Fired once per failed attempt that will be
+ * retried, never for the last one: if it fails too, `message.status` reports `FAILED`. A retry cannot
+ * deliver the message twice. WhatsApp only for now: a failed email or SMS goes straight to `FAILED`.
  *
  * #### message.reaction
  *

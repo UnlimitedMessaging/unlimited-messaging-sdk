@@ -50,4 +50,5 @@ exports.WebhookEndpointFindOneResponseEventTypesItem = core.serialization.enum_(
     "message.deleted",
     "message.sent",
     "message.transcribed",
+    "message.retrying",
 ]);

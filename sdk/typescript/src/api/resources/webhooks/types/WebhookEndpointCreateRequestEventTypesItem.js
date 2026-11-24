@@ -16,4 +16,5 @@ exports.WebhookEndpointCreateRequestEventTypesItem = {
     MessageDeleted: "message.deleted",
     MessageSent: "message.sent",
     MessageTranscribed: "message.transcribed",
+    MessageRetrying: "message.retrying",
 };
