@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.33] - 2026-11-24
+
+*   **New Endpoints**
+    *   Added a new webhook event: `POST /message.retrying`. This event is triggered when an attempt to send a message fails and another one is scheduled.
+
+*   **Changed Parameters**
+    *   The `events` parameter in webhook configuration endpoints (e.g., `POST /webhooks`, `PUT /webhooks/{webhookId}`, `GET /channels/{channelId}/webhooks`) now accepts `message.retrying` as a valid event type.
+
+*   **New Response Fields**
+    *   For the new `message.retrying` webhook event, the `data` payload includes:
+        *   `message.id`: The unique identifier of the message.
+        *   `message.externalId`: The external ID of the message (nullable until an attempt reaches the channel).
+        *   `message.status`: The current status of the message, e.g., `PENDING`.
+        *   `message.error`: A description of why the attempt failed.
+        *   `message.attempt`: The number of the failed attempt.
+        *   `message.maxAttempts`: The total number of attempts the message will get.
+        *   `message.nextAttemptAt`: The timestamp when the next attempt is scheduled.
+        *   `message.at`: The timestamp when the current attempt failed.
+        *   `channel.type`: The type of the channel (e.g., `WHATSAPP`).
+        *   `channel.account.id`: The ID of the account used for sending.
+        *   `channel.account.name`: The name of the account used for sending (nullable).
+        *   `channel.conversation.id`: The ID of the conversation (nullable).
+        *   `channel.conversation.isGroup`: A boolean indicating if the conversation is a group chat.
+        *   `channel.conversation.address`: The address of the recipient.
+        *   `channel.conversation.participants`: An array of participant addresses in the conversation.
+
 ## [0.1.32] - 2026-11-20
 
 *   **New Webhook Event**
