@@ -20,6 +20,7 @@ async def test_message_find_all(
                 "externalId": "externalId",
                 "error": "error",
                 "interlocutor": "interlocutor",
+                "senderName": "senderName",
                 "conversationId": "conversationId",
                 "isGroup": True,
                 "replyToExternalId": "replyToExternalId",
@@ -85,6 +86,7 @@ async def test_message_find_all(
                     "externalId": None,
                     "error": None,
                     "interlocutor": None,
+                    "senderName": None,
                     "conversationId": None,
                     "isGroup": None,
                     "replyToExternalId": None,
@@ -163,6 +165,7 @@ async def test_message_send(
         "externalId": "externalId",
         "error": "error",
         "interlocutor": "interlocutor",
+        "senderName": "senderName",
         "conversationId": "conversationId",
         "isGroup": True,
         "replyToExternalId": "replyToExternalId",
@@ -218,6 +221,7 @@ async def test_message_send(
                 "externalId": "externalId",
                 "error": "error",
                 "interlocutor": "interlocutor",
+                "senderName": "senderName",
                 "conversationId": "conversationId",
                 "isGroup": True,
                 "replyToExternalId": "replyToExternalId",
@@ -275,6 +279,7 @@ async def test_message_send(
         "externalId": None,
         "error": None,
         "interlocutor": None,
+        "senderName": None,
         "conversationId": None,
         "isGroup": None,
         "replyToExternalId": None,
@@ -338,6 +343,7 @@ async def test_message_send(
                     "externalId": None,
                     "error": None,
                     "interlocutor": None,
+                    "senderName": None,
                     "conversationId": None,
                     "isGroup": None,
                     "replyToExternalId": None,
@@ -400,6 +406,75 @@ async def test_message_send(
     validate_response(async_response, expected_response, expected_types)
 
 
+async def test_message_find_conversations(
+    client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
+) -> None:
+    expected_response: typing.Any = {
+        "data": [
+            {
+                "conversationId": "conversationId",
+                "interlocutor": "interlocutor",
+                "contactName": "contactName",
+                "isGroup": True,
+                "messagingAccountId": "messagingAccountId",
+                "channel": "WHATSAPP",
+                "accountChannel": "WHATSAPP_BAILYES",
+                "messageCount": 1,
+                "receivedCount": 1,
+                "firstMessageAt": "2024-01-15T09:30:00Z",
+                "lastMessageAt": "2024-01-15T09:30:00Z",
+                "lastMessage": {
+                    "id": "id",
+                    "content": None,
+                    "subject": None,
+                    "direction": "IN",
+                    "mediaType": None,
+                },
+            }
+        ],
+        "total": 1,
+        "page": 1,
+        "limit": 1,
+        "totalPages": 1,
+    }
+    expected_types: typing.Any = {
+        "data": (
+            "list",
+            {
+                0: {
+                    "conversationId": None,
+                    "interlocutor": None,
+                    "contactName": None,
+                    "isGroup": None,
+                    "messagingAccountId": None,
+                    "channel": None,
+                    "accountChannel": None,
+                    "messageCount": "integer",
+                    "receivedCount": "integer",
+                    "firstMessageAt": "datetime",
+                    "lastMessageAt": "datetime",
+                    "lastMessage": {
+                        "id": None,
+                        "content": None,
+                        "subject": None,
+                        "direction": None,
+                        "mediaType": None,
+                    },
+                }
+            },
+        ),
+        "total": "integer",
+        "page": "integer",
+        "limit": "integer",
+        "totalPages": "integer",
+    }
+    response = client.messages.message_find_conversations()
+    validate_response(response, expected_response, expected_types)
+
+    async_response = await async_client.messages.message_find_conversations()
+    validate_response(async_response, expected_response, expected_types)
+
+
 async def test_message_find_one(
     client: UnlimitedMessagingApi, async_client: AsyncUnlimitedMessagingApi
 ) -> None:
@@ -412,6 +487,7 @@ async def test_message_find_one(
         "externalId": "externalId",
         "error": "error",
         "interlocutor": "interlocutor",
+        "senderName": "senderName",
         "conversationId": "conversationId",
         "isGroup": True,
         "replyToExternalId": "replyToExternalId",
@@ -467,6 +543,7 @@ async def test_message_find_one(
         "externalId": None,
         "error": None,
         "interlocutor": None,
+        "senderName": None,
         "conversationId": None,
         "isGroup": None,
         "replyToExternalId": None,

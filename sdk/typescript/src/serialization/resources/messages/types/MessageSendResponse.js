@@ -54,6 +54,7 @@ exports.MessageSendResponse = core.serialization.object({
     externalId: core.serialization.string().nullable(),
     error: core.serialization.string().nullable(),
     interlocutor: core.serialization.string(),
+    senderName: core.serialization.string().nullable(),
     conversationId: core.serialization.string().nullable(),
     isGroup: core.serialization.boolean(),
     replyToExternalId: core.serialization.string().nullable(),

@@ -65,7 +65,7 @@ class Messages {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
      *
-     * Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
+     * Returns a paginated list of messages for the authenticated user. Filters: `messagingAccountId`, `channel`, `status`, `direction`, `conversationId` (one whole conversation, whatever the format of its id: take it from GET /message/conversations), `interlocutor` (everything exchanged with one contact), `after` / `before` (ISO 8601 dates), `isGroup`, `hasMedia`, and free-text `search` (content, subject, interlocutor, sender name). Results are ordered by the time each message was sent, most recent first, or chronologically with `sort=asc`. Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
      *
      * @param {UnlimitedMessagingApi.MessageFindAllRequest} request
      * @param {Messages.RequestOptions} requestOptions - Request-specific configuration.
@@ -83,7 +83,7 @@ class Messages {
     __messageFindAll() {
         return __awaiter(this, arguments, void 0, function* (request = {}, requestOptions) {
             var _a, _b;
-            const { page, limit, channel, status, direction, messagingAccountId, simId, search } = request;
+            const { page, limit, channel, status, direction, messagingAccountId, simId, search, conversationId, interlocutor, after, before, isGroup, hasMedia, sort, } = request;
             const _queryParams = {};
             if (page != null) {
                 _queryParams["page"] = page.toString();
@@ -114,6 +114,29 @@ class Messages {
             }
             if (search != null) {
                 _queryParams["search"] = search;
+            }
+            if (conversationId != null) {
+                _queryParams["conversationId"] = conversationId;
+            }
+            if (interlocutor != null) {
+                _queryParams["interlocutor"] = interlocutor;
+            }
+            if (after != null) {
+                _queryParams["after"] = after;
+            }
+            if (before != null) {
+                _queryParams["before"] = before;
+            }
+            if (isGroup != null) {
+                _queryParams["isGroup"] = isGroup.toString();
+            }
+            if (hasMedia != null) {
+                _queryParams["hasMedia"] = hasMedia.toString();
+            }
+            if (sort != null) {
+                _queryParams["sort"] = serializers.MessageFindAllRequestSort.jsonOrThrow(sort, {
+                    unrecognizedObjectKeys: "strip",
+                });
             }
             const _response = yield core.fetcher({
                 url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, "message"),
@@ -261,6 +284,111 @@ class Messages {
                     });
                 case "timeout":
                     throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling POST /message.");
+                case "unknown":
+                    throw new errors.UnlimitedMessagingApiError({
+                        message: _response.error.errorMessage,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        });
+    }
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+     *
+     * Returns the conversations (threads) of the authenticated user, the most recently active first: for each one its `conversationId`, the contact (`interlocutor`, and `contactName` when the channel gave one), whether it is a group, how many messages it holds and its last message. Pass a `conversationId` to GET /message to read that conversation. Filters: `messagingAccountId`, `channel`, `isGroup`, `after` / `before` (ISO 8601 dates: counts and the last message then cover that period) and `search` (contact name, interlocutor, conversation id). Use `page` (default 1) and `limit` (1-100, default 20) to paginate.
+     *
+     * @param {UnlimitedMessagingApi.MessageFindConversationsRequest} request
+     * @param {Messages.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.BadRequestError}
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     *
+     * @example
+     *     await client.messages.messageFindConversations()
+     */
+    messageFindConversations(request = {}, requestOptions) {
+        return core.HttpResponsePromise.fromPromise(this.__messageFindConversations(request, requestOptions));
+    }
+    __messageFindConversations() {
+        return __awaiter(this, arguments, void 0, function* (request = {}, requestOptions) {
+            var _a, _b;
+            const { page, limit, channel, messagingAccountId, search, isGroup, after, before } = request;
+            const _queryParams = {};
+            if (page != null) {
+                _queryParams["page"] = page.toString();
+            }
+            if (limit != null) {
+                _queryParams["limit"] = limit.toString();
+            }
+            if (channel != null) {
+                _queryParams["channel"] = serializers.MessageFindConversationsRequestChannel.jsonOrThrow(channel, {
+                    unrecognizedObjectKeys: "strip",
+                });
+            }
+            if (messagingAccountId != null) {
+                _queryParams["messagingAccountId"] = messagingAccountId;
+            }
+            if (search != null) {
+                _queryParams["search"] = search;
+            }
+            if (isGroup != null) {
+                _queryParams["isGroup"] = isGroup.toString();
+            }
+            if (after != null) {
+                _queryParams["after"] = after;
+            }
+            if (before != null) {
+                _queryParams["before"] = before;
+            }
+            const _response = yield core.fetcher({
+                url: (0, url_join_1.default)((_b = (_a = (yield core.Supplier.get(this._options.baseUrl))) !== null && _a !== void 0 ? _a : (yield core.Supplier.get(this._options.environment))) !== null && _b !== void 0 ? _b : environments.UnlimitedMessagingApiEnvironment.Production, "message/conversations"),
+                method: "GET",
+                headers: Object.assign({ Authorization: yield this._getAuthorizationHeader(), "X-Fern-Language": "JavaScript", "X-Fern-Runtime": core.RUNTIME.type, "X-Fern-Runtime-Version": core.RUNTIME.version }, requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.headers),
+                contentType: "application/json",
+                queryParameters: _queryParams,
+                requestType: "json",
+                timeoutMs: (requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.timeoutInSeconds) != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+                maxRetries: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.maxRetries,
+                withCredentials: true,
+                abortSignal: requestOptions === null || requestOptions === void 0 ? void 0 : requestOptions.abortSignal,
+            });
+            if (_response.ok) {
+                return {
+                    data: serializers.MessageFindConversationsResponse.parseOrThrow(_response.body, {
+                        unrecognizedObjectKeys: "passthrough",
+                        allowUnrecognizedUnionMembers: true,
+                        allowUnrecognizedEnumValues: true,
+                        breadcrumbsPrefix: ["response"],
+                    }),
+                    rawResponse: _response.rawResponse,
+                };
+            }
+            if (_response.error.reason === "status-code") {
+                switch (_response.error.statusCode) {
+                    case 400:
+                        throw new UnlimitedMessagingApi.BadRequestError(_response.error.body, _response.rawResponse);
+                    case 401:
+                        throw new UnlimitedMessagingApi.UnauthorizedError(_response.error.body, _response.rawResponse);
+                    case 403:
+                        throw new UnlimitedMessagingApi.ForbiddenError(_response.error.body, _response.rawResponse);
+                    default:
+                        throw new errors.UnlimitedMessagingApiError({
+                            statusCode: _response.error.statusCode,
+                            body: _response.error.body,
+                            rawResponse: _response.rawResponse,
+                        });
+                }
+            }
+            switch (_response.error.reason) {
+                case "non-json":
+                    throw new errors.UnlimitedMessagingApiError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.rawBody,
+                        rawResponse: _response.rawResponse,
+                    });
+                case "timeout":
+                    throw new errors.UnlimitedMessagingApiTimeoutError("Timeout exceeded when calling GET /message/conversations.");
                 case "unknown":
                     throw new errors.UnlimitedMessagingApiError({
                         message: _response.error.errorMessage,

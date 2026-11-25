@@ -5,6 +5,7 @@ from ..core.client_wrapper import SyncClientWrapper
 from .types.message_find_all_request_channel import MessageFindAllRequestChannel
 from .types.message_find_all_request_status import MessageFindAllRequestStatus
 from .types.message_find_all_request_direction import MessageFindAllRequestDirection
+from .types.message_find_all_request_sort import MessageFindAllRequestSort
 from ..core.request_options import RequestOptions
 from .types.message_find_all_response import MessageFindAllResponse
 from ..core.pydantic_utilities import parse_obj_as
@@ -25,6 +26,10 @@ from .types.message_send_response import MessageSendResponse
 from ..errors.not_found_error import NotFoundError
 from ..errors.conflict_error import ConflictError
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
+from .types.message_find_conversations_request_channel import (
+    MessageFindConversationsRequestChannel,
+)
+from .types.message_find_conversations_response import MessageFindConversationsResponse
 from .types.message_find_one_response import MessageFindOneResponse
 from ..core.jsonable_encoder import jsonable_encoder
 from .types.message_get_status_history_response import MessageGetStatusHistoryResponse
@@ -49,12 +54,19 @@ class MessagesClient:
         messaging_account_id: typing.Optional[str] = None,
         sim_id: typing.Optional[str] = None,
         search: typing.Optional[str] = None,
+        conversation_id: typing.Optional[str] = None,
+        interlocutor: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
+        is_group: typing.Optional[bool] = None,
+        has_media: typing.Optional[bool] = None,
+        sort: typing.Optional[MessageFindAllRequestSort] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MessageFindAllResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
+        Returns a paginated list of messages for the authenticated user. Filters: `messagingAccountId`, `channel`, `status`, `direction`, `conversationId` (one whole conversation, whatever the format of its id: take it from GET /message/conversations), `interlocutor` (everything exchanged with one contact), `after` / `before` (ISO 8601 dates), `isGroup`, `hasMedia`, and free-text `search` (content, subject, interlocutor, sender name). Results are ordered by the time each message was sent, most recent first, or chronologically with `sort=asc`. Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
 
         Parameters
         ----------
@@ -67,12 +79,35 @@ class MessagesClient:
         status : typing.Optional[MessageFindAllRequestStatus]
 
         direction : typing.Optional[MessageFindAllRequestDirection]
+            IN for received messages, OUT for sent ones.
 
         messaging_account_id : typing.Optional[str]
 
         sim_id : typing.Optional[str]
 
         search : typing.Optional[str]
+            Case-insensitive text search in the content, the subject, the interlocutor and the sender name.
+
+        conversation_id : typing.Optional[str]
+            Only the messages of one conversation (thread): a group id, a WhatsApp chat id (33612345678@s.whatsapp.net) or a phone number (+33612345678), an email thread id. Phone numbers and WhatsApp ids match whatever their format. Take it from GET /message/conversations or from a message's conversationId. For every email with one address, use `interlocutor` instead.
+
+        interlocutor : typing.Optional[str]
+            Every message exchanged with one contact (phone number in any format, WhatsApp id, email address), in 1:1 chats and, for messages they posted, in groups.
+
+        after : typing.Optional[str]
+            Only messages sent at or after this ISO 8601 date or date-time.
+
+        before : typing.Optional[str]
+            Only messages sent strictly before this ISO 8601 date or date-time.
+
+        is_group : typing.Optional[bool]
+            true for group messages only, false to leave groups out.
+
+        has_media : typing.Optional[bool]
+            true for messages with a file (photo, voice note, document...), false for text only.
+
+        sort : typing.Optional[MessageFindAllRequestSort]
+            By the time the message was sent: desc (most recent first, the default) or asc (chronological, to read a conversation in order).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -103,6 +138,13 @@ class MessagesClient:
                 "messagingAccountId": messaging_account_id,
                 "simId": sim_id,
                 "search": search,
+                "conversationId": conversation_id,
+                "interlocutor": interlocutor,
+                "after": after,
+                "before": before,
+                "isGroup": is_group,
+                "hasMedia": has_media,
+                "sort": sort,
             },
             request_options=request_options,
         )
@@ -352,6 +394,122 @@ class MessagesClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    def message_find_conversations(
+        self,
+        *,
+        page: typing.Optional[int] = None,
+        limit: typing.Optional[int] = None,
+        channel: typing.Optional[MessageFindConversationsRequestChannel] = None,
+        messaging_account_id: typing.Optional[str] = None,
+        search: typing.Optional[str] = None,
+        is_group: typing.Optional[bool] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> MessageFindConversationsResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        Returns the conversations (threads) of the authenticated user, the most recently active first: for each one its `conversationId`, the contact (`interlocutor`, and `contactName` when the channel gave one), whether it is a group, how many messages it holds and its last message. Pass a `conversationId` to GET /message to read that conversation. Filters: `messagingAccountId`, `channel`, `isGroup`, `after` / `before` (ISO 8601 dates: counts and the last message then cover that period) and `search` (contact name, interlocutor, conversation id). Use `page` (default 1) and `limit` (1-100, default 20) to paginate.
+
+        Parameters
+        ----------
+        page : typing.Optional[int]
+
+        limit : typing.Optional[int]
+
+        channel : typing.Optional[MessageFindConversationsRequestChannel]
+
+        messaging_account_id : typing.Optional[str]
+
+        search : typing.Optional[str]
+            Case-insensitive search in the contact name, the interlocutor and the conversation id.
+
+        is_group : typing.Optional[bool]
+            true for group conversations only, false for 1:1 only.
+
+        after : typing.Optional[str]
+            Only conversations with a message at or after this ISO 8601 date or date-time.
+
+        before : typing.Optional[str]
+            Only conversations with a message strictly before this ISO 8601 date or date-time.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        MessageFindConversationsResponse
+
+
+        Examples
+        --------
+        from unlimited_messaging import UnlimitedMessagingApi
+
+        client = UnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+        client.messages.message_find_conversations()
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "message/conversations",
+            method="GET",
+            params={
+                "page": page,
+                "limit": limit,
+                "channel": channel,
+                "messagingAccountId": messaging_account_id,
+                "search": search,
+                "isGroup": is_group,
+                "after": after,
+                "before": before,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    MessageFindConversationsResponse,
+                    parse_obj_as(
+                        type_=MessageFindConversationsResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
     def message_find_one(
         self, id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> MessageFindOneResponse:
@@ -528,12 +686,19 @@ class AsyncMessagesClient:
         messaging_account_id: typing.Optional[str] = None,
         sim_id: typing.Optional[str] = None,
         search: typing.Optional[str] = None,
+        conversation_id: typing.Optional[str] = None,
+        interlocutor: typing.Optional[str] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
+        is_group: typing.Optional[bool] = None,
+        has_media: typing.Optional[bool] = None,
+        sort: typing.Optional[MessageFindAllRequestSort] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> MessageFindAllResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
+        Returns a paginated list of messages for the authenticated user. Filters: `messagingAccountId`, `channel`, `status`, `direction`, `conversationId` (one whole conversation, whatever the format of its id: take it from GET /message/conversations), `interlocutor` (everything exchanged with one contact), `after` / `before` (ISO 8601 dates), `isGroup`, `hasMedia`, and free-text `search` (content, subject, interlocutor, sender name). Results are ordered by the time each message was sent, most recent first, or chronologically with `sort=asc`. Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
 
         Parameters
         ----------
@@ -546,12 +711,35 @@ class AsyncMessagesClient:
         status : typing.Optional[MessageFindAllRequestStatus]
 
         direction : typing.Optional[MessageFindAllRequestDirection]
+            IN for received messages, OUT for sent ones.
 
         messaging_account_id : typing.Optional[str]
 
         sim_id : typing.Optional[str]
 
         search : typing.Optional[str]
+            Case-insensitive text search in the content, the subject, the interlocutor and the sender name.
+
+        conversation_id : typing.Optional[str]
+            Only the messages of one conversation (thread): a group id, a WhatsApp chat id (33612345678@s.whatsapp.net) or a phone number (+33612345678), an email thread id. Phone numbers and WhatsApp ids match whatever their format. Take it from GET /message/conversations or from a message's conversationId. For every email with one address, use `interlocutor` instead.
+
+        interlocutor : typing.Optional[str]
+            Every message exchanged with one contact (phone number in any format, WhatsApp id, email address), in 1:1 chats and, for messages they posted, in groups.
+
+        after : typing.Optional[str]
+            Only messages sent at or after this ISO 8601 date or date-time.
+
+        before : typing.Optional[str]
+            Only messages sent strictly before this ISO 8601 date or date-time.
+
+        is_group : typing.Optional[bool]
+            true for group messages only, false to leave groups out.
+
+        has_media : typing.Optional[bool]
+            true for messages with a file (photo, voice note, document...), false for text only.
+
+        sort : typing.Optional[MessageFindAllRequestSort]
+            By the time the message was sent: desc (most recent first, the default) or asc (chronological, to read a conversation in order).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -590,6 +778,13 @@ class AsyncMessagesClient:
                 "messagingAccountId": messaging_account_id,
                 "simId": sim_id,
                 "search": search,
+                "conversationId": conversation_id,
+                "interlocutor": interlocutor,
+                "after": after,
+                "before": before,
+                "isGroup": is_group,
+                "hasMedia": has_media,
+                "sort": sort,
             },
             request_options=request_options,
         )
@@ -834,6 +1029,130 @@ class AsyncMessagesClient:
                 )
             if _response.status_code == 422:
                 raise UnprocessableEntityError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def message_find_conversations(
+        self,
+        *,
+        page: typing.Optional[int] = None,
+        limit: typing.Optional[int] = None,
+        channel: typing.Optional[MessageFindConversationsRequestChannel] = None,
+        messaging_account_id: typing.Optional[str] = None,
+        search: typing.Optional[str] = None,
+        is_group: typing.Optional[bool] = None,
+        after: typing.Optional[str] = None,
+        before: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> MessageFindConversationsResponse:
+        """
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        Returns the conversations (threads) of the authenticated user, the most recently active first: for each one its `conversationId`, the contact (`interlocutor`, and `contactName` when the channel gave one), whether it is a group, how many messages it holds and its last message. Pass a `conversationId` to GET /message to read that conversation. Filters: `messagingAccountId`, `channel`, `isGroup`, `after` / `before` (ISO 8601 dates: counts and the last message then cover that period) and `search` (contact name, interlocutor, conversation id). Use `page` (default 1) and `limit` (1-100, default 20) to paginate.
+
+        Parameters
+        ----------
+        page : typing.Optional[int]
+
+        limit : typing.Optional[int]
+
+        channel : typing.Optional[MessageFindConversationsRequestChannel]
+
+        messaging_account_id : typing.Optional[str]
+
+        search : typing.Optional[str]
+            Case-insensitive search in the contact name, the interlocutor and the conversation id.
+
+        is_group : typing.Optional[bool]
+            true for group conversations only, false for 1:1 only.
+
+        after : typing.Optional[str]
+            Only conversations with a message at or after this ISO 8601 date or date-time.
+
+        before : typing.Optional[str]
+            Only conversations with a message strictly before this ISO 8601 date or date-time.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        MessageFindConversationsResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from unlimited_messaging import AsyncUnlimitedMessagingApi
+
+        client = AsyncUnlimitedMessagingApi(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.messages.message_find_conversations()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "message/conversations",
+            method="GET",
+            params={
+                "page": page,
+                "limit": limit,
+                "channel": channel,
+                "messagingAccountId": messaging_account_id,
+                "search": search,
+                "isGroup": is_group,
+                "after": after,
+                "before": before,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    MessageFindConversationsResponse,
+                    parse_obj_as(
+                        type_=MessageFindConversationsResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    typing.cast(
+                        typing.Optional[typing.Any],
+                        parse_obj_as(
+                            type_=typing.Optional[typing.Any],  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
                     typing.cast(
                         typing.Optional[typing.Any],
                         parse_obj_as(

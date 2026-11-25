@@ -2,6 +2,7 @@
 
 from .message_find_all_request_channel import MessageFindAllRequestChannel
 from .message_find_all_request_direction import MessageFindAllRequestDirection
+from .message_find_all_request_sort import MessageFindAllRequestSort
 from .message_find_all_request_status import MessageFindAllRequestStatus
 from .message_find_all_response import MessageFindAllResponse
 from .message_find_all_response_data_item import MessageFindAllResponseDataItem
@@ -22,6 +23,25 @@ from .message_find_all_response_data_item_reactions_item import (
 )
 from .message_find_all_response_data_item_status import (
     MessageFindAllResponseDataItemStatus,
+)
+from .message_find_conversations_request_channel import (
+    MessageFindConversationsRequestChannel,
+)
+from .message_find_conversations_response import MessageFindConversationsResponse
+from .message_find_conversations_response_data_item import (
+    MessageFindConversationsResponseDataItem,
+)
+from .message_find_conversations_response_data_item_account_channel import (
+    MessageFindConversationsResponseDataItemAccountChannel,
+)
+from .message_find_conversations_response_data_item_channel import (
+    MessageFindConversationsResponseDataItemChannel,
+)
+from .message_find_conversations_response_data_item_last_message import (
+    MessageFindConversationsResponseDataItemLastMessage,
+)
+from .message_find_conversations_response_data_item_last_message_direction import (
+    MessageFindConversationsResponseDataItemLastMessageDirection,
 )
 from .message_find_one_response import MessageFindOneResponse
 from .message_find_one_response_account_channel import (
@@ -88,6 +108,7 @@ from .message_send_response_status import MessageSendResponseStatus
 __all__ = [
     "MessageFindAllRequestChannel",
     "MessageFindAllRequestDirection",
+    "MessageFindAllRequestSort",
     "MessageFindAllRequestStatus",
     "MessageFindAllResponse",
     "MessageFindAllResponseDataItem",
@@ -97,6 +118,13 @@ __all__ = [
     "MessageFindAllResponseDataItemDirection",
     "MessageFindAllResponseDataItemReactionsItem",
     "MessageFindAllResponseDataItemStatus",
+    "MessageFindConversationsRequestChannel",
+    "MessageFindConversationsResponse",
+    "MessageFindConversationsResponseDataItem",
+    "MessageFindConversationsResponseDataItemAccountChannel",
+    "MessageFindConversationsResponseDataItemChannel",
+    "MessageFindConversationsResponseDataItemLastMessage",
+    "MessageFindConversationsResponseDataItemLastMessageDirection",
     "MessageFindOneResponse",
     "MessageFindOneResponseAccountChannel",
     "MessageFindOneResponseAttachmentsItem",

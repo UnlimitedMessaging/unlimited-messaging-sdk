@@ -11,8 +11,42 @@ export interface MessageFindAllRequest {
     limit?: number;
     channel?: UnlimitedMessagingApi.MessageFindAllRequestChannel;
     status?: UnlimitedMessagingApi.MessageFindAllRequestStatus;
+    /**
+     * IN for received messages, OUT for sent ones.
+     */
     direction?: UnlimitedMessagingApi.MessageFindAllRequestDirection;
     messagingAccountId?: string;
     simId?: string;
+    /**
+     * Case-insensitive text search in the content, the subject, the interlocutor and the sender name.
+     */
     search?: string;
+    /**
+     * Only the messages of one conversation (thread): a group id, a WhatsApp chat id (33612345678@s.whatsapp.net) or a phone number (+33612345678), an email thread id. Phone numbers and WhatsApp ids match whatever their format. Take it from GET /message/conversations or from a message's conversationId. For every email with one address, use `interlocutor` instead.
+     */
+    conversationId?: string;
+    /**
+     * Every message exchanged with one contact (phone number in any format, WhatsApp id, email address), in 1:1 chats and, for messages they posted, in groups.
+     */
+    interlocutor?: string;
+    /**
+     * Only messages sent at or after this ISO 8601 date or date-time.
+     */
+    after?: string;
+    /**
+     * Only messages sent strictly before this ISO 8601 date or date-time.
+     */
+    before?: string;
+    /**
+     * true for group messages only, false to leave groups out.
+     */
+    isGroup?: boolean;
+    /**
+     * true for messages with a file (photo, voice note, document...), false for text only.
+     */
+    hasMedia?: boolean;
+    /**
+     * By the time the message was sent: desc (most recent first, the default) or asc (chronological, to read a conversation in order).
+     */
+    sort?: UnlimitedMessagingApi.MessageFindAllRequestSort;
 }

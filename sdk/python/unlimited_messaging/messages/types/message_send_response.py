@@ -35,9 +35,18 @@ class MessageSendResponse(UniversalBaseModel):
     Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead.
     """
 
+    sender_name: typing.Optional[str] = pydantic.Field(alias="senderName", default=None)
+    """
+    The display name the sender of a received message chose (WhatsApp profile name, the name in an email's From). Null for a sent message, on SMS, and for messages received before November 2026. Not an identifier: use interlocutor for that.
+    """
+
     conversation_id: typing.Optional[str] = pydantic.Field(
         alias="conversationId", default=None
     )
+    """
+    The conversation's own id (provider-neutral): the group id of a group, the chat id of a WhatsApp 1:1 chat, the thread root of an email. Pass it to `conversationId` to read the whole conversation. Null on channels without one (SMS) and on some older messages.
+    """
+
     is_group: bool = pydantic.Field(alias="isGroup")
     reply_to_external_id: typing.Optional[str] = pydantic.Field(
         alias="replyToExternalId", default=None

@@ -31,7 +31,7 @@ export declare class Messages {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
      *
-     * Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
+     * Returns a paginated list of messages for the authenticated user. Filters: `messagingAccountId`, `channel`, `status`, `direction`, `conversationId` (one whole conversation, whatever the format of its id: take it from GET /message/conversations), `interlocutor` (everything exchanged with one contact), `after` / `before` (ISO 8601 dates), `isGroup`, `hasMedia`, and free-text `search` (content, subject, interlocutor, sender name). Results are ordered by the time each message was sent, most recent first, or chronologically with `sort=asc`. Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
      *
      * @param {UnlimitedMessagingApi.MessageFindAllRequest} request
      * @param {Messages.RequestOptions} requestOptions - Request-specific configuration.
@@ -77,6 +77,23 @@ export declare class Messages {
      */
     messageSend(request?: UnlimitedMessagingApi.MessageSendRequest, requestOptions?: Messages.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageSendResponse>;
     private __messageSend;
+    /**
+     * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+     *
+     * Returns the conversations (threads) of the authenticated user, the most recently active first: for each one its `conversationId`, the contact (`interlocutor`, and `contactName` when the channel gave one), whether it is a group, how many messages it holds and its last message. Pass a `conversationId` to GET /message to read that conversation. Filters: `messagingAccountId`, `channel`, `isGroup`, `after` / `before` (ISO 8601 dates: counts and the last message then cover that period) and `search` (contact name, interlocutor, conversation id). Use `page` (default 1) and `limit` (1-100, default 20) to paginate.
+     *
+     * @param {UnlimitedMessagingApi.MessageFindConversationsRequest} request
+     * @param {Messages.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link UnlimitedMessagingApi.BadRequestError}
+     * @throws {@link UnlimitedMessagingApi.UnauthorizedError}
+     * @throws {@link UnlimitedMessagingApi.ForbiddenError}
+     *
+     * @example
+     *     await client.messages.messageFindConversations()
+     */
+    messageFindConversations(request?: UnlimitedMessagingApi.MessageFindConversationsRequest, requestOptions?: Messages.RequestOptions): core.HttpResponsePromise<UnlimitedMessagingApi.MessageFindConversationsResponse>;
+    private __messageFindConversations;
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
      *

@@ -21,6 +21,7 @@ export declare namespace MessageSendResponseMessagesItem {
         externalId: string | null;
         error: string | null;
         interlocutor: string;
+        senderName: string | null;
         conversationId: string | null;
         isGroup: boolean;
         replyToExternalId: string | null;

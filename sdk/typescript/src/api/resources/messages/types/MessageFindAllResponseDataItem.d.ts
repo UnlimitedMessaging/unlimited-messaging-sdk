@@ -14,6 +14,9 @@ export interface MessageFindAllResponseDataItem {
     error: string | null;
     /** Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead. */
     interlocutor: string;
+    /** The display name the sender of a received message chose (WhatsApp profile name, the name in an email's From). Null for a sent message, on SMS, and for messages received before November 2026. Not an identifier: use interlocutor for that. */
+    senderName: string | null;
+    /** The conversation's own id (provider-neutral): the group id of a group, the chat id of a WhatsApp 1:1 chat, the thread root of an email. Pass it to `conversationId` to read the whole conversation. Null on channels without one (SMS) and on some older messages. */
     conversationId: string | null;
     isGroup: boolean;
     /** The externalId of the message this one quotes as a reply, or null if it isn't a reply. */
