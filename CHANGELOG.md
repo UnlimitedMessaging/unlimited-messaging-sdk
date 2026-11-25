@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.34] - 2026-11-25
+
+*   **New Endpoints**
+    *   `GET /message/conversations` endpoint added, allowing listing of message conversations with filtering and pagination.
+
+*   **Changed Parameters for `GET /message`**
+    *   `GET /message` now supports additional filtering capabilities:
+        *   Filters can now be applied by `channel`, `direction`, `conversationId`, `interlocutor`, `after` (ISO 8601 date), `before` (ISO 8601 date), `isGroup`, and `hasMedia`.
+        *   The `sort` parameter is added to order messages chronologically (`asc`) or by most recent first (`desc`, default).
+        *   The description for the `direction` parameter has been clarified for 'IN' (received) and 'OUT' (sent) messages.
+        *   The `search` parameter description has been updated to specify case-insensitive text search across content, subject, interlocutor, and sender name.
+
+*   **New Response Fields**
+    *   **For `GET /message` and `GET /message/{id}`:**
+        *   A new `senderName` field has been added to the message object, providing the display name of the sender for received messages (e.g., WhatsApp profile name, email From name).
+    *   **For `GET /message/conversations` (new endpoint):**
+        *   The response includes detailed conversation objects, each containing:
+            *   `conversationId`: The unique ID for the conversation.
+            *   `interlocutor`: The other party in the conversation.
+            *   `contactName`: The latest display name of the contact in 1:1 chats.
+            *   `isGroup`: Indicates if the conversation is a group chat.
+            *   `messagingAccountId`: The associated messaging account.
+            *   `channel`: The messaging channel (WHATSAPP, SMS, EMAIL).
+            *   `accountChannel`: The specific account channel type.
+            *   `messageCount` and `receivedCount`: Total and received message counts.
+            *   `firstMessageAt` and `lastMessageAt`: Timestamps for the conversation's first and last messages.
+            *   `lastMessage`: An object with details of the latest message (`id`, `content`, `subject`, `direction`, `mediaType`).
+            *   Pagination metadata: `total`, `page`, `limit`, `totalPages`.
+
 ## [0.1.33] - 2026-11-24
 
 *   **New Endpoints**
