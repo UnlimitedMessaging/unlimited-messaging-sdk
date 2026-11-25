@@ -55,7 +55,7 @@ paths:
       description: |-
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns a paginated list of messages for the authenticated user. Supports filtering by `status`, `messagingAccountId`, and free-text `search`. Results are ordered by creation date (most recent first). Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
+        Returns a paginated list of messages for the authenticated user. Filters: `messagingAccountId`, `channel`, `status`, `direction`, `conversationId` (one whole conversation, whatever the format of its id: take it from GET /message/conversations), `interlocutor` (everything exchanged with one contact), `after` / `before` (ISO 8601 dates), `isGroup`, `hasMedia`, and free-text `search` (content, subject, interlocutor, sender name). Results are ordered by the time each message was sent, most recent first, or chronologically with `sort=asc`. Use `page` (default 1) and `limit` (1-100, default 20) to paginate. `simId` is a deprecated alias for `messagingAccountId`, removed 2026-12-16.
       operationId: Message_find_all
       parameters:
         - name: page
@@ -101,6 +101,7 @@ paths:
           required: false
           in: query
           schema:
+            description: IN for received messages, OUT for sent ones.
             type: string
             enum:
               - IN
@@ -119,7 +120,53 @@ paths:
           required: false
           in: query
           schema:
+            description: Case-insensitive text search in the content, the subject, the interlocutor and the sender name.
             type: string
+        - name: conversationId
+          required: false
+          in: query
+          schema:
+            description: "Only the messages of one conversation (thread): a group id, a WhatsApp chat id (33612345678@s.whatsapp.net) or a phone number (+33612345678), an email thread id. Phone numbers and WhatsApp ids match whatever their format. Take it from GET /message/conversations or from a message's conversationId. For every email with one address, use `interlocutor` instead."
+            type: string
+        - name: interlocutor
+          required: false
+          in: query
+          schema:
+            description: Every message exchanged with one contact (phone number in any format, WhatsApp id, email address), in 1:1 chats and, for messages they posted, in groups.
+            type: string
+        - name: after
+          required: false
+          in: query
+          schema:
+            description: Only messages sent at or after this ISO 8601 date or date-time.
+            type: string
+        - name: before
+          required: false
+          in: query
+          schema:
+            description: Only messages sent strictly before this ISO 8601 date or date-time.
+            type: string
+        - name: isGroup
+          required: false
+          in: query
+          schema:
+            description: true for group messages only, false to leave groups out.
+            type: boolean
+        - name: hasMedia
+          required: false
+          in: query
+          schema:
+            description: true for messages with a file (photo, voice note, document...), false for text only.
+            type: boolean
+        - name: sort
+          required: false
+          in: query
+          schema:
+            description: "By the time the message was sent: desc (most recent first, the default) or asc (chronological, to read a conversation in order)."
+            type: string
+            enum:
+              - asc
+              - desc
       responses:
         "200":
           content:
@@ -160,10 +207,16 @@ paths:
                         interlocutor:
                           type: string
                           description: "Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead."
+                        senderName:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: "The display name the sender of a received message chose (WhatsApp profile name, the name in an email's From). Null for a sent message, on SMS, and for messages received before November 2026. Not an identifier: use interlocutor for that."
                         conversationId:
                           anyOf:
                             - type: string
                             - type: "null"
+                          description: "The conversation's own id (provider-neutral): the group id of a group, the chat id of a WhatsApp 1:1 chat, the thread root of an email. Pass it to `conversationId` to read the whole conversation. Null on channels without one (SMS) and on some older messages."
                         isGroup:
                           type: boolean
                         replyToExternalId:
@@ -372,6 +425,7 @@ paths:
                         - externalId
                         - error
                         - interlocutor
+                        - senderName
                         - conversationId
                         - isGroup
                         - replyToExternalId
@@ -658,10 +712,16 @@ paths:
                   interlocutor:
                     type: string
                     description: "Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead."
+                  senderName:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: "The display name the sender of a received message chose (WhatsApp profile name, the name in an email's From). Null for a sent message, on SMS, and for messages received before November 2026. Not an identifier: use interlocutor for that."
                   conversationId:
                     anyOf:
                       - type: string
                       - type: "null"
+                    description: "The conversation's own id (provider-neutral): the group id of a group, the chat id of a WhatsApp 1:1 chat, the thread root of an email. Pass it to `conversationId` to read the whole conversation. Null on channels without one (SMS) and on some older messages."
                   isGroup:
                     type: boolean
                   replyToExternalId:
@@ -891,10 +951,16 @@ paths:
                         interlocutor:
                           type: string
                           description: "Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead."
+                        senderName:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: "The display name the sender of a received message chose (WhatsApp profile name, the name in an email's From). Null for a sent message, on SMS, and for messages received before November 2026. Not an identifier: use interlocutor for that."
                         conversationId:
                           anyOf:
                             - type: string
                             - type: "null"
+                          description: "The conversation's own id (provider-neutral): the group id of a group, the chat id of a WhatsApp 1:1 chat, the thread root of an email. Pass it to `conversationId` to read the whole conversation. Null on channels without one (SMS) and on some older messages."
                         isGroup:
                           type: boolean
                         replyToExternalId:
@@ -1103,6 +1169,7 @@ paths:
                         - externalId
                         - error
                         - interlocutor
+                        - senderName
                         - conversationId
                         - isGroup
                         - replyToExternalId
@@ -1142,6 +1209,7 @@ paths:
                   - externalId
                   - error
                   - interlocutor
+                  - senderName
                   - conversationId
                   - isGroup
                   - replyToExternalId
@@ -1188,6 +1256,207 @@ paths:
       security:
         - bearer: []
       summary: Send a message by WhatsApp, email, or both.
+      tags:
+        - Messages
+  /message/conversations:
+    get:
+      description: |-
+        **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
+
+        Returns the conversations (threads) of the authenticated user, the most recently active first: for each one its `conversationId`, the contact (`interlocutor`, and `contactName` when the channel gave one), whether it is a group, how many messages it holds and its last message. Pass a `conversationId` to GET /message to read that conversation. Filters: `messagingAccountId`, `channel`, `isGroup`, `after` / `before` (ISO 8601 dates: counts and the last message then cover that period) and `search` (contact name, interlocutor, conversation id). Use `page` (default 1) and `limit` (1-100, default 20) to paginate.
+      operationId: Message_find_conversations
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+            maximum: 9007199254740991
+        - name: limit
+          required: false
+          in: query
+          schema:
+            default: 20
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: channel
+          required: false
+          in: query
+          schema:
+            type: string
+            enum:
+              - WHATSAPP
+              - SMS
+              - EMAIL
+        - name: messagingAccountId
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: search
+          required: false
+          in: query
+          schema:
+            description: Case-insensitive search in the contact name, the interlocutor and the conversation id.
+            type: string
+        - name: isGroup
+          required: false
+          in: query
+          schema:
+            description: true for group conversations only, false for 1:1 only.
+            type: boolean
+        - name: after
+          required: false
+          in: query
+          schema:
+            description: Only conversations with a message at or after this ISO 8601 date or date-time.
+            type: string
+        - name: before
+          required: false
+          in: query
+          schema:
+            description: Only conversations with a message strictly before this ISO 8601 date or date-time.
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        conversationId:
+                          type: string
+                          description: "The conversation (thread) id: pass it to `conversationId` on GET /message to read it. The group id of a group, the chat id of a WhatsApp 1:1 chat, the thread root of an email, the phone number of an SMS conversation."
+                        interlocutor:
+                          type: string
+                          description: "The other party: the contact of a 1:1 conversation, the group id of a group."
+                        contactName:
+                          anyOf:
+                            - type: string
+                            - type: "null"
+                          description: The latest display name the contact used in this 1:1 conversation (WhatsApp profile name, the name in an email's From). Null for a group, on SMS, and when no message received since November 2026 carried one.
+                        isGroup:
+                          type: boolean
+                        messagingAccountId:
+                          type: string
+                          description: The account the conversation happens on.
+                        channel:
+                          type: string
+                          enum:
+                            - WHATSAPP
+                            - SMS
+                            - EMAIL
+                        accountChannel:
+                          type: string
+                          enum:
+                            - WHATSAPP_BAILYES
+                            - EMAIL
+                            - SMS
+                            - WHATSAPP_WHATSMEOW
+                        messageCount:
+                          type: integer
+                          minimum: 0
+                          maximum: 9007199254740991
+                        receivedCount:
+                          type: integer
+                          minimum: 0
+                          maximum: 9007199254740991
+                          description: How many of those messages were received (direction IN).
+                        firstMessageAt:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                          description: When its oldest stored message was sent.
+                        lastMessageAt:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                          description: When its latest message was sent.
+                        lastMessage:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            content:
+                              anyOf:
+                                - type: string
+                                - type: "null"
+                            subject:
+                              anyOf:
+                                - type: string
+                                - type: "null"
+                            direction:
+                              type: string
+                              enum:
+                                - IN
+                                - OUT
+                            mediaType:
+                              anyOf:
+                                - type: string
+                                - type: "null"
+                              description: image, video, audio, document... when the message carries a file.
+                          required:
+                            - id
+                            - content
+                            - subject
+                            - direction
+                            - mediaType
+                          additionalProperties: false
+                      required:
+                        - conversationId
+                        - interlocutor
+                        - contactName
+                        - isGroup
+                        - messagingAccountId
+                        - channel
+                        - accountChannel
+                        - messageCount
+                        - receivedCount
+                        - firstMessageAt
+                        - lastMessageAt
+                        - lastMessage
+                      additionalProperties: false
+                  total:
+                    type: integer
+                    minimum: 0
+                    maximum: 9007199254740991
+                  page:
+                    type: integer
+                    minimum: 0
+                    maximum: 9007199254740991
+                  limit:
+                    type: integer
+                    minimum: 0
+                    maximum: 9007199254740991
+                  totalPages:
+                    type: integer
+                    minimum: 0
+                    maximum: 9007199254740991
+                required:
+                  - data
+                  - total
+                  - page
+                  - limit
+                  - totalPages
+                additionalProperties: false
+          description: ""
+        "400":
+          description: Invalid request parameters or body.
+        "401":
+          description: Missing or invalid authentication credentials.
+        "403":
+          description: Insufficient permissions to access this resource.
+      security:
+        - bearer: []
+      summary: List conversations.
       tags:
         - Messages
   /message/{id}:
@@ -1238,10 +1507,16 @@ paths:
                   interlocutor:
                     type: string
                     description: "Meaning depends on direction and isGroup. 1:1 chat: the other party's phone number, both directions. Group + direction IN: the participant who posted the message. Group + direction OUT: the group's own bare id, since an outbound message's author is always the account holder (never the account holder's own number). For who a reply specifically targets, see replyToParticipant instead."
+                  senderName:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                    description: "The display name the sender of a received message chose (WhatsApp profile name, the name in an email's From). Null for a sent message, on SMS, and for messages received before November 2026. Not an identifier: use interlocutor for that."
                   conversationId:
                     anyOf:
                       - type: string
                       - type: "null"
+                    description: "The conversation's own id (provider-neutral): the group id of a group, the chat id of a WhatsApp 1:1 chat, the thread root of an email. Pass it to `conversationId` to read the whole conversation. Null on channels without one (SMS) and on some older messages."
                   isGroup:
                     type: boolean
                   replyToExternalId:
@@ -1450,6 +1725,7 @@ paths:
                   - externalId
                   - error
                   - interlocutor
+                  - senderName
                   - conversationId
                   - isGroup
                   - replyToExternalId
