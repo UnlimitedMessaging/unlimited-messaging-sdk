@@ -24,6 +24,17 @@ services:
       WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_DEBUG: "1"
+    # WordPress runs WP-Cron and WooCommerce's Action Scheduler (which sends
+    # the plugin's messages) by calling its own URL, http://localhost:19450.
+    # Inside the container nothing listens on 19450, so those calls failed and
+    # queued messages never left: Apache listens on 19450 too.
+    command:
+      - bash
+      - -c
+      - >-
+        grep -q 'Listen 19450' /etc/apache2/ports.conf || echo 'Listen 19450' >> /etc/apache2/ports.conf;
+        sed -i 's/<VirtualHost \*:80>/<VirtualHost *:80 *:19450>/' /etc/apache2/sites-available/000-default.conf;
+        exec docker-entrypoint.sh apache2-foreground
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:

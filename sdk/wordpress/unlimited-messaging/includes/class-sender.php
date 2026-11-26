@@ -100,6 +100,46 @@ class Sender {
 	}
 
 	/**
+	 * Messages still waiting in Action Scheduler, and whether some have waited
+	 * long enough to mean the queue is not running (no WP-Cron, loopback
+	 * requests blocked by the host).
+	 *
+	 * @return array{count: int, stuck: bool}
+	 */
+	public static function pending() {
+		if ( ! function_exists( 'as_get_scheduled_actions' ) ) {
+			return array(
+				'count' => 0,
+				'stuck' => false,
+			);
+		}
+		$ids   = as_get_scheduled_actions(
+			array(
+				'hook'     => self::HOOK,
+				'group'    => self::GROUP,
+				'status'   => \ActionScheduler_Store::STATUS_PENDING,
+				'per_page' => 100,
+			),
+			'ids'
+		);
+		$stuck = (bool) as_get_scheduled_actions(
+			array(
+				'hook'         => self::HOOK,
+				'group'        => self::GROUP,
+				'status'       => \ActionScheduler_Store::STATUS_PENDING,
+				'date'         => gmdate( 'Y-m-d H:i:s', time() - 5 * MINUTE_IN_SECONDS ),
+				'date_compare' => '<=',
+				'per_page'     => 1,
+			),
+			'ids'
+		);
+		return array(
+			'count' => count( $ids ),
+			'stuck' => $stuck,
+		);
+	}
+
+	/**
 	 * Background job: applies the hourly limit, sends, logs.
 	 *
 	 * @param array $job `{payload, source}`.
@@ -129,8 +169,19 @@ class Sender {
 	 * @return true|\WP_Error
 	 */
 	public static function send_now( array $payload, $source ) {
-		$api      = new Api( Settings::get( 'api_key' ) );
-		$result   = $api->send( $payload );
+		$api    = new Api( Settings::get( 'api_key' ) );
+		$result = $api->send( $payload );
+
+		// Several accounts on a channel and none chosen yet (a key saved before
+		// accounts were picked automatically): pick and remember one, retry once.
+		if ( is_wp_error( $result ) && 'ACCOUNT_REQUIRED' === self::error_code( $result ) ) {
+			$retry = self::with_accounts( $api, $payload );
+			if ( $retry ) {
+				$payload = $retry;
+				$result  = $api->send( $payload );
+			}
+		}
+
 		$channels = wp_list_pluck( $payload['channels'], 'channel' );
 		$to       = implode( ', ', array_filter( (array) $payload['to'] ) );
 
@@ -145,14 +196,57 @@ class Sender {
 	}
 
 	/**
+	 * The API's error code (`context.code`) of a failed call.
+	 *
+	 * @param \WP_Error $error Error.
+	 * @return string
+	 */
+	private static function error_code( \WP_Error $error ) {
+		$data = $error->get_error_data();
+		return is_array( $data ) && isset( $data['code'] ) ? (string) $data['code'] : '';
+	}
+
+	/**
+	 * Fills in `accountId` for channels sent without one, saves the choice,
+	 * and returns the new payload (null when nothing could be filled).
+	 *
+	 * @param Api   $api     Client.
+	 * @param array $payload Body of `POST /message`.
+	 * @return array|null
+	 */
+	private static function with_accounts( Api $api, array $payload ) {
+		$accounts = $api->accounts();
+		if ( is_wp_error( $accounts ) ) {
+			return null;
+		}
+		$settings = Settings::all();
+		$changed  = false;
+		foreach ( $payload['channels'] as $i => $entry ) {
+			if ( ! empty( $entry['accountId'] ) ) {
+				continue;
+			}
+			$id = Admin::account_for( $entry['channel'], '', $accounts );
+			if ( '' !== $id ) {
+				$payload['channels'][ $i ]['accountId'] = $id;
+				$settings['accounts'][ $entry['channel'] ] = $id;
+				$changed = true;
+			}
+		}
+		if ( ! $changed ) {
+			return null;
+		}
+		Settings::save( $settings );
+		return $payload;
+	}
+
+	/**
 	 * Error message with the one hint that matters for each known case.
 	 *
 	 * @param \WP_Error $error Error from the API client.
 	 * @return string
 	 */
 	public static function error_text( \WP_Error $error ) {
-		$data    = $error->get_error_data();
-		$code    = is_array( $data ) && isset( $data['code'] ) ? $data['code'] : '';
+		$code    = self::error_code( $error );
 		$message = $error->get_error_message();
 
 		if ( 'PLAN_REQUIRED' === $code ) {
