@@ -125,3 +125,5 @@ Publishing is version-driven — bump the version manually to trigger a release.
 | TypeScript | `sdk/typescript/package.json` | `"version"`                 |
 | Python     | `sdk/python/pyproject.toml`   | `version` under `[project]` |
 | n8n        | `sdk/n8n/package.json`        | `"version"`                 |
+
+The WordPress plugin (`sdk/wordpress`) is not part of this shared version: it has its own (`Stable tag` in its `readme.txt`), is released to wordpress.org SVN by `wordpress.yml`, and `release.yml` ignores changes under `sdk/wordpress/`. See `sdk/wordpress/README.md`.

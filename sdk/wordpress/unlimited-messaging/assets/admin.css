@@ -1,0 +1,18 @@
+/* Unlimited Messaging settings. Native WordPress look, square corners, no effects. */
+.umsg .umsg-lede { font-size: 14px; margin: 4px 0 16px; color: #50575e; }
+.umsg .umsg-body { max-width: 900px; }
+.umsg .umsg-card { background: #fff; border: 1px solid #dcdcde; border-left: 4px solid #dcdcde; padding: 12px 16px; margin: 16px 0; }
+.umsg .umsg-card h2 { margin-top: 4px; }
+.umsg .umsg-start { border-left-color: #1d4d3a; }
+.umsg .umsg-start ol { margin-left: 1.5em; }
+.umsg .umsg-start li { margin-bottom: 6px; }
+.umsg .umsg-event.is-on { border-left-color: #1d4d3a; }
+.umsg .umsg-event-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.umsg .umsg-to { color: #50575e; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.umsg .umsg-channels { margin: 8px 0; }
+.umsg .umsg-check { margin-right: 16px; display: inline-block; }
+.umsg .umsg-ok { color: #1d4d3a; font-weight: 600; }
+.umsg .umsg-bad { color: #b32d2e; }
+.umsg .umsg-muted { color: #646970; }
+.umsg .umsg-ok a { font-weight: 400; margin-left: 8px; }
+.umsg code { white-space: normal; line-height: 1.8; }

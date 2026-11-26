@@ -46,7 +46,9 @@ jobs:
           # change would sit in main, published nowhere, until an unrelated spec
           # update happened to carry it out.
           SOURCE=false
-          if grep -qE "^sdk/" <<< "$CHANGED"; then SOURCE=true; fi
+          # sdk/wordpress is released on its own (wordpress.yml, own version,
+          # wordpress.org SVN): a plugin change must not republish the SDKs.
+          if grep -E "^sdk/" <<< "$CHANGED" | grep -qvE "^sdk/wordpress/"; then SOURCE=true; fi
 
           RELEASE=false
           if [ "$OPENAPI" = "true" ] || [ "$SOURCE" = "true" ] \
