@@ -238,6 +238,29 @@ class Admin {
 	}
 
 	/**
+	 * The account a channel sends from. The API only picks one by itself when
+	 * the channel has a single active account; with several it refuses the
+	 * send, so the first active one is used until the user picks another.
+	 *
+	 * @param string $channel  WHATSAPP, SMS or EMAIL.
+	 * @param string $stored   Account id saved in the settings ('' = automatic).
+	 * @param array  $accounts Accounts from the API.
+	 * @return string Account id, or '' when automatic is safe (0 or 1 account).
+	 */
+	public static function account_for( $channel, $stored, array $accounts ) {
+		$ids = array();
+		foreach ( $accounts as $account ) {
+			if ( $account['channel'] === $channel && 'ACTIVE' === $account['status'] ) {
+				$ids[] = $account['id'];
+			}
+		}
+		if ( '' !== $stored && in_array( $stored, $ids, true ) ) {
+			return $stored;
+		}
+		return count( $ids ) > 1 ? $ids[0] : '';
+	}
+
+	/**
 	 * Channel labels.
 	 *
 	 * @return array
@@ -364,12 +387,18 @@ class Admin {
 									<span class="umsg-muted"><?php esc_html_e( 'Not connected.', 'unlimited-messaging' ); ?></span>
 									<a href="<?php echo esc_url( self::app_url( '/accounts', 'wordpress_plugin_connect_' . strtolower( $channel ) ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Connect it', 'unlimited-messaging' ); ?></a>
 								<?php else : ?>
+									<?php $current = self::account_for( $channel, $settings['accounts'][ $channel ], $accounts ); ?>
 									<select name="accounts[<?php echo esc_attr( $channel ); ?>]">
-										<option value=""><?php esc_html_e( 'Automatic', 'unlimited-messaging' ); ?></option>
+										<?php if ( 1 === count( $options ) ) : ?>
+											<option value=""><?php esc_html_e( 'Automatic', 'unlimited-messaging' ); ?></option>
+										<?php endif; ?>
 										<?php foreach ( $options as $account ) : ?>
-											<option value="<?php echo esc_attr( $account['id'] ); ?>" <?php selected( $settings['accounts'][ $channel ], $account['id'] ); ?>><?php echo esc_html( $account['label'] ); ?></option>
+											<option value="<?php echo esc_attr( $account['id'] ); ?>" <?php selected( $current, $account['id'] ); ?>><?php echo esc_html( $account['label'] ); ?></option>
 										<?php endforeach; ?>
 									</select>
+									<?php if ( count( $options ) > 1 && $current !== $settings['accounts'][ $channel ] ) : ?>
+										<p class="description umsg-bad"><?php esc_html_e( 'You have several accounts on this channel: check the one to send from and save.', 'unlimited-messaging' ); ?></p>
+									<?php endif; ?>
 								<?php endif; ?>
 							</td>
 						</tr>
@@ -528,6 +557,22 @@ class Admin {
 			<?php esc_html_e( 'The last 100 notifications. The full history, with delivery status, is in your', 'unlimited-messaging' ); ?>
 			<a href="<?php echo esc_url( self::app_url( '/messages', 'wordpress_plugin_log' ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Unlimited Messaging dashboard', 'unlimited-messaging' ); ?></a>.
 		</p>
+		<?php
+		$pending = Sender::pending();
+		if ( $pending['count'] > 0 ) :
+			?>
+			<div class="notice <?php echo $pending['stuck'] ? 'notice-warning' : 'notice-info'; ?> inline">
+				<p>
+					<?php
+					/* translators: %d: number of messages waiting in the queue. */
+					echo esc_html( sprintf( _n( '%d message is waiting to be sent.', '%d messages are waiting to be sent.', $pending['count'], 'unlimited-messaging' ), $pending['count'] ) );
+					if ( $pending['stuck'] ) {
+						echo ' ' . esc_html__( 'Some have been waiting for more than 5 minutes: WP-Cron does not seem to run on this site. Check WooCommerce > Status > Scheduled Actions, or ask your host to enable loopback requests.', 'unlimited-messaging' );
+					}
+					?>
+				</p>
+			</div>
+		<?php endif; ?>
 		<?php if ( empty( $entries ) ) : ?>
 			<p class="umsg-muted"><?php esc_html_e( 'Nothing sent yet.', 'unlimited-messaging' ); ?></p>
 			<?php return; ?>
@@ -622,6 +667,18 @@ class Admin {
 			foreach ( Settings::CHANNELS as $channel ) {
 				if ( isset( $posted_accounts[ $channel ] ) ) {
 					$settings['accounts'][ $channel ] = sanitize_text_field( $posted_accounts[ $channel ] );
+				}
+			}
+			// A fresh key comes with no account chosen: pick one per channel
+			// right away, or every send on a channel with several accounts
+			// would be refused until the user came back to this screen.
+			if ( '' !== $key ) {
+				$accounts = ( new Api( $key ) )->accounts();
+				if ( ! is_wp_error( $accounts ) ) {
+					set_transient( 'unlimited_messaging_accounts_' . md5( $key ), $accounts, 5 * MINUTE_IN_SECONDS );
+					foreach ( Settings::CHANNELS as $channel ) {
+						$settings['accounts'][ $channel ] = self::account_for( $channel, $settings['accounts'][ $channel ], $accounts );
+					}
 				}
 			}
 
