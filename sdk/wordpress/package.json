@@ -1,0 +1,9 @@
+{
+  "name": "unlimited-messaging-wordpress-tools",
+  "private": true,
+  "description": "Dev tooling for the WordPress plugin (screenshots). The plugin itself is PHP in unlimited-messaging/.",
+  "type": "module",
+  "devDependencies": {
+    "playwright": "1.59.1"
+  }
+}

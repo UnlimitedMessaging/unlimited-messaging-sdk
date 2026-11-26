@@ -1,0 +1,456 @@
+# Copyright (C) 2026 Unlimited Messaging
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Unlimited Messaging: Order Notifications & Form Alerts 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/unlimited-messaging\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-26T17:00:03+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: unlimited-messaging\n"
+
+#. Plugin Name of the plugin
+#: unlimited-messaging.php
+msgid "Unlimited Messaging: Order Notifications & Form Alerts"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: unlimited-messaging.php
+msgid "https://unlimitedmessaging.app/wordpress"
+msgstr ""
+
+#. Description of the plugin
+#: unlimited-messaging.php
+msgid "Send WooCommerce order updates and form alerts by WhatsApp, SMS and email from your own number and mailbox. One account, no Twilio, no Meta templates."
+msgstr ""
+
+#. Author of the plugin
+#: unlimited-messaging.php
+#: includes/class-admin.php:75
+#: includes/class-admin.php:154
+msgid "Unlimited Messaging"
+msgstr ""
+
+#. Author URI of the plugin
+#: unlimited-messaging.php
+msgid "https://unlimitedmessaging.app"
+msgstr ""
+
+#: includes/class-admin.php:76
+msgid "Messaging"
+msgstr ""
+
+#: includes/class-admin.php:104
+msgid "Settings"
+msgstr ""
+
+#: includes/class-admin.php:121
+msgid "Unlimited Messaging is installed. Add your API key to start sending order updates by WhatsApp, SMS and email."
+msgstr ""
+
+#: includes/class-admin.php:123
+msgid "Set it up"
+msgstr ""
+
+#: includes/class-admin.php:147
+msgid "Connection"
+msgstr ""
+
+#: includes/class-admin.php:148
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/class-admin.php:149
+msgid "Forms"
+msgstr ""
+
+#: includes/class-admin.php:150
+msgid "Activity"
+msgstr ""
+
+#: includes/class-admin.php:155
+msgid "WhatsApp, SMS and email from your own number and mailbox. One account, no Twilio, no Meta templates."
+msgstr ""
+
+#: includes/class-admin.php:247
+msgid "WhatsApp"
+msgstr ""
+
+#: includes/class-admin.php:248
+msgid "SMS"
+msgstr ""
+
+#: includes/class-admin.php:249
+msgid "Email"
+msgstr ""
+
+#: includes/class-admin.php:297
+msgid "Get started in 3 steps"
+msgstr ""
+
+#. translators: %s: link to create an account.
+#: includes/class-admin.php:303
+#, php-format
+msgid "%s (free plan, no card needed)."
+msgstr ""
+
+#: includes/class-admin.php:304
+msgid "Create your Unlimited Messaging account"
+msgstr ""
+
+#: includes/class-admin.php:308
+msgid "Connect your channels: scan a QR code for WhatsApp, sign in to your mailbox for email, install the free Android app for SMS."
+msgstr ""
+
+#. translators: %s: link to the API keys page.
+#: includes/class-admin.php:313
+#, php-format
+msgid "Create an API key on the %s page and paste it below."
+msgstr ""
+
+#: includes/class-admin.php:314
+msgid "API keys"
+msgstr ""
+
+#: includes/class-admin.php:327
+msgid "API key"
+msgstr ""
+
+#: includes/class-admin.php:331
+msgid "Get an API key"
+msgstr ""
+
+#: includes/class-admin.php:337
+msgid "Status"
+msgstr ""
+
+#: includes/class-admin.php:342
+msgid "Connected."
+msgstr ""
+
+#: includes/class-admin.php:343
+msgid "Refresh accounts"
+msgstr ""
+
+#: includes/class-admin.php:364
+msgid "Not connected."
+msgstr ""
+
+#: includes/class-admin.php:365
+msgid "Connect it"
+msgstr ""
+
+#: includes/class-admin.php:368
+msgid "Automatic"
+msgstr ""
+
+#: includes/class-admin.php:381
+msgid "Where to reach you"
+msgstr ""
+
+#: includes/class-admin.php:382
+msgid "New orders and form submissions are sent here."
+msgstr ""
+
+#: includes/class-admin.php:385
+msgid "Your phone"
+msgstr ""
+
+#: includes/class-admin.php:388
+msgid "International format, with the country code. For WhatsApp and SMS."
+msgstr ""
+
+#: includes/class-admin.php:392
+msgid "Your email"
+msgstr ""
+
+#: includes/class-admin.php:395
+msgid "Leave empty to use the site admin email."
+msgstr ""
+
+#: includes/class-admin.php:400
+msgid "Safety"
+msgstr ""
+
+#: includes/class-admin.php:403
+msgid "Messages per hour"
+msgstr ""
+
+#: includes/class-admin.php:406
+msgid "At most this many notifications go out per hour, so a bug or a wave of fake orders cannot flood your number. 0 means no limit."
+msgstr ""
+
+#: includes/class-admin.php:415
+msgid "Send a test"
+msgstr ""
+
+#: includes/class-admin.php:417
+msgid "Sends a test message to your phone and email above."
+msgstr ""
+
+#: includes/class-admin.php:419
+msgid "Send test message"
+msgstr ""
+
+#: includes/class-admin.php:431
+msgid "WooCommerce is not active. Order notifications appear here once it is."
+msgstr ""
+
+#: includes/class-admin.php:438
+msgid "Pick which order updates go out, to whom and on which channels. Select several channels to reach a customer everywhere at once: if they miss the WhatsApp, the SMS or the email still gets there."
+msgstr ""
+
+#: includes/class-admin.php:440
+msgid "Leave a message empty to use the default text, in your site language. Placeholders:"
+msgstr ""
+
+#: includes/class-admin.php:458
+#: includes/class-admin.php:502
+msgid "to you"
+msgstr ""
+
+#: includes/class-admin.php:458
+msgid "to the customer"
+msgstr ""
+
+#: includes/class-admin.php:463
+#: includes/class-admin.php:506
+msgid "Message"
+msgstr ""
+
+#: includes/class-admin.php:467
+#: includes/class-admin.php:511
+msgid "Email subject"
+msgstr ""
+
+#: includes/class-admin.php:487
+msgid "Get every form submission on your phone the moment it arrives. Works with Contact Form 7, WPForms, Gravity Forms, Elementor Pro, Fluent Forms and Ninja Forms."
+msgstr ""
+
+#: includes/class-admin.php:491
+msgid "No supported form plugin detected yet."
+msgstr ""
+
+#. translators: %s: list of form plugins.
+#: includes/class-admin.php:493
+#, php-format
+msgid "Detected: %s."
+msgstr ""
+
+#: includes/class-admin.php:500
+msgid "New form submission"
+msgstr ""
+
+#: includes/class-admin.php:508
+msgid "Placeholders:"
+msgstr ""
+
+#: includes/class-admin.php:528
+msgid "The last 100 notifications. The full history, with delivery status, is in your"
+msgstr ""
+
+#: includes/class-admin.php:529
+msgid "Unlimited Messaging dashboard"
+msgstr ""
+
+#: includes/class-admin.php:532
+msgid "Nothing sent yet."
+msgstr ""
+
+#: includes/class-admin.php:538
+msgid "When"
+msgstr ""
+
+#: includes/class-admin.php:539
+msgid "What"
+msgstr ""
+
+#: includes/class-admin.php:540
+msgid "Channels"
+msgstr ""
+
+#: includes/class-admin.php:541
+msgid "To"
+msgstr ""
+
+#: includes/class-admin.php:542
+msgid "Result"
+msgstr ""
+
+#: includes/class-admin.php:567
+msgid "Sent"
+msgstr ""
+
+#: includes/class-admin.php:574
+msgid "Clear activity"
+msgstr ""
+
+#: includes/class-admin.php:587
+msgid "You are not allowed to do this."
+msgstr ""
+
+#: includes/class-admin.php:663
+msgid "Settings saved."
+msgstr ""
+
+#: includes/class-admin.php:684
+msgid "Test from {site_name}: Unlimited Messaging is connected. Order updates and form alerts will arrive here."
+msgstr ""
+
+#: includes/class-admin.php:685
+msgid "{site_name}: test message"
+msgstr ""
+
+#: includes/class-admin.php:689
+msgid "Nothing to send: pick a channel and fill in your phone (WhatsApp, SMS) or email first, then save."
+msgstr ""
+
+#: includes/class-admin.php:691
+msgid "Test message"
+msgstr ""
+
+#: includes/class-admin.php:695
+msgid "Test message sent. It should arrive within a few seconds."
+msgstr ""
+
+#: includes/class-api.php:123
+msgid "No API key set."
+msgstr ""
+
+#: includes/class-api.php:158
+msgid "The API key is invalid or was revoked."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: includes/class-api.php:162
+#, php-format
+msgid "Unlimited Messaging answered with HTTP %d."
+msgstr ""
+
+#. translators: %s: form name.
+#: includes/class-forms.php:258
+#, php-format
+msgid "Form \"%s\""
+msgstr ""
+
+#: includes/class-sender.php:117
+msgid "Skipped: hourly limit reached. Raise it in the settings if this is expected."
+msgstr ""
+
+#: includes/class-sender.php:159
+msgid "Your plan does not cover this. See the plans: https://app.unlimitedmessaging.app/plans"
+msgstr ""
+
+#: includes/class-sender.php:161
+msgid "Connect a WhatsApp number, a mailbox or an Android phone for this channel in your Unlimited Messaging dashboard."
+msgstr ""
+
+#: includes/class-sender.php:163
+msgid "You have several accounts on this channel: pick one in the Connection tab."
+msgstr ""
+
+#: includes/class-settings.php:42
+msgid "New order"
+msgstr ""
+
+#: includes/class-settings.php:46
+msgid "Order processing (paid)"
+msgstr ""
+
+#: includes/class-settings.php:50
+msgid "Order on hold (awaiting payment)"
+msgstr ""
+
+#: includes/class-settings.php:54
+msgid "Order completed (shipped)"
+msgstr ""
+
+#: includes/class-settings.php:58
+msgid "Order cancelled"
+msgstr ""
+
+#: includes/class-settings.php:62
+msgid "Order refunded"
+msgstr ""
+
+#: includes/class-settings.php:66
+msgid "Payment failed"
+msgstr ""
+
+#: includes/class-settings.php:70
+msgid "Note to customer added"
+msgstr ""
+
+#: includes/class-settings.php:86
+msgid "New order #{order_number} on {site_name}: {order_total} from {customer_full_name} ({order_items}). {admin_order_url}"
+msgstr ""
+
+#: includes/class-settings.php:87
+msgid "Hi {customer_first_name}, thank you for your order #{order_number} on {site_name}! We are preparing it. Total: {order_total}. Details: {order_url}"
+msgstr ""
+
+#: includes/class-settings.php:88
+msgid "Hi {customer_first_name}, we received your order #{order_number} on {site_name}. It will be prepared as soon as your payment is confirmed. Details: {order_url}"
+msgstr ""
+
+#: includes/class-settings.php:89
+msgid "Good news {customer_first_name}: your order #{order_number} from {site_name} is on its way! Details: {order_url}"
+msgstr ""
+
+#: includes/class-settings.php:90
+msgid "Hi {customer_first_name}, your order #{order_number} on {site_name} has been cancelled. Reply to this message if you have any question."
+msgstr ""
+
+#: includes/class-settings.php:91
+msgid "Order #{order_number} ({order_total}) from {customer_full_name} was cancelled. {admin_order_url}"
+msgstr ""
+
+#: includes/class-settings.php:92
+msgid "Hi {customer_first_name}, your order #{order_number} on {site_name} has been refunded. The money should reach your account within a few days."
+msgstr ""
+
+#: includes/class-settings.php:93
+msgid "Hi {customer_first_name}, the payment for your order #{order_number} on {site_name} did not go through. You can try again here: {payment_url}"
+msgstr ""
+
+#: includes/class-settings.php:94
+msgid "Payment failed for order #{order_number} ({order_total}) from {customer_full_name}. {admin_order_url}"
+msgstr ""
+
+#: includes/class-settings.php:95
+msgid "Hi {customer_first_name}, a note about your order #{order_number}: {customer_note}"
+msgstr ""
+
+#: includes/class-settings.php:107
+msgid "{site_name}: order #{order_number}"
+msgstr ""
+
+#: includes/class-settings.php:116
+msgid ""
+"New message from the form \"{form_name}\" on {site_name}:\n"
+"\n"
+"{fields}"
+msgstr ""
+
+#: includes/class-settings.php:125
+msgid "{site_name}: new \"{form_name}\" submission"
+msgstr ""
+
+#. translators: 1: order number, 2: event name, 3: customer or shop owner.
+#: includes/class-woocommerce.php:141
+#, php-format
+msgid "Order #%1$s - %2$s (%3$s)"
+msgstr ""
+
+#: includes/class-woocommerce.php:144
+msgid "you"
+msgstr ""
+
+#: includes/class-woocommerce.php:144
+msgid "customer"
+msgstr ""

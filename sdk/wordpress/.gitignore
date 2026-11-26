@@ -1,0 +1,3 @@
+dist/
+screenshots/
+.env.test.local

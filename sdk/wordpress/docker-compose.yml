@@ -1,0 +1,52 @@
+# Local WordPress + WooCommerce to try the plugin against the local API.
+# `bin/setup.sh` then http://localhost:19450 (local-only admin / admin).
+name: um-wordpress
+
+services:
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+      MARIADB_ROOT_PASSWORD: wordpress
+    volumes:
+      - db:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:6-php8.3-apache
+    depends_on: [db]
+    ports:
+      - "19450:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DEBUG: "1"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - wp:/var/www/html
+      - ./unlimited-messaging:/var/www/html/wp-content/plugins/unlimited-messaging
+
+  cli:
+    image: wordpress:cli-php8.3
+    depends_on: [db, wordpress]
+    user: "33:33"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - wp:/var/www/html
+      - ./unlimited-messaging:/var/www/html/wp-content/plugins/unlimited-messaging
+    entrypoint: ["wp"]
+    profiles: [cli]
+
+volumes:
+  db:
+  wp:
