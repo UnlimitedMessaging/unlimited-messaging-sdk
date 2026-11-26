@@ -1,0 +1,100 @@
+name: WordPress plugin
+
+# The WordPress plugin (sdk/wordpress) is hand-written PHP, like the n8n node,
+# but released on its own: wordpress.org has its own version (Stable tag in
+# readme.txt) and its own channel (SVN), so it stays out of release.yml and
+# its shared SDK version.
+#
+# - On every spec sync and every plugin change: check that openapi.yaml still
+#   offers everything the plugin calls, and run wordpress.org's Plugin Check.
+# - On main, when the Stable tag is not on wordpress.org yet: deploy to SVN
+#   (trunk, tags/<version>, listing assets from sdk/wordpress/.wordpress-org).
+#
+# Required secrets (once the plugin is approved on wordpress.org):
+#   WPORG_SVN_USERNAME, WPORG_SVN_PASSWORD  - wordpress.org account with commit
+#   access to the plugin (the SVN password is set in the wordpress.org profile).
+# Without them the deploy job is skipped, the checks still run.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "openapi.yaml"
+      - "sdk/wordpress/**"
+      - ".github/workflows/wordpress.yml"
+  pull_request:
+    paths:
+      - "openapi.yaml"
+      - "sdk/wordpress/**"
+      - ".github/workflows/wordpress.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: wordpress-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Contract and Plugin Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Contract with openapi.yaml
+        run: |
+          pip install --quiet pyyaml
+          python3 sdk/wordpress/bin/check-contract.py openapi.yaml
+
+      - name: PHP syntax
+        run: find sdk/wordpress/unlimited-messaging -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Plugin Check (wordpress.org)
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: sdk/wordpress/unlimited-messaging
+          slug: unlimited-messaging
+
+  deploy:
+    name: Deploy to wordpress.org
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Decide
+        id: decide
+        env:
+          SVN_USERNAME: ${{ secrets.WPORG_SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}
+        run: |
+          VERSION=$(sed -n 's/^Stable tag: *//p' sdk/wordpress/unlimited-messaging/readme.txt | tr -d '\r')
+          HEADER=$(sed -n 's/^ \* Version: *//p' sdk/wordpress/unlimited-messaging/unlimited-messaging.php | tr -d '\r')
+          if [ "$VERSION" != "$HEADER" ]; then
+            echo "::error::readme.txt Stable tag ($VERSION) and plugin header Version ($HEADER) differ."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [ -z "$SVN_USERNAME" ] || [ -z "$SVN_PASSWORD" ]; then
+            echo "No wordpress.org SVN credentials yet (plugin not approved?), skipping deploy."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "https://plugins.svn.wordpress.org/unlimited-messaging/tags/$VERSION/")
+          if [ "$STATUS" = "200" ]; then
+            echo "$VERSION is already on wordpress.org, nothing to deploy."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy
+        if: steps.decide.outputs.deploy == 'true'
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: ${{ secrets.WPORG_SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}
+          SLUG: unlimited-messaging
+          VERSION: ${{ steps.decide.outputs.version }}
+          BUILD_DIR: sdk/wordpress/unlimited-messaging
+          ASSETS_DIR: sdk/wordpress/.wordpress-org

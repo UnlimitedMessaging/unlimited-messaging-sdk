@@ -27,9 +27,10 @@
 | Project | What it is |
 | --- | --- |
 | [unlimited-messaging-mcp](https://github.com/UnlimitedMessaging/unlimited-messaging-mcp) | Hosted MCP server for Claude, ChatGPT, Cursor and any MCP client: setup guide and ready-to-paste configs |
-| **[unlimited-messaging-sdk](https://github.com/UnlimitedMessaging/unlimited-messaging-sdk)** (this repo) | OpenAPI spec, official TypeScript and Python SDKs, and the n8n node source |
+| **[unlimited-messaging-sdk](https://github.com/UnlimitedMessaging/unlimited-messaging-sdk)** (this repo) | OpenAPI spec, official TypeScript and Python SDKs, and the n8n node and WordPress plugin sources |
 | [unlimited-messaging-android](https://github.com/UnlimitedMessaging/unlimited-messaging-android) | Open source Android app: send and receive SMS from your own phone and SIM |
 | [n8n-nodes-unlimited-messaging](https://www.npmjs.com/package/n8n-nodes-unlimited-messaging) | n8n community node for WhatsApp, email and SMS workflows, no code |
+| [WordPress plugin](./sdk/wordpress) | WooCommerce order notifications and form alerts by WhatsApp, SMS and email |
 | [unlimitedmessaging.app](https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=unlimited-messaging-sdk) | Website, web app, pricing and guides |
 
 <!-- um-header:end -->
@@ -37,7 +38,7 @@
 
 ## About this repository
 
-Official TypeScript and Python clients for the [Unlimited Messaging](https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=sdk) API, generated from [`openapi.yaml`](./openapi.yaml), plus the source of the [n8n community node](./sdk/n8n). Prefer to work from an AI assistant? Use the hosted [MCP server](https://github.com/UnlimitedMessaging/unlimited-messaging-mcp) at `https://mcp.unlimitedmessaging.app`.
+Official TypeScript and Python clients for the [Unlimited Messaging](https://unlimitedmessaging.app?utm_source=github&utm_medium=readme&utm_campaign=sdk) API, generated from [`openapi.yaml`](./openapi.yaml), plus the sources of the [n8n community node](./sdk/n8n) and the [WordPress plugin](./sdk/wordpress). Prefer to work from an AI assistant? Use the hosted [MCP server](https://github.com/UnlimitedMessaging/unlimited-messaging-mcp) at `https://mcp.unlimitedmessaging.app`.
 
 [![npm version](https://img.shields.io/npm/v/@unlimited-messaging/sdk?style=flat-square&label=npm&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
 [![npm downloads](https://img.shields.io/npm/dm/@unlimited-messaging/sdk?style=flat-square&label=npm%20downloads&color=cb0000)](https://www.npmjs.com/package/@unlimited-messaging/sdk)
@@ -202,3 +203,4 @@ API_TOKEN=your_token npx tsx examples/typescript/src/send-message.ts
 - PyPI: [unlimited-messaging](https://pypi.org/project/unlimited-messaging/)
 - MCP server: [https://mcp.unlimitedmessaging.app](https://github.com/UnlimitedMessaging/unlimited-messaging-mcp)
 - n8n node: [n8n-nodes-unlimited-messaging](https://www.npmjs.com/package/n8n-nodes-unlimited-messaging)
+- WordPress plugin: [sdk/wordpress](./sdk/wordpress) (wordpress.org listing pending review)

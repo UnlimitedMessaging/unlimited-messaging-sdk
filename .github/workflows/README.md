@@ -2,7 +2,9 @@
 
 ## How it works
 
-A single workflow (`release.yml`) handles all packages. It triggers automatically when `openapi.yaml` or `sdk/n8n/**` changes on `main`, or manually via **Actions → Release SDKs → Run workflow**.
+`release.yml` handles the npm and PyPI packages; the WordPress plugin has its own workflow, `wordpress.yml` (contract check against `openapi.yaml`, Plugin Check, deploy to wordpress.org SVN), and `release.yml` ignores `sdk/wordpress/**`.
+
+`release.yml` handles all npm and PyPI packages. It triggers automatically when `openapi.yaml` or `sdk/n8n/**` changes on `main`, or manually via **Actions → Release SDKs → Run workflow**.
 
 ### Per-package publish logic
 
