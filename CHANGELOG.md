@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.35] - 2026-11-27
+
+*   **Changed Endpoints**
+    *   `POST /webhooks`: Creating a webhook now requires the Max plan; previously, it also supported the Medium plan.
+*   **Changed Response Fields**
+    *   `event.delivery.data.message.attempt`: The description has been updated to clarify that this count is specific to attempts failing for the same reason, resetting if the reason changes.
+    *   `event.delivery.data.message.maxAttempts`: The description has been updated to clarify that this count is specific to attempts failing under the same reason, potentially varying based on the failure type (e.g., higher for account issues than for channel busy).
+
 ## [0.1.34] - 2026-11-25
 
 *   **New Endpoints**
