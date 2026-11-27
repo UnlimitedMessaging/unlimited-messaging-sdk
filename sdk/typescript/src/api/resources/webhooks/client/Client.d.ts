@@ -25,7 +25,7 @@ export declare namespace Webhooks {
 /**
  * Receive events as they happen instead of polling. Register an endpoint with `POST /webhooks`,
  * choosing its `eventTypes` and, optionally, the `accountIds` it covers (by default every account
- * you have, including ones linked later). Requires a Medium or Max plan.
+ * you have, including ones linked later). Requires the Max plan.
  *
  * ### Delivery
  *
@@ -200,7 +200,10 @@ export declare namespace Webhooks {
  * reconnecting, the channel busy, slow or out of reach) and another attempt is scheduled. The message is
  * `PENDING` until then. `data.message` holds `id`, `externalId` (null until an attempt reached the
  * channel), `status` (`PENDING`), `error` (why the attempt failed), `attempt` (the attempt that just
- * failed, from 1), `maxAttempts` (every attempt the message gets, the first included), `nextAttemptAt`
+ * failed, from 1, counted among the attempts that failed for the same reason, so it starts over at 1 if
+ * the reason changes), `maxAttempts` (every attempt the message gets under the reason it just failed for,
+ * the first included, so it is larger while a message is waiting for its account to come back than while
+ * the channel is merely busy), `nextAttemptAt`
  * and `at` (when the attempt failed), plus `data.channel`. Fired once per failed attempt that will be
  * retried, never for the last one: if it fails too, `message.status` reports `FAILED`. A retry cannot
  * deliver the message twice. WhatsApp only for now: a failed email or SMS goes straight to `FAILED`.
@@ -340,7 +343,7 @@ export declare class Webhooks {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
      *
-     * Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
+     * Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires the Max plan.
      *
      * @param {UnlimitedMessagingApi.WebhookEndpointCreateRequest} request
      * @param {Webhooks.RequestOptions} requestOptions - Request-specific configuration.

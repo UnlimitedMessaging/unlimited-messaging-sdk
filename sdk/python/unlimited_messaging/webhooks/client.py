@@ -109,7 +109,7 @@ class WebhooksClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
+        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires the Max plan.
 
         Parameters
         ----------
@@ -559,7 +559,7 @@ class AsyncWebhooksClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires a Medium or Max plan.
+        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires the Max plan.
 
         Parameters
         ----------
