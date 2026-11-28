@@ -12,4 +12,5 @@ export interface WebhookEndpointUpdateRequest {
     enabled?: boolean;
     eventTypes?: UnlimitedMessagingApi.WebhookEndpointUpdateRequestEventTypesItem[];
     accountIds?: string[] | null;
+    channels?: UnlimitedMessagingApi.WebhookEndpointUpdateRequestChannelsItem[] | null;
 }

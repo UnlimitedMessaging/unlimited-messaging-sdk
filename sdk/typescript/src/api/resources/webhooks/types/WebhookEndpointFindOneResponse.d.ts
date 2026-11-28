@@ -12,6 +12,7 @@ export interface WebhookEndpointFindOneResponse {
     failingSince: Date | null;
     eventTypes: UnlimitedMessagingApi.WebhookEndpointFindOneResponseEventTypesItem[];
     accountIds: string[];
+    channels: UnlimitedMessagingApi.WebhookEndpointFindOneResponseChannelsItem[];
     createdAt: Date;
     updatedAt: Date;
 }

@@ -7,6 +7,9 @@ import datetime as dt
 from .webhook_endpoint_find_one_response_event_types_item import (
     WebhookEndpointFindOneResponseEventTypesItem,
 )
+from .webhook_endpoint_find_one_response_channels_item import (
+    WebhookEndpointFindOneResponseChannelsItem,
+)
 from ...core.pydantic_utilities import IS_PYDANTIC_V2
 
 
@@ -26,6 +29,7 @@ class WebhookEndpointFindOneResponse(UniversalBaseModel):
         pydantic.Field(alias="eventTypes")
     )
     account_ids: typing.List[str] = pydantic.Field(alias="accountIds")
+    channels: typing.List[WebhookEndpointFindOneResponseChannelsItem]
     created_at: dt.datetime = pydantic.Field(alias="createdAt")
     updated_at: dt.datetime = pydantic.Field(alias="updatedAt")
 

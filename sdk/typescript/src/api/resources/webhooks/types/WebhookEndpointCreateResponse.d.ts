@@ -12,6 +12,7 @@ export interface WebhookEndpointCreateResponse {
     failingSince: Date | null;
     eventTypes: UnlimitedMessagingApi.WebhookEndpointCreateResponseEventTypesItem[];
     accountIds: string[];
+    channels: UnlimitedMessagingApi.WebhookEndpointCreateResponseChannelsItem[];
     createdAt: Date;
     updatedAt: Date;
     secret: string;

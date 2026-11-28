@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebhookEndpointUpdateResponse = void 0;
 const core = __importStar(require("../../../../core"));
 const WebhookEndpointUpdateResponseEventTypesItem_1 = require("./WebhookEndpointUpdateResponseEventTypesItem");
+const WebhookEndpointUpdateResponseChannelsItem_1 = require("./WebhookEndpointUpdateResponseChannelsItem");
 exports.WebhookEndpointUpdateResponse = core.serialization.object({
     id: core.serialization.string(),
     url: core.serialization.string(),
@@ -49,6 +50,7 @@ exports.WebhookEndpointUpdateResponse = core.serialization.object({
     failingSince: core.serialization.date().nullable(),
     eventTypes: core.serialization.list(WebhookEndpointUpdateResponseEventTypesItem_1.WebhookEndpointUpdateResponseEventTypesItem),
     accountIds: core.serialization.list(core.serialization.string()),
+    channels: core.serialization.list(WebhookEndpointUpdateResponseChannelsItem_1.WebhookEndpointUpdateResponseChannelsItem),
     createdAt: core.serialization.date(),
     updatedAt: core.serialization.date(),
 });

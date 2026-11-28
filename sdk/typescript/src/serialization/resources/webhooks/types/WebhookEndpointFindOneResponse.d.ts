@@ -5,6 +5,7 @@ import * as serializers from "../../../index";
 import * as UnlimitedMessagingApi from "../../../../api/index";
 import * as core from "../../../../core";
 import { WebhookEndpointFindOneResponseEventTypesItem } from "./WebhookEndpointFindOneResponseEventTypesItem";
+import { WebhookEndpointFindOneResponseChannelsItem } from "./WebhookEndpointFindOneResponseChannelsItem";
 export declare const WebhookEndpointFindOneResponse: core.serialization.ObjectSchema<serializers.WebhookEndpointFindOneResponse.Raw, UnlimitedMessagingApi.WebhookEndpointFindOneResponse>;
 export declare namespace WebhookEndpointFindOneResponse {
     interface Raw {
@@ -17,6 +18,7 @@ export declare namespace WebhookEndpointFindOneResponse {
         failingSince: string | null;
         eventTypes: WebhookEndpointFindOneResponseEventTypesItem.Raw[];
         accountIds: string[];
+        channels: WebhookEndpointFindOneResponseChannelsItem.Raw[];
         createdAt: string;
         updatedAt: string;
     }

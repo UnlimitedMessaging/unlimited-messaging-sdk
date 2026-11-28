@@ -39,10 +39,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebhookEndpointUpdateRequest = void 0;
 const core = __importStar(require("../../../../../core"));
 const WebhookEndpointUpdateRequestEventTypesItem_1 = require("../../types/WebhookEndpointUpdateRequestEventTypesItem");
+const WebhookEndpointUpdateRequestChannelsItem_1 = require("../../types/WebhookEndpointUpdateRequestChannelsItem");
 exports.WebhookEndpointUpdateRequest = core.serialization.object({
     url: core.serialization.string().optional(),
     description: core.serialization.string().optionalNullable(),
     enabled: core.serialization.boolean().optional(),
     eventTypes: core.serialization.list(WebhookEndpointUpdateRequestEventTypesItem_1.WebhookEndpointUpdateRequestEventTypesItem).optional(),
     accountIds: core.serialization.list(core.serialization.string()).optionalNullable(),
+    channels: core.serialization.list(WebhookEndpointUpdateRequestChannelsItem_1.WebhookEndpointUpdateRequestChannelsItem).optionalNullable(),
 });

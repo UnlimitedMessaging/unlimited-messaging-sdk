@@ -21,6 +21,7 @@ async def test_webhook_endpoint_list(
                 "failingSince": "2024-01-15T09:30:00Z",
                 "eventTypes": ["message.received"],
                 "accountIds": ["accountIds"],
+                "channels": ["WHATSAPP"],
                 "createdAt": "2024-01-15T09:30:00Z",
                 "updatedAt": "2024-01-15T09:30:00Z",
             }
@@ -40,6 +41,7 @@ async def test_webhook_endpoint_list(
                     "failingSince": "datetime",
                     "eventTypes": ("list", {0: None}),
                     "accountIds": ("list", {0: None}),
+                    "channels": ("list", {0: None}),
                     "createdAt": "datetime",
                     "updatedAt": "datetime",
                 }
@@ -66,6 +68,7 @@ async def test_webhook_endpoint_create(
         "failingSince": "2024-01-15T09:30:00Z",
         "eventTypes": ["message.received"],
         "accountIds": ["accountIds"],
+        "channels": ["WHATSAPP"],
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
         "secret": "secret",
@@ -80,6 +83,7 @@ async def test_webhook_endpoint_create(
         "failingSince": "datetime",
         "eventTypes": ("list", {0: None}),
         "accountIds": ("list", {0: None}),
+        "channels": ("list", {0: None}),
         "createdAt": "datetime",
         "updatedAt": "datetime",
         "secret": None,
@@ -108,6 +112,7 @@ async def test_webhook_endpoint_find_one(
         "failingSince": "2024-01-15T09:30:00Z",
         "eventTypes": ["message.received"],
         "accountIds": ["accountIds"],
+        "channels": ["WHATSAPP"],
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -121,6 +126,7 @@ async def test_webhook_endpoint_find_one(
         "failingSince": "datetime",
         "eventTypes": ("list", {0: None}),
         "accountIds": ("list", {0: None}),
+        "channels": ("list", {0: None}),
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }
@@ -159,6 +165,7 @@ async def test_webhook_endpoint_update(
         "failingSince": "2024-01-15T09:30:00Z",
         "eventTypes": ["message.received"],
         "accountIds": ["accountIds"],
+        "channels": ["WHATSAPP"],
         "createdAt": "2024-01-15T09:30:00Z",
         "updatedAt": "2024-01-15T09:30:00Z",
     }
@@ -172,6 +179,7 @@ async def test_webhook_endpoint_update(
         "failingSince": "datetime",
         "eventTypes": ("list", {0: None}),
         "accountIds": ("list", {0: None}),
+        "channels": ("list", {0: None}),
         "createdAt": "datetime",
         "updatedAt": "datetime",
     }

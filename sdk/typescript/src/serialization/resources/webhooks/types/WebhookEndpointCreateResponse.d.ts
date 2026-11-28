@@ -5,6 +5,7 @@ import * as serializers from "../../../index";
 import * as UnlimitedMessagingApi from "../../../../api/index";
 import * as core from "../../../../core";
 import { WebhookEndpointCreateResponseEventTypesItem } from "./WebhookEndpointCreateResponseEventTypesItem";
+import { WebhookEndpointCreateResponseChannelsItem } from "./WebhookEndpointCreateResponseChannelsItem";
 export declare const WebhookEndpointCreateResponse: core.serialization.ObjectSchema<serializers.WebhookEndpointCreateResponse.Raw, UnlimitedMessagingApi.WebhookEndpointCreateResponse>;
 export declare namespace WebhookEndpointCreateResponse {
     interface Raw {
@@ -17,6 +18,7 @@ export declare namespace WebhookEndpointCreateResponse {
         failingSince: string | null;
         eventTypes: WebhookEndpointCreateResponseEventTypesItem.Raw[];
         accountIds: string[];
+        channels: WebhookEndpointCreateResponseChannelsItem.Raw[];
         createdAt: string;
         updatedAt: string;
         secret: string;

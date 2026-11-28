@@ -24,8 +24,10 @@ export declare namespace Webhooks {
 }
 /**
  * Receive events as they happen instead of polling. Register an endpoint with `POST /webhooks`,
- * choosing its `eventTypes` and, optionally, the `accountIds` it covers (by default every account
- * you have, including ones linked later). Requires the Max plan.
+ * choosing its `eventTypes` and, optionally, which accounts it covers: `accountIds` names accounts,
+ * `channels` (`WHATSAPP`, `SMS`, `EMAIL`) covers every account on those channels, including ones
+ * added later. An event is delivered when its account is named OR is on one of the channels. With
+ * neither, every account you have is covered, including ones linked later. Requires the Max plan.
  *
  * ### Delivery
  *
@@ -328,7 +330,7 @@ export declare class Webhooks {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
      *
-     * Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to and the accounts it is scoped to (`accountIds`, empty for every account). Never includes the secret.
+     * Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to and the accounts and channels it is scoped to (`accountIds` and `channels`, both empty for every account). Never includes the secret.
      *
      * @param {Webhooks.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -343,7 +345,7 @@ export declare class Webhooks {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
      *
-     * Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires the Max plan.
+     * Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts, and/or `channels` to receive events about every account on those channels, including accounts added later. An event is delivered when its account is listed or is on one of the channels. With neither (or both empty), events from every account you have are delivered, including accounts linked later. The `secret` used to verify deliveries is only returned once, here - store it securely. Requires the Max plan.
      *
      * @param {UnlimitedMessagingApi.WebhookEndpointCreateRequest} request
      * @param {Webhooks.RequestOptions} requestOptions - Request-specific configuration.
@@ -399,7 +401,7 @@ export declare class Webhooks {
     /**
      * **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
      *
-     * Updates the URL, description, enabled state, subscribed event types and/or account scope. Omit a field to leave it unchanged. `accountIds` replaces the scope; `null` or `[]` clears it so every account is delivered again.
+     * Updates the URL, description, enabled state, subscribed event types and/or scope. Omit a field to leave it unchanged. `accountIds` and `channels` each replace their part of the scope; `null` or `[]` clears it, and with both cleared every account is delivered again.
      *
      * @param {string} id
      * @param {UnlimitedMessagingApi.WebhookEndpointUpdateRequest} request

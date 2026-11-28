@@ -12,6 +12,9 @@ from ..core.api_error import ApiError
 from .types.webhook_endpoint_create_request_event_types_item import (
     WebhookEndpointCreateRequestEventTypesItem,
 )
+from .types.webhook_endpoint_create_request_channels_item import (
+    WebhookEndpointCreateRequestChannelsItem,
+)
 from .types.webhook_endpoint_create_response import WebhookEndpointCreateResponse
 from ..errors.bad_request_error import BadRequestError
 from .types.webhook_endpoint_find_one_response import WebhookEndpointFindOneResponse
@@ -19,6 +22,9 @@ from ..core.jsonable_encoder import jsonable_encoder
 from ..errors.not_found_error import NotFoundError
 from .types.webhook_endpoint_update_request_event_types_item import (
     WebhookEndpointUpdateRequestEventTypesItem,
+)
+from .types.webhook_endpoint_update_request_channels_item import (
+    WebhookEndpointUpdateRequestChannelsItem,
 )
 from .types.webhook_endpoint_update_response import WebhookEndpointUpdateResponse
 from ..core.client_wrapper import AsyncClientWrapper
@@ -37,7 +43,7 @@ class WebhooksClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to and the accounts it is scoped to (`accountIds`, empty for every account). Never includes the secret.
+        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to and the accounts and channels it is scoped to (`accountIds` and `channels`, both empty for every account). Never includes the secret.
 
         Parameters
         ----------
@@ -104,12 +110,15 @@ class WebhooksClient:
         event_types: typing.Sequence[WebhookEndpointCreateRequestEventTypesItem],
         description: typing.Optional[str] = OMIT,
         account_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        channels: typing.Optional[
+            typing.Sequence[WebhookEndpointCreateRequestChannelsItem]
+        ] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookEndpointCreateResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires the Max plan.
+        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts, and/or `channels` to receive events about every account on those channels, including accounts added later. An event is delivered when its account is listed or is on one of the channels. With neither (or both empty), events from every account you have are delivered, including accounts linked later. The `secret` used to verify deliveries is only returned once, here - store it securely. Requires the Max plan.
 
         Parameters
         ----------
@@ -120,6 +129,8 @@ class WebhooksClient:
         description : typing.Optional[str]
 
         account_ids : typing.Optional[typing.Sequence[str]]
+
+        channels : typing.Optional[typing.Sequence[WebhookEndpointCreateRequestChannelsItem]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -149,6 +160,7 @@ class WebhooksClient:
                 "description": description,
                 "eventTypes": event_types,
                 "accountIds": account_ids,
+                "channels": channels,
             },
             request_options=request_options,
             omit=OMIT,
@@ -361,12 +373,15 @@ class WebhooksClient:
             typing.Sequence[WebhookEndpointUpdateRequestEventTypesItem]
         ] = OMIT,
         account_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        channels: typing.Optional[
+            typing.Sequence[WebhookEndpointUpdateRequestChannelsItem]
+        ] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookEndpointUpdateResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Updates the URL, description, enabled state, subscribed event types and/or account scope. Omit a field to leave it unchanged. `accountIds` replaces the scope; `null` or `[]` clears it so every account is delivered again.
+        Updates the URL, description, enabled state, subscribed event types and/or scope. Omit a field to leave it unchanged. `accountIds` and `channels` each replace their part of the scope; `null` or `[]` clears it, and with both cleared every account is delivered again.
 
         Parameters
         ----------
@@ -381,6 +396,8 @@ class WebhooksClient:
         event_types : typing.Optional[typing.Sequence[WebhookEndpointUpdateRequestEventTypesItem]]
 
         account_ids : typing.Optional[typing.Sequence[str]]
+
+        channels : typing.Optional[typing.Sequence[WebhookEndpointUpdateRequestChannelsItem]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -410,6 +427,7 @@ class WebhooksClient:
                 "enabled": enabled,
                 "eventTypes": event_types,
                 "accountIds": account_ids,
+                "channels": channels,
             },
             request_options=request_options,
             omit=OMIT,
@@ -479,7 +497,7 @@ class AsyncWebhooksClient:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:READ
 
-        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to and the accounts it is scoped to (`accountIds`, empty for every account). Never includes the secret.
+        Returns every webhook endpoint registered by the authenticated user, with the event types each one is subscribed to and the accounts and channels it is scoped to (`accountIds` and `channels`, both empty for every account). Never includes the secret.
 
         Parameters
         ----------
@@ -554,12 +572,15 @@ class AsyncWebhooksClient:
         event_types: typing.Sequence[WebhookEndpointCreateRequestEventTypesItem],
         description: typing.Optional[str] = OMIT,
         account_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        channels: typing.Optional[
+            typing.Sequence[WebhookEndpointCreateRequestChannelsItem]
+        ] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookEndpointCreateResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts (by default, and with an empty list, events from every account you have are delivered, including accounts linked later). The `secret` used to verify deliveries is only returned once, here - store it securely. Requires the Max plan.
+        Registers a URL to receive signed HTTP POST requests for the given event types. Pass `accountIds` to only receive events about those accounts, and/or `channels` to receive events about every account on those channels, including accounts added later. An event is delivered when its account is listed or is on one of the channels. With neither (or both empty), events from every account you have are delivered, including accounts linked later. The `secret` used to verify deliveries is only returned once, here - store it securely. Requires the Max plan.
 
         Parameters
         ----------
@@ -570,6 +591,8 @@ class AsyncWebhooksClient:
         description : typing.Optional[str]
 
         account_ids : typing.Optional[typing.Sequence[str]]
+
+        channels : typing.Optional[typing.Sequence[WebhookEndpointCreateRequestChannelsItem]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -607,6 +630,7 @@ class AsyncWebhooksClient:
                 "description": description,
                 "eventTypes": event_types,
                 "accountIds": account_ids,
+                "channels": channels,
             },
             request_options=request_options,
             omit=OMIT,
@@ -835,12 +859,15 @@ class AsyncWebhooksClient:
             typing.Sequence[WebhookEndpointUpdateRequestEventTypesItem]
         ] = OMIT,
         account_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        channels: typing.Optional[
+            typing.Sequence[WebhookEndpointUpdateRequestChannelsItem]
+        ] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> WebhookEndpointUpdateResponse:
         """
         **Protection**: Protected endpoint. Allowed roles: USER, ADMIN. Required scopes: OTHER:WRITE
 
-        Updates the URL, description, enabled state, subscribed event types and/or account scope. Omit a field to leave it unchanged. `accountIds` replaces the scope; `null` or `[]` clears it so every account is delivered again.
+        Updates the URL, description, enabled state, subscribed event types and/or scope. Omit a field to leave it unchanged. `accountIds` and `channels` each replace their part of the scope; `null` or `[]` clears it, and with both cleared every account is delivered again.
 
         Parameters
         ----------
@@ -855,6 +882,8 @@ class AsyncWebhooksClient:
         event_types : typing.Optional[typing.Sequence[WebhookEndpointUpdateRequestEventTypesItem]]
 
         account_ids : typing.Optional[typing.Sequence[str]]
+
+        channels : typing.Optional[typing.Sequence[WebhookEndpointUpdateRequestChannelsItem]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -892,6 +921,7 @@ class AsyncWebhooksClient:
                 "enabled": enabled,
                 "eventTypes": event_types,
                 "accountIds": account_ids,
+                "channels": channels,
             },
             request_options=request_options,
             omit=OMIT,

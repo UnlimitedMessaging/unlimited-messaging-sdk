@@ -12,6 +12,7 @@ export interface WebhookEndpointListResponseDataItem {
     failingSince: Date | null;
     eventTypes: UnlimitedMessagingApi.WebhookEndpointListResponseDataItemEventTypesItem[];
     accountIds: string[];
+    channels: UnlimitedMessagingApi.WebhookEndpointListResponseDataItemChannelsItem[];
     createdAt: Date;
     updatedAt: Date;
 }
