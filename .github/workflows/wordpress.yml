@@ -1,7 +1,7 @@
 name: WordPress plugin
 
-# The WordPress plugin (sdk/wordpress) is hand-written PHP, like the n8n node,
-# but released on its own: wordpress.org has its own version (Stable tag in
+# The WordPress plugin (sdk/wordpress) is hand-written PHP, released on its
+# own: wordpress.org has its own version (Stable tag in
 # readme.txt) and its own channel (SVN), so it stays out of release.yml and
 # its shared SDK version.
 #

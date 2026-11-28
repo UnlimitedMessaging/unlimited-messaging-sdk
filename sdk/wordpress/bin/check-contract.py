@@ -2,7 +2,7 @@
 """
 Checks that openapi.yaml still offers everything the WordPress plugin calls.
 
-The plugin is hand-written PHP (like the n8n node), not generated: it only
+The plugin is hand-written PHP (like the n8n node, which has its own repository), not generated: it only
 uses `GET /account` and `POST /message`. Nothing to regenerate when the spec
 changes, but a spec that renames or drops a field the plugin sends would
 silently break every shop. This runs in CI on every spec update and fails

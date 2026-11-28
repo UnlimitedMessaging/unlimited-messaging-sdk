@@ -16,7 +16,6 @@ Edit the version in the relevant file, then push to `main`. CI handles the rest.
 |---|---|---|
 | TypeScript SDK (`@unlimited-messaging/sdk`) | `sdk/typescript/package.json` | `"version"` |
 | Python SDK (`unlimited-messaging`) | `sdk/python/pyproject.toml` | `version` under `[project]` |
-| n8n node (`n8n-nodes-unlimited-messaging`) | `sdk/n8n/package.json` | `"version"` |
 
 Use [semver](https://semver.org): `MAJOR.MINOR.PATCH`
 
@@ -24,13 +23,13 @@ Use [semver](https://semver.org): `MAJOR.MINOR.PATCH`
 - **minor** (0.1.x → 0.2.0): new endpoint or feature, backwards-compatible
 - **major** (0.x.x → 1.0.0): breaking change
 
-You can bump one, two, or all three in the same commit.
+You can bump one or both in the same commit. The n8n node is released from its own repository, n8n-nodes-unlimited-messaging.
 
 ---
 
 ## What CI does on push to `main`
 
-For each of the 3 packages independently:
+For each of the 2 packages independently:
 
 - If `openapi.yaml` changed → auto-bump to `max(local_patch, remote_patch) + 1` and publish. The `max` prevents conflicts when two CI runs fire simultaneously (e.g. two openapi PRs merged back-to-back — the second run reads the patch already published by the first and increments past it).
 - If local version ≠ remote (manual bump) → publish as-is.
@@ -42,6 +41,5 @@ For each of the 3 packages independently:
 
 ```bash
 npm view @unlimited-messaging/sdk version
-npm view n8n-nodes-unlimited-messaging version
 pip index versions unlimited-messaging 2>/dev/null | head -1
 ```

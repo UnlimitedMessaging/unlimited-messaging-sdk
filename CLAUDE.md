@@ -124,6 +124,7 @@ Publishing is version-driven — bump the version manually to trigger a release.
 | ---------- | ----------------------------- | --------------------------- |
 | TypeScript | `sdk/typescript/package.json` | `"version"`                 |
 | Python     | `sdk/python/pyproject.toml`   | `version` under `[project]` |
-| n8n        | `sdk/n8n/package.json`        | `"version"`                 |
+
+The n8n node lives in its own repository ([n8n-nodes-unlimited-messaging](https://github.com/UnlimitedMessaging/n8n-nodes-unlimited-messaging)) since n8n's review requires one package per repository; it is versioned and published from there.
 
 The WordPress plugin (`sdk/wordpress`) is not part of this shared version: it has its own (`Stable tag` in its `readme.txt`), is released to wordpress.org SVN by `wordpress.yml`, and `release.yml` ignores changes under `sdk/wordpress/`. See `sdk/wordpress/README.md`.

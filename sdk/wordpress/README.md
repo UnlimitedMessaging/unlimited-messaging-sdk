@@ -7,7 +7,7 @@
 Forms) on WhatsApp, SMS and email through `POST /message`, with the shop's API
 key.
 
-Like the n8n node next to it, it is hand-written and a thin client of the
+Like the n8n node (its own repository), it is hand-written and a thin client of the
 public API: no logic lives here that the API should own. It only calls
 `GET /account` and `POST /message`, so nothing is generated from the spec;
 instead `bin/check-contract.py` checks on every spec sync that `openapi.yaml`
