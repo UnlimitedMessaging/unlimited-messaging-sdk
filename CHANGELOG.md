@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.37] - 2026-11-28
+
+*   **New request parameters:**
+    *   `POST /webhooks`: Added `channels` (array of `WHATSAPP`, `SMS`, `EMAIL`) to the request body, allowing event subscriptions to be scoped by channel.
+    *   `PATCH /webhooks/{id}`: Added `channels` (array of `WHATSAPP`, `SMS`, `EMAIL`, or `null`) to the request body, allowing dynamic updates to channel scope.
+
+*   **New response fields:**
+    *   `POST /webhooks` (200 OK): Added `channels` (array of `WHATSAPP`, `SMS`, `EMAIL`) to the `WebhookEndpoint` object.
+    *   `GET /webhooks` (200 OK): Added `channels` (array of `WHATSAPP`, `SMS`, `EMAIL`) to the `WebhookEndpoint` object within the response array.
+    *   `GET /webhooks/{id}` (200 OK): Added `channels` (array of `WHATSAPP`, `SMS`, `EMAIL`) to the `WebhookEndpoint` object.
+    *   `PATCH /webhooks/{id}` (200 OK): Added `channels` (array of `WHATSAPP`, `SMS`, `EMAIL`) to the `WebhookEndpoint` object.
+
 ## [0.1.36] - 2026-11-28
 
 SDK update.
