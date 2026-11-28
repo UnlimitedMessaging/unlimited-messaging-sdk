@@ -41,10 +41,8 @@ jobs:
           OPENAPI=false
           if grep -qx "openapi.yaml" <<< "$CHANGED"; then OPENAPI=true; fi
 
-          # Hand-written SDK code (the n8n node) changes without the spec ever
-          # moving. Previously nothing triggered a release for that, so such a
-          # change would sit in main, published nowhere, until an unrelated spec
-          # update happened to carry it out.
+          # A hand-written change under sdk/ (outside the generated code) must
+          # still release, even when the spec did not move.
           SOURCE=false
           # sdk/wordpress is released on its own (wordpress.yml, own version,
           # wordpress.org SVN): a plugin change must not republish the SDKs.
@@ -110,13 +108,6 @@ jobs:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: bash .github/workflows/_publish-python.sh
 
-      - name: Publish n8n node
-        id: n8n
-        if: steps.detect.outputs.should_release == 'true'
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: bash .github/workflows/_publish-n8n.sh
-
       - name: Commit regenerated SDKs and version bump
         if: steps.detect.outputs.should_release == 'true'
         run: |
@@ -134,7 +125,7 @@ jobs:
         run: |
           # The one version every package was just published at. Previously this
           # read the TypeScript SDK's package.json regardless of what actually
-          # shipped, so an n8n-only release reused the existing tag and failed.
+          # shipped, so a release that did not move it reused the existing tag and failed.
           echo "RELEASE_VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
           NOTES=""
 
@@ -205,9 +196,6 @@ jobs:
             fi
             if [ "${{ steps.python.outputs.published }}" = "true" ]; then
               echo "[unlimited-messaging@${{ steps.python.outputs.version }}](https://pypi.org/project/unlimited-messaging/${{ steps.python.outputs.version }}/)"
-            fi
-            if [ "${{ steps.n8n.outputs.published }}" = "true" ]; then
-              echo "[n8n-nodes-unlimited-messaging@${{ steps.n8n.outputs.version }}](https://www.npmjs.com/package/n8n-nodes-unlimited-messaging)"
             fi
             echo "EOFMARKER"
           } >> $GITHUB_OUTPUT

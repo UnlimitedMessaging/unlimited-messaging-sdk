@@ -1,4 +1,4 @@
-.PHONY: generate install install-py install-ts install-n8n build-n8n
+.PHONY: generate install install-py install-ts
 
 # Regenerate SDKs from openapi.yaml (requires Docker)
 generate:
@@ -6,16 +6,10 @@ generate:
 	cp scripts/typescript-package.json sdk/typescript/package.json
 
 # Install all SDKs locally for testing
-install: install-py install-ts install-n8n
+install: install-py install-ts
 
 install-py:
 	pip install -e ./sdk/python
 
 install-ts:
 	cd examples/typescript && npm install
-
-install-n8n:
-	cd sdk/n8n && npm install
-
-build-n8n: install-n8n
-	cd sdk/n8n && npm run build
